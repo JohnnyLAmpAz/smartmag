@@ -1,4 +1,4 @@
-package ingsw_proj_magazzino.db;
+package smartmag.db;
 
 import java.io.File;
 import java.io.IOException;
