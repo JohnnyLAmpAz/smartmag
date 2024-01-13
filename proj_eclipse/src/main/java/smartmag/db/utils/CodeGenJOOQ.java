@@ -1,4 +1,4 @@
-package ingsw_proj_magazzino.db.utils;
+package smartmag.db.utils;
 
 import org.jooq.codegen.GenerationTool;
 import org.jooq.meta.jaxb.Configuration;
@@ -7,7 +7,7 @@ import org.jooq.meta.jaxb.Generator;
 import org.jooq.meta.jaxb.Jdbc;
 import org.jooq.meta.jaxb.Target;
 
-import ingsw_proj_magazzino.db.Db;
+import smartmag.db.Db;
 
 public abstract class CodeGenJOOQ {
 
