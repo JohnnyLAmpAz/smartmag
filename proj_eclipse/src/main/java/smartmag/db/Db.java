@@ -9,13 +9,38 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.apache.commons.io.FileUtils;
+import org.jooq.DSLContext;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
 
 public class Db {
 
+	private Connection conn;
+	private DSLContext dslContext;
+
 	public static final String DB_FILE_PATH = "db/db.sqlite";
 	public static final String DB_URL = "jdbc:sqlite:" + DB_FILE_PATH;
+	public static final SQLDialect SQL_DIALECT = SQLDialect.SQLITE;
+	private static Db db;
 
-	// TODO singleton per la connessione al db
+	private Db() {
+
+		// Crea connessione al Db (se non esiste crealo)
+		try {
+			conn = DriverManager.getConnection(DB_URL);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		dslContext = DSL.using(conn, SQL_DIALECT);
+	}
+
+	public static Db getInstance() {
+		if (db == null)
+			return new Db();
+		return db;
+	}
 
 	/**
 	 * Si connette al database (se esiste, altrimenti lo crea ex-novo) ed esegue
@@ -29,8 +54,7 @@ public class Db {
 
 		Connection conn;
 		try {
-			// Crea connessione al Db (se non esiste crealo)
-			conn = DriverManager.getConnection(DB_URL);
+			conn = getInstance().getConn();
 
 			Statement stmt = conn.createStatement();
 
@@ -58,4 +82,11 @@ public class Db {
 		}
 	}
 
+	public Connection getConn() {
+		return conn;
+	}
+
+	public DSLContext getDslContext() {
+		return dslContext;
+	}
 }
