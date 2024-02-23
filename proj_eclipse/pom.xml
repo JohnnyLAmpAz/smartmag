@@ -61,13 +61,21 @@
 			<artifactId>commons-io</artifactId>
 			<version>2.15.1</version>
 		</dependency>
-		
+
 		<!-- JUnit -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.miglayout/miglayout-swing -->
+		<dependency>
+			<groupId>com.miglayout</groupId>
+			<artifactId>miglayout-swing</artifactId>
+			<version>11.3</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
