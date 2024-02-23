@@ -34,9 +34,9 @@ public class Utente {
 	 * 
 	 * @return validità dell'utente
 	 */
-	public boolean isvalid() {
+	public boolean isValid() {
 		
-		EnumSet<TipoUtente> enumset= EnumSet.allOf(TipoUtente.class);
+		EnumSet<TipoUtente> enumset = EnumSet.allOf(TipoUtente.class);
 		if(nome==null || cognome==null || matricola==null || password==null 
 				|| nome.isBlank()|| cognome.isBlank()|| password.isBlank()|| matricola.isBlank() || !enumset.contains(tipo) ) {
 			return false;
