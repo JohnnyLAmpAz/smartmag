@@ -1,4 +1,4 @@
-package smartmag;
+package smartmag.data;
 
 import java.util.EnumSet;
 import java.util.Objects;

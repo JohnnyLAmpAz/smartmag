@@ -1,4 +1,4 @@
-package smartmag;
+package smartmag.data;
 
 import java.util.Date;
 import java.util.HashMap;

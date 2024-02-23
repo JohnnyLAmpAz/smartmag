@@ -1,4 +1,4 @@
-package smartmag;
+package smartmag.data;
 
 public class Box {
 

@@ -1,4 +1,4 @@
-package smartmag;
+package smartmag.data;
 
 /**
  * Tipo ordine in entrata (rifornimento) o uscita

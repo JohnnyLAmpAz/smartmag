@@ -1,4 +1,4 @@
-package smartmag;
+package smartmag.data;
 
 /**
  * Rappresenta i tipi di utenti presenti in magazzino

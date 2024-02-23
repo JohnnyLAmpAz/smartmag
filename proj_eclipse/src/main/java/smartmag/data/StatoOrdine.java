@@ -1,4 +1,4 @@
-package smartmag;
+package smartmag.data;
 
 /**
  * Stato ordine
