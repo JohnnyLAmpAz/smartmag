@@ -2,8 +2,12 @@ package smartmag;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.Objects;
 
+/**
+ * Classe che rappresenta un Ordine di prodotti
+ */
 public class Ordine {
 
 	private int id;
@@ -20,6 +24,11 @@ public class Ordine {
 		this.stato = stato;
 		this.dataEmissione = dataEmissione;
 		this.dataCompletamento = dataCompletamento;
+	}
+
+	public Ordine(int id, TipoOrdine tipo, StatoOrdine stato,
+			Date dataEmissione) {
+		this(id, tipo, stato, dataEmissione, null);
 	}
 
 	public int getId() {
@@ -91,12 +100,50 @@ public class Ordine {
 				&& stato == other.stato && tipo == other.tipo;
 	}
 
+	/**
+	 * Verifica i requisiti di validità di un ordine: Id non negativo; tipo,
+	 * stato e data emissione non nulli; data completamento non nulla se ordine
+	 * completato; se comprende almeno un prodotto.
+	 * 
+	 * NON controlla se l'ID è già stato utilizzato o meno da altri ordini
+	 * 
+	 * @return validità dell'ordine
+	 */
 	public boolean isValid() {
 		if (id < 0 || tipo == null || stato == null || dataEmissione == null
 				|| (stato == StatoOrdine.COMPLETATO
-						&& dataCompletamento.after(new Date())))
+						&& dataCompletamento.after(new Date()))
+				|| prodotti == null || prodotti.size() < 1)
 			return false;
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		if (!isValid())
+			return super.toString();
+
+		String s = "Ordine #%d: %s [%s] del %s ".formatted(id, tipo.toString(),
+				stato.toString(), dataEmissione.toString());
+		if (prodotti != null) {
+			for (Entry<Prodotto, Integer> entry : prodotti.entrySet())
+				s += "(%d x %d)".formatted(entry.getValue(),
+						entry.getKey().getId());
+		}
+
+		if (dataCompletamento != null)
+			s += " " + dataCompletamento.toString();
+
+		return s;
+	}
+
+	public static void main(String[] args) {
+		Ordine o = new Ordine(0, TipoOrdine.IN, StatoOrdine.IN_ATTESA,
+				new Date());
+		HashMap<Prodotto, Integer> hm = new HashMap<Prodotto, Integer>();
+		hm.put(new Prodotto(12, null, null, 0, 0), 2);
+		hm.put(new Prodotto(25, null, null, 0, 0), 24);
+		o.setProdotti(hm);
+		System.out.println(o.toString());
+	}
 }
