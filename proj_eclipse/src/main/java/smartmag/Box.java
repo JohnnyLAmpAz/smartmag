@@ -1,7 +1,5 @@
 package smartmag;
 
-
-
 public class Box {
 
 	private String indirizzo;
