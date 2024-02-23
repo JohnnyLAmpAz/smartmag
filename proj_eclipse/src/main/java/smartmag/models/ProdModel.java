@@ -32,7 +32,7 @@ public class ProdModel {
 	}
 
 	public Prodotto getProdottoById(int id) {
-		Record r = fetchProdottoById(id);
+		Record r = fetchProdById(id);
 		return prodottoFromRecord(r);
 	}
 
@@ -44,17 +44,17 @@ public class ProdModel {
 	}
 
 	public void deleteProdotto(Prodotto p) {
-		ProdottoRecord r = (ProdottoRecord) fetchProdottoById(p.getId());
+		ProdottoRecord r = (ProdottoRecord) fetchProdById(p.getId());
 		r.delete(); // DELETE con UpdatableRecord
 	}
 
 	public void updateProdotto(Prodotto p) {
-		ProdottoRecord r = (ProdottoRecord) fetchProdottoById(p.getId());
+		ProdottoRecord r = (ProdottoRecord) fetchProdById(p.getId());
 		copyProdottoIntoRecord(p, r);
 		r.store(); // UPDATE con UpdatableRecord
 	}
 
-	private Record fetchProdottoById(int id) {
+	private Record fetchProdById(int id) {
 		Record r = dsl.select().from(PRODOTTO).where(PRODOTTO.ID.eq(id))
 				.fetchOne(); // SELECT
 		return r;
@@ -75,7 +75,8 @@ public class ProdModel {
 		Integer id = r.getValue(PRODOTTO.ID);
 		String nome = r.getValue(PRODOTTO.NOME);
 		String descr = r.getValue(PRODOTTO.DESCRIZIONE);
-		Float peso = r.getValue(PRODOTTO.PESO);
+		var val = r.getValue(PRODOTTO.PESO);
+		Float peso = val == null ? 0f : (Float) val;
 		Integer soglia = r.getValue(PRODOTTO.SOGLIA);
 		return new Prodotto(id, nome, descr, peso, soglia);
 	}

@@ -3,7 +3,10 @@ package smartmag.ui;
 import java.beans.PropertyChangeListener;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
 
+import javax.swing.InputVerifier;
+import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -20,6 +23,20 @@ public class ProdPanel extends JPanel {
 
 	// TODO: oggetto Prodotto da syncare
 
+	private static final NumberFormat integerFmt;
+	protected static final NumberFormat floatFmt;
+	private static final NonNegNumVerifier numVerifier;
+	static {
+		integerFmt = NumberFormat.getIntegerInstance();
+		integerFmt.setGroupingUsed(false); // Disabilito i separatori migliaia
+
+		floatFmt = new DecimalFormat("#0.0##");
+		floatFmt.setMinimumFractionDigits(1);
+		floatFmt.setMaximumFractionDigits(3);
+
+		numVerifier = new NonNegNumVerifier();
+	}
+
 	private JFormattedTextField ftfId;
 	private JTextField tfNome;
 	private JEditorPane editorDescr;
@@ -27,11 +44,11 @@ public class ProdPanel extends JPanel {
 	private JFormattedTextField ftfSoglia;
 
 	public ProdPanel() {
-		this(0, "", "", 1.5f, 0, true);
+		this(0, "", "", 0f, 0, true);
 	}
 
 	public ProdPanel(int initId) {
-		this(initId, "", "", 1.5f, 0, true);
+		this(initId, "", "", 0f, 0, true);
 	}
 
 	public ProdPanel(Prodotto p, boolean editable) {
@@ -39,7 +56,6 @@ public class ProdPanel extends JPanel {
 				editable);
 	}
 
-	// TODO: fix layout
 	private ProdPanel(int id, String nome, String descr, float peso, int soglia,
 			boolean editable) {
 		setLayout(new MigLayout("wrap 2", "[][100px:100px,grow]",
@@ -49,9 +65,8 @@ public class ProdPanel extends JPanel {
 		JLabel lblId = new JLabel("ID");
 		add(lblId, "alignx trailing");
 
-		NumberFormat integerFmt = NumberFormat.getIntegerInstance();
-		integerFmt.setGroupingUsed(false); // Disabilito i separatori migliaia
 		ftfId = new JFormattedTextField(integerFmt);
+		ftfId.setInputVerifier(numVerifier);
 		ftfId.setEditable(editable);
 		ftfId.setValue(id);
 		ftfId.setToolTipText("L'ID del prodotto; numero intero non negativo.");
@@ -70,6 +85,7 @@ public class ProdPanel extends JPanel {
 		add(tfNome, "growx");
 
 		// Descrizione
+		// TODO: fix layout
 		JLabel lblDescr = new JLabel("Descrizione");
 		add(lblDescr, "alignx trailing,aligny top");
 
@@ -87,11 +103,8 @@ public class ProdPanel extends JPanel {
 		JLabel lblPeso = new JLabel("Peso [kg]");
 		add(lblPeso, "alignx trailing");
 
-		DecimalFormat floatFmt = new DecimalFormat("#0.0##");
-		floatFmt.setDecimalSeparatorAlwaysShown(true);
-		floatFmt.setMinimumFractionDigits(1);
-		floatFmt.setMaximumFractionDigits(3);
 		ftfPeso = new JFormattedTextField(floatFmt);
+		ftfPeso.setInputVerifier(numVerifier);
 		ftfPeso.setEditable(editable);
 		ftfPeso.setValue(peso);
 		ftfPeso.setToolTipText("Peso del prodotto in kg.");
@@ -103,6 +116,7 @@ public class ProdPanel extends JPanel {
 		add(lblSoglia, "alignx trailing");
 
 		ftfSoglia = new JFormattedTextField(integerFmt);
+		ftfSoglia.setInputVerifier(numVerifier);
 		ftfSoglia.setEditable(editable);
 		ftfSoglia.setValue(soglia);
 		ftfSoglia.setToolTipText("Quantità minima desiderabile sotto la quale "
@@ -110,6 +124,14 @@ public class ProdPanel extends JPanel {
 		lblSoglia.setLabelFor(ftfSoglia);
 		add(ftfSoglia, "growx");
 
+	}
+
+	public void addIdValueChangeListener(PropertyChangeListener listener) {
+		ftfId.addPropertyChangeListener("value", listener);
+	}
+
+	public String getDescr() {
+		return editorDescr.getText();
 	}
 
 	public int getId() {
@@ -123,15 +145,19 @@ public class ProdPanel extends JPanel {
 		return tfNome.getText();
 	}
 
-	public String getDescr() {
-		return editorDescr.getText();
-	}
-
 	public float getPeso() {
 		var val = ftfPeso.getValue();
 		if (val instanceof Number f)
 			return f.floatValue();
 		return -1;
+	}
+
+	// TODO: ChangeEvent (uno solo) per tutti i campi così poi da valutare
+	// validità
+
+	public Prodotto getProdotto() {
+		return new Prodotto(getId(), getNome(), getDescr(), getPeso(),
+				getSoglia());
 	}
 
 	public int getSoglia() {
@@ -140,16 +166,18 @@ public class ProdPanel extends JPanel {
 			return i.intValue();
 		return -1;
 	}
+}
 
-	public Prodotto getProdotto() {
-		return new Prodotto(getId(), getNome(), getDescr(), getPeso(),
-				getSoglia());
+class NonNegNumVerifier extends InputVerifier {
+	@Override
+	public boolean verify(JComponent input) {
+		float n;
+		try {
+			n = ProdPanel.floatFmt.parse(((JTextField) input).getText())
+					.floatValue();
+		} catch (ParseException e) {
+			return false;
+		}
+		return n >= 0f;
 	}
-
-	public void addIdValueChangeListener(PropertyChangeListener listener) {
-		ftfId.addPropertyChangeListener("value", listener);
-	}
-
-	// TODO: ChangeEvent (uno solo) per tutti i campi così poi da valutare
-	// validità
 }

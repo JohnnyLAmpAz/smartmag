@@ -7,7 +7,7 @@ import javax.swing.table.AbstractTableModel;
 import smartmag.Prodotto;
 import smartmag.models.ProdModel;
 
-public class ProdottiTableModel extends AbstractTableModel {
+public class ProdTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -15,7 +15,10 @@ public class ProdottiTableModel extends AbstractTableModel {
 			"Soglia" };
 	private List<Prodotto> prodotti;
 
-	public ProdottiTableModel(ProdModel model) {
+	private ProdModel model;
+
+	public ProdTableModel(ProdModel model) {
+		this.model = model;
 		this.prodotti = model.getProdotti();
 	}
 
@@ -54,6 +57,11 @@ public class ProdottiTableModel extends AbstractTableModel {
 		return columnNames[column];
 	}
 
+	public void refreshData() {
+		this.prodotti = model.getProdotti();
+		fireTableDataChanged();
+	}
+
 	// TODO: maybe better ways?
 	public void addProd(Prodotto p) {
 		this.prodotti.add(p);
@@ -62,5 +70,16 @@ public class ProdottiTableModel extends AbstractTableModel {
 
 	public Prodotto getProdAt(int rowIndex) {
 		return prodotti.get(rowIndex);
+	}
+
+	public void deleteProdotto(int rowIndex) {
+		deleteProdotto(getProdAt(rowIndex));
+	}
+
+	public void deleteProdotto(Prodotto p) {
+
+		model.deleteProdotto(p);
+		prodotti.remove(p);
+		fireTableDataChanged();
 	}
 }
