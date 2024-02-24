@@ -26,8 +26,8 @@ public class ProductModel extends BaseModel {
 			} else {
 				return instances.get(p.getId());
 			}
-		}
-		return null;
+		} else
+			throw new IllegalArgumentException("Prodotto non valido!");
 	}
 
 	public boolean isSavedInDb() {

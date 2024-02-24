@@ -112,4 +112,9 @@ public class Prodotto {
 						.floatToIntBits(other.peso)
 				&& soglia == other.soglia;
 	}
+
+	public Prodotto clone() {
+		return new Prodotto(this.id, this.nome, this.descr, this.peso,
+				this.soglia);
+	}
 }
