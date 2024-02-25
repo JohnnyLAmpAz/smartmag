@@ -148,9 +148,9 @@ public class Ordine {
 		System.out.println(o.toString());
 	}
 
-	public void inserisciProdotto(Prodotto ord, int q) throws IOException {
-		if (ord.isValid() && q > 0)
-			prodotti.put(ord, q);
+	public void inserisciProdotto(Prodotto o, int q) throws IOException {
+		if (o.isValid() && q > 0)
+			prodotti.put(o, q);
 		else
 			throw new IOException("Prodotto non valido o quantità non <=0 ");
 	}

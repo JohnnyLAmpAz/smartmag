@@ -24,12 +24,12 @@ public class OrderModel extends BaseModel {
 	// Costruttore
 	private OrderModel(Ordine order) {
 		this.ordine = order;
-		this.orderRecord = fetchProdById(order.getId());
+		this.orderRecord = fetchOrderById(order.getId());
 	}
 
 	// aggiunte eccezione a causa delle conversioni
 	private void refresh() throws ParseException {
-		this.orderRecord = fetchProdById(ordine.getId());
+		this.orderRecord = fetchOrderById(ordine.getId());
 		if (this.orderRecord != null) {
 			Ordine o = ordineFromRecord(this.orderRecord);
 			this.orderRecord.setTipo(o.getTipo().name()); // aggiunto .name per
@@ -72,7 +72,7 @@ public class OrderModel extends BaseModel {
 			throw new SQLIntegrityConstraintViolationException(
 					"Ordine #" + o.getId() + " non esiste!");
 
-		orderRecord = (OrdineRecord) fetchProdById(o.getId());
+		orderRecord = (OrdineRecord) fetchOrderById(o.getId());
 		copyOrdineIntoRecord(o, orderRecord);
 		orderRecord.store(); // UPDATE con UpdatableRecord
 	}
@@ -101,7 +101,7 @@ public class OrderModel extends BaseModel {
 	}
 
 	// metodo che estrae dal DB il record ORDINE corrispondente all'id inserito
-	private static OrdineRecord fetchProdById(int id) {
+	private static OrdineRecord fetchOrderById(int id) {
 		OrdineRecord r = (OrdineRecord) DSL.select().from(ORDINE)
 				.where(ORDINE.ID.eq(id))
 				.fetchOne(); // SELECT
