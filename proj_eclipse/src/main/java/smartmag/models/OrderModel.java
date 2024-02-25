@@ -18,7 +18,6 @@ public class OrderModel extends BaseModel {
 
 	// l'integer nell'HashMap è l'id dell'ordine
 	private static HashMap<Integer, OrderModel> instances = new HashMap<Integer, OrderModel>();
-
 	private Ordine ordine;
 	private OrdineRecord orderRecord;
 
@@ -27,14 +26,6 @@ public class OrderModel extends BaseModel {
 		this.ordine = order;
 		this.orderRecord = fetchProdById(order.getId());
 	}
-
-	// variabili classe ordine:
-	// private int id;
-	// private TipoOrdine tipo;
-	// private StatoOrdine stato;
-	// private Date dataEmissione;
-	// private Date dataCompletamento;
-	// private HashMap<Prodotto, Integer> prodotti;
 
 	// aggiunte eccezione a causa delle conversioni
 	private void refresh() throws ParseException {
