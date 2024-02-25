@@ -31,7 +31,7 @@ public class ProductModel extends BaseModel {
 	}
 
 	public boolean isSavedInDb() {
-		refresh();
+		refreshFromDb();
 		return record != null;
 	}
 
@@ -72,14 +72,15 @@ public class ProductModel extends BaseModel {
 		// TODO: event
 	}
 
-	private void refresh() {
+	// Refresh (from DB) record and Prodotto obj
+	private void refreshFromDb() {
 		this.record = fetchProdById(prodotto.getId());
 		if (this.record != null) {
 			Prodotto p = prodottoFromRecord(this.record);
-			this.record.setNome(p.getNome());
-			this.record.setDescrizione(p.getDescr());
-			this.record.setPeso(p.getPeso());
-			this.record.setSoglia(p.getSoglia());
+			this.prodotto.setNome(p.getNome());
+			this.prodotto.setDescr(p.getDescr());
+			this.prodotto.setPeso(p.getPeso());
+			this.prodotto.setSoglia(p.getSoglia());
 		}
 
 		// TODO: event
@@ -106,8 +107,7 @@ public class ProductModel extends BaseModel {
 
 	private static ProdottoRecord fetchProdById(int id) {
 		ProdottoRecord r = (ProdottoRecord) DSL.select().from(PRODOTTO)
-				.where(PRODOTTO.ID.eq(id))
-				.fetchOne(); // SELECT
+				.where(PRODOTTO.ID.eq(id)).fetchOne(); // SELECT
 		return r;
 	}
 

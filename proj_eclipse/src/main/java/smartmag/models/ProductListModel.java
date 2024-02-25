@@ -25,7 +25,7 @@ public class ProductListModel extends BaseModel {
 	public ProductModel getProductModel(Prodotto p) {
 
 		if (lista.containsKey(p)) {
-			lista.get(p);
+			return lista.get(p);
 		}
 		throw new IllegalArgumentException(
 				"product model non presente in lista");
