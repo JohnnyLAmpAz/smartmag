@@ -19,26 +19,37 @@ public class Db {
 	private DSLContext dslContext;
 
 	public static final String DB_FILE_PATH = "db/db.sqlite";
-	public static final String DB_URL = "jdbc:sqlite:" + DB_FILE_PATH;
+	public static final String DB_URL_FISTPART = "jdbc:sqlite:";
 	public static final SQLDialect SQL_DIALECT = SQLDialect.SQLITE;
+	public static final String SQL_DDL_DB_FILE = "db/config/db_creation.sql";
+
 	private static Db db;
 
-	private Db() {
+	private Db(String dbPath) throws IOException {
 
 		// Crea connessione al Db (se non esiste crealo)
 		try {
-			conn = DriverManager.getConnection(DB_URL);
+			conn = DriverManager.getConnection(DB_URL_FISTPART + dbPath);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		dslContext = DSL.using(conn, SQL_DIALECT);
+
+		// Se non esiste il file del Db creane uno nuovo e il suo schema
+		if (!(new File(dbPath).exists())) {
+			executeSqlScript(SQL_DDL_DB_FILE);
+		}
 	}
 
-	public static Db getInstance() {
+	public static Db getInstance() throws IOException {
+		return getInstance(DB_FILE_PATH);
+	}
+
+	public static Db getInstance(String dbPath) throws IOException {
 		if (db == null)
-			return new Db();
+			return new Db(dbPath);
 		return db;
 	}
 
@@ -49,8 +60,7 @@ public class Db {
 	 * @param sqlScriptPath percorso del file contenente i comandi SQL
 	 * @throws IOException se si verifica un errore nella lettura del file
 	 */
-	public static void executeSqlScript(String sqlScriptPath)
-			throws IOException {
+	public void executeSqlScript(String sqlScriptPath) throws IOException {
 
 		Connection conn;
 		try {

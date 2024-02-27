@@ -12,7 +12,8 @@ import smartmag.db.Db;
 public abstract class CodeGenJOOQ {
 
 	public static void main(String[] args) throws Exception {
-		Jdbc JDBC = new Jdbc().withDriver("org.sqlite.JDBC").withUrl(Db.DB_URL);
+		Jdbc JDBC = new Jdbc().withDriver("org.sqlite.JDBC")
+				.withUrl(Db.DB_URL_FISTPART + Db.DB_FILE_PATH);
 		Database database = new Database()
 				.withName("org.jooq.meta.sqlite.SQLiteDatabase")
 				.withIncludes(".*").withExcludes("");

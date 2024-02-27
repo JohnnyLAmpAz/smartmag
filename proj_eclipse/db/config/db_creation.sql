@@ -37,7 +37,7 @@ CREATE TABLE "Utente" (
 	"matricola"	TEXT,
 	"nome"	TEXT NOT NULL,
 	"cognome"	TEXT NOT NULL,
-	"pwdHash"	TEXT NOT NULL,
+	"password"	TEXT NOT NULL,
 	"ruolo"	TEXT NOT NULL CHECK(ruolo IN ("MAGAZZ", "MAGAZZ_QUAL", "RESP_ORDINI", "MANAGER")),
 	PRIMARY KEY("matricola")
 );

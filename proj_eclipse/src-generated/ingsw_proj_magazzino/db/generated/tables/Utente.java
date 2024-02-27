@@ -69,9 +69,9 @@ public class Utente extends TableImpl<UtenteRecord> {
     public final TableField<UtenteRecord, String> COGNOME = createField(DSL.name("cognome"), SQLDataType.CLOB.nullable(false), this, "");
 
     /**
-     * The column <code>Utente.pwdHash</code>.
+     * The column <code>Utente.password</code>.
      */
-    public final TableField<UtenteRecord, String> PWDHASH = createField(DSL.name("pwdHash"), SQLDataType.CLOB.nullable(false), this, "");
+    public final TableField<UtenteRecord, String> PASSWORD = createField(DSL.name("password"), SQLDataType.CLOB.nullable(false), this, "");
 
     /**
      * The column <code>Utente.ruolo</code>.
