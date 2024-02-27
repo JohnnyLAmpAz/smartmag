@@ -111,7 +111,7 @@ public class ProductModel extends BaseModel {
 		return r;
 	}
 
-	private static Prodotto prodottoFromRecord(ProdottoRecord r) {
+	static Prodotto prodottoFromRecord(ProdottoRecord r) {
 		if (r == null)
 			return null;
 
