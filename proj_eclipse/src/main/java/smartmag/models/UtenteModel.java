@@ -19,7 +19,7 @@ public class UtenteModel extends BaseModel {
 	private UtenteRecord record;
 
 	private UtenteModel(Utente u) {
-		if (!u.isValid())
+		if (u == null || !u.isValid())
 			throw new IllegalArgumentException("Utente non valido!");
 		this.utente = u;
 		this.record = fetchUtenteByMatr(u.getMatricola());
@@ -95,21 +95,22 @@ public class UtenteModel extends BaseModel {
 	 * Ritorna l'unica istanza (singleton) del modello relativo ad un utente
 	 * specifico
 	 * 
-	 * @param u Utente
+	 * @param matr Utente
 	 * @return Modello
 	 */
-	public static UtenteModel getUtenteModelOf(Utente u) {
+	public static UtenteModel getUtenteModelOf(String matr) {
 
-		if (u != null && u.isValid()) {
-			if (!instances.containsKey(u.getMatricola())) {
-				UtenteModel um = new UtenteModel(u);
-				instances.put(u.getMatricola(), um);
+		if (matr != null && !matr.isBlank()) {
+			if (!instances.containsKey(matr)) {
+				UtenteRecord r = fetchUtenteByMatr(matr);
+				UtenteModel um = new UtenteModel(r);
+				instances.put(matr, um);
 				return um;
 			} else {
-				return instances.get(u.getMatricola());
+				return instances.get(matr);
 			}
 		} else
-			throw new IllegalArgumentException("Utente non valido!");
+			throw new IllegalArgumentException("Matricola non valida!");
 	}
 
 	private static Utente utenteFromRecord(UtenteRecord r) {
@@ -124,9 +125,13 @@ public class UtenteModel extends BaseModel {
 		r.setRuolo(u.getTipo().getRecordValue());
 	}
 
-	public static UtenteModel createUtente(Utente u) {
+	public static UtenteModel createUtente(Utente u)
+			throws IllegalArgumentException {
 		UtenteModel m = new UtenteModel(u);
+		if (m.isSavedInDb())
+			throw new IllegalArgumentException("Utente già registrato");
 		m.create();
+		instances.put(u.getMatricola(), m);
 		return m;
 	}
 
@@ -142,5 +147,13 @@ public class UtenteModel extends BaseModel {
 
 	public static void main(String[] args) {
 		System.out.println(login("m.rossi", "1234"));
+		UtenteModel m = UtenteModel.getUtenteModelOf("m.rossi");
+		System.out.println(m.utente);
+		m = UtenteModel.getUtenteModelOf("l.verdi");
+		m.delete();
+		m = UtenteModel.createUtente(new Utente("l.verdi", "Luigi", "Verdi",
+				"1234", TipoUtente.RESPONSABILE));
+		System.out.println(m == UtenteModel.getUtenteModelOf("l.verdi"));
+
 	}
 }
