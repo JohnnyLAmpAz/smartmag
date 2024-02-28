@@ -98,7 +98,7 @@ public class UtenteModel extends BaseModel {
 	 * @param u Utente
 	 * @return Modello
 	 */
-	public static UtenteModel getProductModelOf(Utente u) {
+	public static UtenteModel getUtenteModelOf(Utente u) {
 
 		if (u != null && u.isValid()) {
 			if (!instances.containsKey(u.getMatricola())) {
