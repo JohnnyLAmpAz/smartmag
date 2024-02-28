@@ -36,6 +36,7 @@ public class BoxModel extends BaseModel {
 			throw new IllegalArgumentException("box non valido");
 	}
 
+	// costruttore
 	private BoxModel(Box b) {
 		this.record = fetchBoxByIndirizzo(b.getIndirizzo());
 		this.box = b;
@@ -50,6 +51,7 @@ public class BoxModel extends BaseModel {
 		return box;
 	}
 
+	// metodo per settare il box
 	protected void setBox(Box b) {
 		if (b != null && b.isValid() && (DSL.select().from(PRODOTTO)
 				.where(PRODOTTO.ID.eq(b.getProd().getId())) != null)) {
@@ -83,15 +85,18 @@ public class BoxModel extends BaseModel {
 		// TODO: event
 	}
 
+	// metodo che permette di cambiare il prodotto di un box solo se il prodotto
+	// é effettivamente finito e il nuovo prodotto esiste nel db
 	public void cambiaProdotto(Prodotto p) {
 
-		if (box != null && box.isValid() && box.getQuantità() == 0) { // devo
-																		// controllare
-																		// sia
-																		// salvato
-																		// in
-																		// db?
-			if (p != null && p.isValid() && (DSL.select().from(PRODOTTO)
+		if (box != null && box.isValid() && box.getQuantità() == 0) {
+			if (p != null && p.isValid() && (DSL.select().from(PRODOTTO) // forse
+																			// basta
+																			// solo
+																			// ultimo
+																			// check
+																			// sul
+																			// prodotto
 					.where(PRODOTTO.ID.eq(p.getId()))) != null) {
 				box.setProd(p);
 			} else
@@ -105,12 +110,14 @@ public class BoxModel extends BaseModel {
 
 		int qi = this.box.getQuantità();
 		this.box.setQuantità(qi + quantita);
+		record.setQta(box.getQuantità());
 		record.update();
 	}
 
 	public void preleva(int qta) {
 		if (box.getQuantità() > qta) {
 			box.setQuantità(this.box.getQuantità() - qta);
+			record.setQta(box.getQuantità());
 			record.update();
 		} else {
 			throw new IllegalArgumentException(
@@ -120,6 +127,7 @@ public class BoxModel extends BaseModel {
 
 	public void setQuantita(int qta) {
 		this.box.setQuantità(qta);
+		record.setQta(box.getQuantità());
 		record.update();
 	}
 
