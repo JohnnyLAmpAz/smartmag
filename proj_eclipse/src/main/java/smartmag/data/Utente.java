@@ -41,8 +41,7 @@ public class Utente {
 		EnumSet<TipoUtente> enumset = EnumSet.allOf(TipoUtente.class);
 		if (nome == null || cognome == null || matricola == null
 				|| password == null || nome.isBlank() || cognome.isBlank()
-				|| password.isBlank() || matricola.isBlank()
-				|| !enumset.contains(tipo)) {
+				|| matricola.isBlank() || !enumset.contains(tipo)) {
 			return false;
 		}
 		return true;
