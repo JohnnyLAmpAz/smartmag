@@ -36,11 +36,7 @@ public class Db {
 		}
 
 		dslContext = DSL.using(conn, SQL_DIALECT);
-
-		// Se non esiste il file del Db creane uno nuovo e il suo schema
-		if (!(new File(dbPath).exists())) {
-			executeSqlScript(SQL_DDL_DB_FILE);
-		}
+		dslContext.fetch("SELECT 1"); // Force connection to load
 	}
 
 	public static Db getInstance() throws IOException {
@@ -48,8 +44,16 @@ public class Db {
 	}
 
 	public static Db getInstance(String dbPath) throws IOException {
-		if (db == null)
-			return new Db(dbPath);
+		// Singleton
+		if (db == null) {
+
+			boolean created = !(new File(dbPath).exists());
+			db = new Db(dbPath);
+
+			// Se non esisteva il file del Db, crea il suo schema
+			if (created)
+				db.executeSqlScript(SQL_DDL_DB_FILE);
+		}
 		return db;
 	}
 
@@ -62,9 +66,7 @@ public class Db {
 	 */
 	public void executeSqlScript(String sqlScriptPath) throws IOException {
 
-		Connection conn;
 		try {
-			conn = getInstance().getConn();
 
 			Statement stmt = conn.createStatement();
 
@@ -85,7 +87,6 @@ public class Db {
 			stmt.executeBatch();
 
 			stmt.close();
-			conn.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block (DB)
 			e.printStackTrace();

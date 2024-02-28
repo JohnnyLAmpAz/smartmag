@@ -57,11 +57,7 @@ public class UtenteModel extends BaseModel {
 	private void refreshFromDb() {
 		this.record = fetchUtenteByMatr(utente.getMatricola());
 		if (this.record != null) {
-			Utente u = utenteFromRecord(this.record);
-			this.utente.setNome(u.getNome());
-			this.utente.setCognome(u.getCognome());
-			this.utente.setPassword(u.getPassword());
-			this.utente.setTipo(u.getTipo());
+			this.utente = utenteFromRecord(this.record);
 		}
 
 		// TODO: event
@@ -103,6 +99,8 @@ public class UtenteModel extends BaseModel {
 		if (matr != null && !matr.isBlank()) {
 			if (!instances.containsKey(matr)) {
 				UtenteRecord r = fetchUtenteByMatr(matr);
+				if (r == null)
+					return null;
 				UtenteModel um = new UtenteModel(r);
 				instances.put(matr, um);
 				return um;
@@ -135,22 +133,26 @@ public class UtenteModel extends BaseModel {
 		return m;
 	}
 
-	public static TipoUtente login(String matricola, String password) {
-		loadAllUsers();
-		if (!instances.containsKey(matricola))
+	public static Utente login(String matricola, String password) {
+		UtenteModel um = getUtenteModelOf(matricola);
+		if (um == null)
 			return null;
-		Utente u = instances.get(matricola).utente;
-		if (!u.getPassword().equals(password))
+		um.refreshFromDb();
+		if (!um.isSavedInDb())
 			return null;
-		return u.getTipo();
+		if (!um.utente.getPassword().equals(password))
+			return null;
+		return um.utente;
 	}
 
 	public static void main(String[] args) {
 		System.out.println(login("m.rossi", "1234"));
 		UtenteModel m = UtenteModel.getUtenteModelOf("m.rossi");
-		System.out.println(m.utente);
+		if (m != null)
+			System.out.println(m.utente);
 		m = UtenteModel.getUtenteModelOf("l.verdi");
-		m.delete();
+		if (m != null)
+			m.delete();
 		m = UtenteModel.createUtente(new Utente("l.verdi", "Luigi", "Verdi",
 				"1234", TipoUtente.RESPONSABILE));
 		System.out.println(m == UtenteModel.getUtenteModelOf("l.verdi"));

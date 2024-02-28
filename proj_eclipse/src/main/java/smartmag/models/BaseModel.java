@@ -20,7 +20,7 @@ public abstract class BaseModel {
 		try {
 			DSL = Db.getInstance().getDslContext();
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new Error("Error occurred while reading DB file"); 
 		}
 	}
 
