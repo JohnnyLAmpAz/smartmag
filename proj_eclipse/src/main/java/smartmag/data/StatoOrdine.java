@@ -5,20 +5,17 @@ package smartmag.data;
  */
 public enum StatoOrdine {
 
-	IN_ATTESA, IN_SVOLGIMENTO, COMPLETATO;
+	IN_ATTESA("in_attesa"), IN_SVOLGIMENTO("in_svolgimento"),
+	COMPLETATO("completato");
+
+	private final String stato;
+
+	StatoOrdine(String s) {
+		this.stato = s;
+	}
 
 	@Override
 	public String toString() {
-		switch (this) {
-		case IN_ATTESA:
-			return "IN_ATTESA";
-		case IN_SVOLGIMENTO:
-			return "IN_SVOLGIMENTO";
-		case COMPLETATO:
-			return "COMPLETATO";
-		default:
-			throw new IllegalArgumentException();
-		}
+		return this.stato;
 	}
-
 }

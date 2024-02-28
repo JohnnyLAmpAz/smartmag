@@ -37,39 +37,16 @@ public class OrderModel extends BaseModel {
 		this.orderRecord = fetchOrderRecordById(order.getId());
 		// la prima volta che si crea il modello, poichè la lista dei prodotti è
 		// vuota, la prende dal db e la aggiorna anche nell'oggetto ordine
-		this.ordine.setProdotti(getListaProdottiFromDb());
+		this.ordine.setProdotti(getListaProdottiFromDb(order.getId()));
 		// aggiorno la lista dei prodottiOrdiniRecord
 		this.listaProdottiOrdiniRecord = fetchProductOrderRecordListByOrder(
 				order);
 	}
 
-	// aggiunte eccezioni a causa delle conversioni
-	private void refreshOrderFromDb() throws ParseException {
-		this.orderRecord = fetchOrderRecordById(ordine.getId());
-		if (this.orderRecord != null) {
-			Ordine o = ordineFromRecord(this.orderRecord);
-			this.ordine.setTipo(o.getTipo());
-			// convertire
-			// ENUM->String
-			this.ordine.setStato(o.getStato()); // aggiunto .name
-			// per convertire
-			// ENUM->String
-			this.ordine.setDataEmissione(o.getDataEmissione());
-			this.ordine.setDataCompletamento(o.getDataCompletamento());
-		}
-
-		// TODO: event
-	}
-
-	public boolean orderIsSavedInDb() throws ParseException {
-		refreshOrderFromDb();
-		return orderRecord != null;
-	}
-
-	// TODO public boolean productOrderIsSavedInDb(int idO, int idP) {
-	// }
-
-	public void createOrdine()
+	/**
+	 * Crea un nuovo record dell'ordine usando l'ordine del modello
+	 */
+	public void createOrdineRecord()
 			throws SQLIntegrityConstraintViolationException, ParseException {
 
 		if (orderIsSavedInDb())
@@ -85,6 +62,12 @@ public class OrderModel extends BaseModel {
 		// TODO: event
 	}
 
+	/**
+	 * Cerca se esiste il record dell'ordine, se esiste lo aggiorna utilizzando
+	 * i valori dell'ordine passato al metodo
+	 * 
+	 * @param o ordine del quale si vuole aggiornare il record
+	 */
 	public void updateOrdine(Ordine o)
 			throws SQLIntegrityConstraintViolationException, ParseException {
 		if (!orderIsSavedInDb())
@@ -96,21 +79,63 @@ public class OrderModel extends BaseModel {
 		orderRecord.store(); // UPDATE con UpdatableRecord
 	}
 
+	/**
+	 * Aggiorna lo stato dell'ordine sia nel record che nel parametro ordine che
+	 * è stato passato al metodo
+	 * 
+	 * @param o        ordine del quale si vuole modificare lo stato
+	 * @param newStato nuovo stato dell'ordine
+	 * @throws ParseException se newStato != ENUM
+	 */
+	public void updateStatoOrdine(Ordine o, String newStato)
+			throws SQLIntegrityConstraintViolationException, ParseException {
+		if (!orderIsSavedInDb())
+			throw new SQLIntegrityConstraintViolationException(
+					"Ordine #" + o.getId() + " non esiste!");
+
+		o.setStato(StatoOrdine.valueOf(newStato));
+		updateOrdine(o);
+	}
+
+	/**
+	 * cancella il record dell'ordine nel modello
+	 */
 	public void deleteOrdine() throws ParseException {
 		if (orderIsSavedInDb()) {
 			orderRecord.delete(); // DELETE con UpdatableRecord
 		}
 	}
 
-	public boolean productOrderIsSavedInDb(int idO, int idP) {
-		for (ProdottiordiniRecord por : listaProdottiOrdiniRecord) {
-			if (idO == por.getProd() && idP == por.getProd())
-				return true;
+	/**
+	 * Aggiorna l'ordine prendendo i dati dal record di quell'ordine
+	 */
+	// aggiunte eccezioni a causa delle conversioni
+	private void refreshOrderFromDb() throws ParseException {
+		this.orderRecord = fetchOrderRecordById(ordine.getId());
+		if (this.orderRecord != null) {
+			Ordine o = ordineFromRecord(this.orderRecord);
+			this.ordine.setTipo(o.getTipo());
+			this.ordine.setStato(o.getStato());
+			this.ordine.setDataEmissione(o.getDataEmissione());
+			this.ordine.setDataCompletamento(o.getDataCompletamento());
 		}
-		return false;
+		// TODO: event
 	}
 
-	public void createProdottoOrdine() {
+	/**
+	 * Controlla che ci sia un record di quell'ordine nel DB
+	 * 
+	 * @return ritorna 1 se è presente e 0 se non esiste
+	 */
+	public boolean orderIsSavedInDb() throws ParseException {
+		refreshOrderFromDb();
+		return orderRecord != null;
+	}
+
+	/**
+	 * crea un nuovo record di prodottoOrdine
+	 */
+	public void createProdottoOrdineRecord() {
 		HashMap<Prodotto, Integer> prodotti = ordine.getProdotti();
 
 		for (Map.Entry<Prodotto, Integer> entry : prodotti.entrySet()) {
@@ -123,10 +148,15 @@ public class OrderModel extends BaseModel {
 		}
 	}
 
+	/**
+	 * Aggiorna la quantità nel record prodottoOrdine
+	 * 
+	 * @param o   ordine
+	 * @param p   prodotto
+	 * @param qta nuova quantità da inserire nel record
+	 */
 	public void updateQtaProdottoOrdine(Ordine o, Prodotto p, int qta)
 			throws SQLIntegrityConstraintViolationException, ParseException {
-		// TODO metodo prodottoOrdineIsSavedInDb da fare !!!
-		// TODO metodo refreshProductOrderFromDb
 		if (!productOrderIsSavedInDb(o.getId(), p.getId()))
 			throw new SQLIntegrityConstraintViolationException(
 					"Ordine #" + o.getId() + " non esiste!");
@@ -139,9 +169,15 @@ public class OrderModel extends BaseModel {
 		por.store(); // UPDATE con UpdatableRecord
 	}
 
-	public void deleteProductOrder(Ordine o, Prodotto p) throws ParseException {
-		// TODO metodo prodottoOrdineIsSavedInDb da fare !!!
-		// TODO metodo refreshProductOrderFromDb
+	/**
+	 * Cancella il record ProdottoOrdine relativo all'ordine e al prodotto
+	 * passati al metodo
+	 * 
+	 * @param o ordine
+	 * @param p prodotto
+	 */
+	public void deleteProdottoOrdine(Ordine o, Prodotto p)
+			throws ParseException {
 		if (!productOrderIsSavedInDb(o.getId(), p.getId())) {
 			ProdottiordiniRecord por = (ProdottiordiniRecord) fetchProductOrderRecordById(
 					o.getId(), p.getId());
@@ -149,9 +185,29 @@ public class OrderModel extends BaseModel {
 		}
 	}
 
-	// Static methods ======
+	/**
+	 * Verifica che il record relativo a quel prodottoOrdine esista per farlo ha
+	 * bisogno dell'id ordine e dell' id prodotto
+	 * 
+	 * @param idO identificativo dell'ordine
+	 * @param idP identificativo del prodotto
+	 * @return ritorna vero se esiste
+	 */
+	public boolean productOrderIsSavedInDb(int idO, int idP) {
+		for (ProdottiordiniRecord por : listaProdottiOrdiniRecord) {
+			if (idO == por.getProd() && idP == por.getProd())
+				return true;
+		}
+		return false;
+	}
 
-	// restituisce il modello
+	// Static methods for order ======
+	/**
+	 * Restituisce il modello dell'ordine che è stato passato al metodo
+	 * 
+	 * @param o ordine del quale si vuole ottenere il modello
+	 * @return modello dell'ordine
+	 */
 	private static OrderModel getOrderModelOf(Ordine o) {
 
 		if (o != null && o.isValid()) {
@@ -166,7 +222,12 @@ public class OrderModel extends BaseModel {
 			throw new IllegalArgumentException("Ordine non valido!");
 	}
 
-	// metodo che estrae dal DB il record ORDINE corrispondente all'id inserito
+	/**
+	 * Estrae dal DB il record ORDINE corrispondente all'id inserito
+	 * 
+	 * @param id identificativo dell'ordine
+	 * @return
+	 */
 	private static OrdineRecord fetchOrderRecordById(int id) {
 		OrdineRecord r = (OrdineRecord) DSL.select().from(ORDINE)
 				.where(ORDINE.ID.eq(id))
@@ -174,47 +235,12 @@ public class OrderModel extends BaseModel {
 		return r;
 	}
 
-	private static ProdottiordiniRecord fetchProductOrderRecordById(int idO,
-			int idP) {
-
-		ProdottiordiniRecord r = (ProdottiordiniRecord) DSL.select()
-				.from(PRODOTTIORDINI)
-				.where(PRODOTTIORDINI.ORDINE.eq(idO)
-						.and(PRODOTTIORDINI.PROD.eq(idP)))
-				.fetchOne(); // SELECT
-		return r;
-	}
-
-	private static ArrayList<ProdottiordiniRecord> fetchProductOrderRecordListByOrder(
-			Ordine o) {
-		HashMap<Prodotto, Integer> prodotti = o.getProdotti();
-		Prodotto p;
-		ArrayList<ProdottiordiniRecord> lista = new ArrayList<>();
-
-		for (Map.Entry<Prodotto, Integer> entry : prodotti.entrySet()) {
-			p = entry.getKey();
-			lista.add(fetchProductOrderRecordById(o.getId(), p.getId()));
-		}
-		return lista;
-	}
-
-	private static HashMap<Prodotto, Integer> getListaProdottiFromDb() {
-		Result<Record> result = DSL.select().from(PRODOTTIORDINI).fetch();
-		HashMap<Prodotto, Integer> prodotti = new HashMap<>();
-		ProdottoRecord pr;
-		Prodotto p;
-
-		for (Record r : result) {
-			ProdottiordiniRecord por = r.into(ProdottiordiniRecord.class);
-			pr = ProductModel.fetchProdById(por.getProd());
-			p = ProductModel.prodottoFromRecord(pr);
-			prodotti.put(p, por.getQta());
-		}
-
-		return prodotti;
-	}
-
-	// restituisce un ordine partendo dal suo record
+	/**
+	 * Restituisce un ordine partendo dal suo record
+	 * 
+	 * @param r record dell'ordine
+	 * @return ritorna l'oggetto ordine
+	 */
 	private static Ordine ordineFromRecord(OrdineRecord r)
 			throws ParseException {
 		if (r == null)
@@ -231,6 +257,13 @@ public class OrderModel extends BaseModel {
 		return new Ordine(id, tipo, stato, dataEmissione, dataCompletamento);
 	}
 
+	/**
+	 * Copia i valori contenuti nell'ordine all'interno del record di
+	 * quell'ordine (tranne id)
+	 * 
+	 * @param o ordine
+	 * @param r record dell'ordine
+	 */
 	private static void copyOrdineIntoRecord(Ordine o, OrdineRecord r) {
 		r.setTipo(o.getTipo().name());
 		r.setStato(o.getStato().name());
@@ -238,6 +271,27 @@ public class OrderModel extends BaseModel {
 		r.setDataco(o.getDataCompletamento().toString());
 	}
 
+	/**
+	 * Ritorna un id per l'ordine che non è presente nel DB
+	 * 
+	 * @return
+	 */
+	private static int getNextAvailableOrderId() {
+		Integer max = DSL.select(max(ORDINE.ID)).from(ORDINE).fetchOne()
+				.value1();
+		if (max == null)
+			return 0;
+		return max + 1;
+	}
+
+	/**
+	 * Copia i valori di ordine,prodotto e quantità nel record prodottiOrdine
+	 * 
+	 * @param o   ordine
+	 * @param p   prodotto
+	 * @param qta quantità
+	 * @param r   prodottiOrdiniRecord
+	 */
 	private static void copyProdOrderIntoRecord(Ordine o, Prodotto p, int qta,
 			ProdottiordiniRecord r) {
 		r.setOrdine(o.getId());
@@ -245,13 +299,64 @@ public class OrderModel extends BaseModel {
 		r.setQta(qta);
 	}
 
-	// incrementa id ordine
-	private static int getNextAvailableOrderId() {
-		Integer max = DSL.select(max(ORDINE.ID)).from(ORDINE).fetchOne()
-				.value1();
-		if (max == null)
-			return 0;
-		return max + 1;
+	// Static methods for productOrder ======
+
+	/**
+	 * Cerca nel DB e restituisce la lista di tutti i prodotti relativi
+	 * all'ordine del quale si è passato l'id al metodo
+	 */
+	private static HashMap<Prodotto, Integer> getListaProdottiFromDb(int id) {
+		Result<Record> result = DSL.select().from(PRODOTTIORDINI)
+				.where(ORDINE.ID.eq(id)).fetch();
+		HashMap<Prodotto, Integer> prodotti = new HashMap<>();
+		ProdottoRecord pr;
+		Prodotto p;
+
+		for (Record r : result) {
+			ProdottiordiniRecord por = r.into(ProdottiordiniRecord.class);
+			pr = ProductModel.fetchProdById(por.getProd());
+			p = ProductModel.prodottoFromRecord(pr);
+			prodotti.put(p, por.getQta());
+		}
+		return prodotti;
+	}
+
+	/**
+	 * Ritorna la lista di tutti i record di ProdottiOrdini presenti nel DB
+	 * relativi all'ordine passato al metodo
+	 * 
+	 * @param o ordine del quale si vuole ottenere la lista dei record
+	 *          ProdottiOrdini
+	 */
+	private static ArrayList<ProdottiordiniRecord> fetchProductOrderRecordListByOrder(
+			Ordine o) {
+		HashMap<Prodotto, Integer> prodotti = o.getProdotti();
+		Prodotto p;
+		ArrayList<ProdottiordiniRecord> lista = new ArrayList<>();
+
+		for (Map.Entry<Prodotto, Integer> entry : prodotti.entrySet()) {
+			p = entry.getKey();
+			lista.add(fetchProductOrderRecordById(o.getId(), p.getId()));
+		}
+		return lista;
+	}
+
+	/**
+	 * Restituisce il record di prodottiOrdini relativo a id ordine e prodotto
+	 * passati al metodo
+	 * 
+	 * @param idO identificativo dell'ordine
+	 * @param idP identificativo del prodotto
+	 */
+	private static ProdottiordiniRecord fetchProductOrderRecordById(int idO,
+			int idP) {
+
+		ProdottiordiniRecord r = (ProdottiordiniRecord) DSL.select()
+				.from(PRODOTTIORDINI)
+				.where(PRODOTTIORDINI.ORDINE.eq(idO)
+						.and(PRODOTTIORDINI.PROD.eq(idP)))
+				.fetchOne(); // SELECT
+		return r;
 	}
 
 }
