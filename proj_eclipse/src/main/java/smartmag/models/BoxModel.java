@@ -3,6 +3,7 @@ package smartmag.models;
 import static ingsw_proj_magazzino.db.generated.Tables.BOX;
 import static ingsw_proj_magazzino.db.generated.Tables.PRODOTTO;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.HashMap;
 
 import ingsw_proj_magazzino.db.generated.tables.records.BoxRecord;
@@ -16,6 +17,13 @@ public class BoxModel extends BaseModel {
 	private Box box;
 	private BoxRecord record;
 
+	/**
+	 * restituisce il modello del box passato come parametro e lo salva
+	 * all'interno dell'hashmap che contiene i modelli di tutti i box
+	 * 
+	 * @param b box del quale si vuole ottenere il modello
+	 * @return modello del box
+	 */
 	public static BoxModel getBoxModel(Box b) {
 		if (b != null && b.isValid()) {
 			if (!instances.containsKey(b.getIndirizzo())) {
@@ -36,22 +44,35 @@ public class BoxModel extends BaseModel {
 			throw new IllegalArgumentException("box non valido");
 	}
 
-	// costruttore
+	/**
+	 * metodo costruttore della classe BoxModel
+	 * 
+	 * @param b box del quale si vuole generare il modello
+	 */
 	private BoxModel(Box b) {
 		this.record = fetchBoxByIndirizzo(b.getIndirizzo());
 		this.box = b;
 	}
 
+	/**
+	 * controlla che ci sia un record del box nel db
+	 * 
+	 * @return true se é presente, false se non lo é
+	 */
 	public boolean isSavedInDb() {
 		refreshFromDb();
 		return record != null;
 	}
 
+	/**
+	 * restituisce l'oggetto Box rappresentato dal modello
+	 * 
+	 * @return
+	 */
 	protected Box getBox() {
 		return box;
 	}
 
-	// metodo per settare il box
 	protected void setBox(Box b) {
 		if (b != null && b.isValid() && (DSL.select().from(PRODOTTO)
 				.where(PRODOTTO.ID.eq(b.getProd().getId())) != null)) {
@@ -65,7 +86,18 @@ public class BoxModel extends BaseModel {
 		return record;
 	}
 
-	public void createBox() {
+	/**
+	 * permette di creare il record del box nel database, solo se non é giá
+	 * presente
+	 * 
+	 * @throws SQLIntegrityConstraintViolationException se il record é giá
+	 *                                                  presente nel db
+	 */
+	public void createBox() throws SQLIntegrityConstraintViolationException {
+		if (isSavedInDb()) {
+			throw new SQLIntegrityConstraintViolationException(
+					"il box#" + box.getIndirizzo() + " esiste giá");
+		}
 		BoxRecord r = DSL.newRecord(BOX);
 		r.setId(box.getIndirizzo());
 		copyBoxIntoRecord(box, r);
@@ -73,6 +105,10 @@ public class BoxModel extends BaseModel {
 		this.record = r;
 	}
 
+	/**
+	 * aggiorna i dati del record e del box del modello usando quelli presenti
+	 * nel db
+	 */
 	private void refreshFromDb() {
 		this.record = fetchBoxByIndirizzo(box.getIndirizzo());
 		if (this.record != null) {
@@ -85,18 +121,17 @@ public class BoxModel extends BaseModel {
 		// TODO: event
 	}
 
-	// metodo che permette di cambiare il prodotto di un box solo se il prodotto
-	// é effettivamente finito e il nuovo prodotto esiste nel db
+	/**
+	 * permette di cambiare il prodotto di un box solo se il prodotto giá
+	 * presente nel box é effettivamente finito e il nuovo prodotto esiste nel
+	 * db
+	 * 
+	 * @param p nuovo prodotto da assegnare al box
+	 */
 	public void cambiaProdotto(Prodotto p) {
 
 		if (box != null && box.isValid() && box.getQuantità() == 0) {
-			if (p != null && p.isValid() && (DSL.select().from(PRODOTTO) // forse
-																			// basta
-																			// solo
-																			// ultimo
-																			// check
-																			// sul
-																			// prodotto
+			if (p != null && p.isValid() && (DSL.select().from(PRODOTTO)
 					.where(PRODOTTO.ID.eq(p.getId()))) != null) {
 				box.setProd(p);
 			} else
@@ -106,6 +141,20 @@ public class BoxModel extends BaseModel {
 					"attenzione: il box deve essere valido e vuoto");
 	}
 
+	/**
+	 * cancella il record dell'ordine
+	 */
+	public void deleteRecord() {
+		if (isSavedInDb()) {
+			record.delete();
+		}
+	}
+
+	/**
+	 * incrementa la quantita di prodotto in un box
+	 * 
+	 * @param quantita numero di unita di prodotto aggiunte
+	 */
 	public void rifornisci(int quantita) {
 
 		int qi = this.box.getQuantità();
@@ -114,6 +163,12 @@ public class BoxModel extends BaseModel {
 		record.update();
 	}
 
+	/**
+	 * diminuisce la quantita di prodotto in un box solo se la richiesta puo
+	 * essere soddisfatta
+	 * 
+	 * @param qta numero di unita di prodotto da prelevare
+	 */
 	public void preleva(int qta) {
 		if (box.getQuantità() > qta) {
 			box.setQuantità(this.box.getQuantità() - qta);
@@ -125,6 +180,11 @@ public class BoxModel extends BaseModel {
 		}
 	}
 
+	/**
+	 * imposta la quantita di prodotto alla quantita passata come parametro
+	 * 
+	 * @param qta
+	 */
 	public void setQuantita(int qta) {
 		this.box.setQuantità(qta);
 		record.setQta(box.getQuantità());
@@ -133,12 +193,25 @@ public class BoxModel extends BaseModel {
 
 	// metodi statici
 
+	/**
+	 * recupera dal db il record relativo al box corrispondente all'indirizzo
+	 * inserito
+	 * 
+	 * @param indirizzo identificativo del box
+	 * @return
+	 */
 	private static BoxRecord fetchBoxByIndirizzo(String indirizzo) {
 		BoxRecord r = (BoxRecord) DSL.select().from(BOX)
 				.where(BOX.ID.eq(indirizzo)).fetchOne(); // SELECT
 		return r;
 	}
 
+	/**
+	 * retituisce un oggetto Box a partire dal suo record
+	 * 
+	 * @param r record del box
+	 * @return oggetto Box
+	 */
 	private static Box boxFromRecord(BoxRecord r) {
 		if (r == null)
 			return null;
@@ -152,6 +225,12 @@ public class BoxModel extends BaseModel {
 		return new Box(indirizzo, qta, p);
 	}
 
+	/**
+	 * imposta i valori del record prendendoli dal rispettivo oggetto Box
+	 * 
+	 * @param b Box da cui vengono presi i valori
+	 * @param r record in cui vengono salvati i valori
+	 */
 	private static void copyBoxIntoRecord(Box b, BoxRecord r) {
 		if (DSL.select().from(PRODOTTO)
 				.where(PRODOTTO.ID.eq(b.getProd().getId())) != null) {
