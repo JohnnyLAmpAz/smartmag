@@ -31,7 +31,13 @@ public class OrderModel extends BaseModel {
 	private OrdineRecord orderRecord;
 	private ArrayList<ProdottiordiniRecord> listaProdottiOrdiniRecord;
 
-	// Costruttore
+	/**
+	 * Metodo costruttore per la classe OrderModel. Costruisce il modello
+	 * partendo da un ordine e lo salva all'interno di un hashMap che contiene
+	 * tutti i modelli degli ordini
+	 * 
+	 * @param order ordine del quale si vuole generare il modello
+	 */
 	private OrderModel(Ordine order) {
 		this.ordine = order;
 		this.orderRecord = fetchOrderRecordById(order.getId());
@@ -41,6 +47,8 @@ public class OrderModel extends BaseModel {
 		// aggiorno la lista dei prodottiOrdiniRecord
 		this.listaProdottiOrdiniRecord = fetchProductOrderRecordListByOrder(
 				order);
+		if (!instances.containsKey(order))
+			instances.put(order.getId(), this); // carico OrderModel in hashmap
 	}
 
 	/**
