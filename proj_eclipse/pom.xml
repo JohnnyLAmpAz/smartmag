@@ -11,7 +11,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.source>21</maven.compiler.source>
 		<maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
 	</properties>
 
@@ -76,6 +76,25 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.2.1</version>
 			</plugin>
+			<plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src-generated/</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 </project>
