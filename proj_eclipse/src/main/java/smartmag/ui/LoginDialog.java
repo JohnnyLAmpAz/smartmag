@@ -1,4 +1,4 @@
-package smartmag;
+package smartmag.ui;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
