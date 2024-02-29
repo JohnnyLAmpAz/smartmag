@@ -1,5 +1,7 @@
 package smartmag.models;
 
+import java.io.IOException;
+
 import org.jooq.DSLContext;
 
 import smartmag.db.Db;
@@ -13,6 +15,13 @@ public abstract class BaseModel {
 	/**
 	 * DSL di jOOQ per interagire col DB.
 	 */
-	protected static final DSLContext DSL = Db.getInstance().getDslContext();
+	protected static DSLContext DSL;
+	static {
+		try {
+			DSL = Db.getInstance().getDslContext();
+		} catch (IOException e) {
+			throw new Error("Error occurred while reading DB file"); 
+		}
+	}
 
 }
