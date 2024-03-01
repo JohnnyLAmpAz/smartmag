@@ -2,8 +2,8 @@ package smartmag.models;
 
 import static ingsw_proj_magazzino.db.generated.Tables.UTENTE;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.jooq.Record;
 
@@ -11,9 +11,16 @@ import ingsw_proj_magazzino.db.generated.tables.records.UtenteRecord;
 import smartmag.data.TipoUtente;
 import smartmag.data.Utente;
 
+/**
+ * Modello degli Utenti
+ */
 public class UtenteModel extends BaseModel {
 
-	private static final HashMap<String, UtenteModel> instances = new HashMap<String, UtenteModel>();
+	/**
+	 * Mappa delle istanze dei modelli per implementare pattern Singleton per
+	 * ciascun utente (no + istanze modello di uno stesso utente)
+	 */
+	private static final TreeMap<String, UtenteModel> instances = loadAllUsers();
 
 	private Utente utente;
 	private UtenteRecord record;
@@ -77,8 +84,8 @@ public class UtenteModel extends BaseModel {
 		return r;
 	}
 
-	private static HashMap<String, UtenteModel> loadAllUsers() {
-		HashMap<String, UtenteModel> map = new HashMap<String, UtenteModel>();
+	private static TreeMap<String, UtenteModel> loadAllUsers() {
+		TreeMap<String, UtenteModel> map = new TreeMap<String, UtenteModel>();
 		Map<String, Record> res = DSL.select().from(UTENTE)
 				.fetchMap(UTENTE.MATRICOLA);
 		res.forEach(
