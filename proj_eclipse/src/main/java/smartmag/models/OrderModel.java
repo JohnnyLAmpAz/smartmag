@@ -54,7 +54,7 @@ public class OrderModel extends BaseModel {
 	/**
 	 * Crea un nuovo record dell'ordine usando l'ordine del modello
 	 */
-	public void createOrdineRecord()
+	private void createOrdineRecord()
 			throws SQLIntegrityConstraintViolationException, ParseException {
 
 		if (orderIsSavedInDb())
@@ -87,6 +87,18 @@ public class OrderModel extends BaseModel {
 		orderRecord.store(); // UPDATE con UpdatableRecord
 	}
 
+	public void inserisciProdotto(Prodotto p, int q)
+			throws SQLIntegrityConstraintViolationException {
+
+		getListaProdottiFromDb(this.ordine.getId());
+
+		if (p.isValid() && q > 0) {
+			createProdottoOrdineRecord(p, q);
+		} else
+			throw new SQLIntegrityConstraintViolationException(
+					"Ordine #" + p.getId() + " prodotto non valido o qta < 0");
+	}
+
 	/**
 	 * Aggiorna lo stato dell'ordine sia nel record che nel parametro ordine che
 	 * è stato passato al metodo
@@ -95,7 +107,7 @@ public class OrderModel extends BaseModel {
 	 * @param newStato nuovo stato dell'ordine
 	 * @throws ParseException se newStato != ENUM
 	 */
-	public void updateStatoOrdine(Ordine o, String newStato)
+	protected void updateStatoOrdine(Ordine o, String newStato)
 			throws SQLIntegrityConstraintViolationException, ParseException {
 		if (!orderIsSavedInDb())
 			throw new SQLIntegrityConstraintViolationException(
@@ -103,6 +115,11 @@ public class OrderModel extends BaseModel {
 
 		o.setStato(StatoOrdine.valueOf(newStato));
 		updateOrdine(o);
+	}
+
+	// TODO Dopo avere il modello di movimentazione controlla le disponibilità
+	// e permetti di cambiare lo stato dell'ordine
+	public void setStatoInSvolgimento() {
 	}
 
 	/**
@@ -121,11 +138,12 @@ public class OrderModel extends BaseModel {
 	private void refreshOrderFromDb() throws ParseException {
 		this.orderRecord = fetchOrderRecordById(ordine.getId());
 		if (this.orderRecord != null) {
-			Ordine o = ordineFromRecord(this.orderRecord);
+			Ordine o = ordineFromOrdineRecord(this.orderRecord);
 			this.ordine.setTipo(o.getTipo());
 			this.ordine.setStato(o.getStato());
 			this.ordine.setDataEmissione(o.getDataEmissione());
 			this.ordine.setDataCompletamento(o.getDataCompletamento());
+			this.ordine.setProdotti(o.getProdotti());
 		}
 		// TODO: event
 	}
@@ -141,9 +159,10 @@ public class OrderModel extends BaseModel {
 	}
 
 	/**
-	 * crea un nuovo record di prodottoOrdine
+	 * crea un nuovo record di prodottoOrdine ottenendo i prodotti e le quantità
+	 * dall'ordine del modello
 	 */
-	public void createProdottoOrdineRecord() {
+	private void createProdottoOrdineRecord() {
 		HashMap<Prodotto, Integer> prodotti = ordine.getProdotti();
 
 		for (Map.Entry<Prodotto, Integer> entry : prodotti.entrySet()) {
@@ -157,38 +176,52 @@ public class OrderModel extends BaseModel {
 	}
 
 	/**
+	 * crea un nuovo record di prodottoOrdine dai prodotti e dalle quantità
+	 * passate al metodo
+	 * 
+	 * @param p   prodotto da aggiungere al record
+	 * @param qta quantità da aggiungere al record
+	 */
+	private void createProdottoOrdineRecord(Prodotto p, int qta) {
+		ProdottiordiniRecord por = DSL.newRecord(PRODOTTIORDINI);
+		copyProdOrderIntoRecord(this.ordine, p, qta, por);
+		por.store();
+		this.listaProdottiOrdiniRecord.add(por);
+	}
+
+	/**
 	 * Aggiorna la quantità nel record prodottoOrdine
 	 * 
 	 * @param o   ordine
 	 * @param p   prodotto
 	 * @param qta nuova quantità da inserire nel record
 	 */
-	public void updateQtaProdottoOrdine(Ordine o, Prodotto p, int qta)
+	public void updateQtaProdottoOrdine(Prodotto p, int qta)
 			throws SQLIntegrityConstraintViolationException, ParseException {
-		if (!productOrderIsSavedInDb(o.getId(), p.getId()))
+		if (!productOrderIsSavedInDb(p.getId()))
 			throw new SQLIntegrityConstraintViolationException(
-					"Ordine #" + o.getId() + " non esiste!");
+					"Ordine #" + this.ordine.getId() + " non esiste!");
 
 		ProdottiordiniRecord por = (ProdottiordiniRecord) fetchProductOrderRecordById(
-				o.getId(), p.getId());
+				this.ordine.getId(), p.getId());
 		int index = this.listaProdottiOrdiniRecord.indexOf(por);
 		this.listaProdottiOrdiniRecord.set(index, por);
-		copyProdOrderIntoRecord(o, p, qta, por);
+		copyProdOrderIntoRecord(this.ordine, p, qta, por);
 		por.store(); // UPDATE con UpdatableRecord
 	}
 
 	/**
-	 * Cancella il record ProdottoOrdine relativo all'ordine e al prodotto
-	 * passati al metodo
+	 * Cancella il record ProdottoOrdine relativo al prodotto dell'ordine
+	 * passato al metodo
 	 * 
 	 * @param o ordine
 	 * @param p prodotto
 	 */
-	public void deleteProdottoOrdine(Ordine o, Prodotto p)
+	public void deleteProdottoOrdine(Prodotto p)
 			throws ParseException {
-		if (!productOrderIsSavedInDb(o.getId(), p.getId())) {
+		if (!productOrderIsSavedInDb(p.getId())) {
 			ProdottiordiniRecord por = (ProdottiordiniRecord) fetchProductOrderRecordById(
-					o.getId(), p.getId());
+					this.ordine.getId(), p.getId());
 			por.delete();
 		}
 	}
@@ -201,9 +234,9 @@ public class OrderModel extends BaseModel {
 	 * @param idP identificativo del prodotto
 	 * @return ritorna vero se esiste
 	 */
-	public boolean productOrderIsSavedInDb(int idO, int idP) {
+	public boolean productOrderIsSavedInDb(int idP) {
 		for (ProdottiordiniRecord por : listaProdottiOrdiniRecord) {
-			if (idO == por.getProd() && idP == por.getProd())
+			if (this.ordine.getId() == por.getProd() && idP == por.getProd())
 				return true;
 		}
 		return false;
@@ -216,7 +249,7 @@ public class OrderModel extends BaseModel {
 	 * @param o ordine del quale si vuole ottenere il modello
 	 * @return modello dell'ordine
 	 */
-	private static OrderModel getOrderModelOf(Ordine o) {
+	public static OrderModel getOrderModelOf(Ordine o) {
 
 		if (o != null && o.isValid()) {
 			if (!instances.containsKey(o.getId())) {
@@ -249,7 +282,7 @@ public class OrderModel extends BaseModel {
 	 * @param r record dell'ordine
 	 * @return ritorna l'oggetto ordine
 	 */
-	private static Ordine ordineFromRecord(OrdineRecord r)
+	private static Ordine ordineFromOrdineRecord(OrdineRecord r)
 			throws ParseException {
 		if (r == null)
 			return null;
@@ -365,6 +398,21 @@ public class OrderModel extends BaseModel {
 						.and(PRODOTTIORDINI.PROD.eq(idP)))
 				.fetchOne(); // SELECT
 		return r;
+	}
+
+	/**
+	 * Crea il modello dell'ordine se non esiste già, inoltre crea sia il record
+	 * dell'ordine che il record di prodottoOrdine
+	 * 
+	 * @param o ordine del quale si vuole creare il modello
+	 * @return ritorna il modello dell'ordine appena creato
+	 */
+	public static OrderModel create(Ordine o)
+			throws SQLIntegrityConstraintViolationException, ParseException {
+		OrderModel om = getOrderModelOf(o);
+		om.createOrdineRecord();
+		om.createProdottoOrdineRecord();
+		return om;
 	}
 
 }

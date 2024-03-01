@@ -5,8 +5,8 @@ package smartmag.data;
  */
 public enum StatoOrdine {
 
-	IN_ATTESA("in_attesa"), IN_SVOLGIMENTO("in_svolgimento"),
-	COMPLETATO("completato");
+	IN_ATTESA("IN_ATTESA"), IN_SVOLGIMENTO("IN_SVOLGIMENTO"),
+	COMPLETATO("COMPLETATO");
 
 	private final String stato;
 

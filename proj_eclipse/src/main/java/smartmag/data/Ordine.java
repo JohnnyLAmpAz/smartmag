@@ -1,6 +1,5 @@
 package smartmag.data;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -147,12 +146,5 @@ public class Ordine {
 		hm.put(new Prodotto(25, null, null, 0, 0), 24);
 		o.setProdotti(hm);
 		System.out.println(o.toString());
-	}
-
-	public void inserisciProdotto(Prodotto o, int q) throws IOException {
-		if (o.isValid() && q > 0)
-			prodotti.put(o, q);
-		else
-			throw new IOException("Prodotto non valido o quantità non <=0 ");
 	}
 }
