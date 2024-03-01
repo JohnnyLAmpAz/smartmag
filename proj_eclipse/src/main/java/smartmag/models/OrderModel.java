@@ -282,20 +282,25 @@ public class OrderModel extends BaseModel {
 	 * @param r record dell'ordine
 	 * @return ritorna l'oggetto ordine
 	 */
-	private static Ordine ordineFromOrdineRecord(OrdineRecord r)
+	private static Ordine ordineFromOrdineRecord(OrdineRecord or)
 			throws ParseException {
-		if (r == null)
+		if (or == null)
 			return null;
 
-		Integer id = r.getId();
+		Integer id = or.getId();
 
-		TipoOrdine tipo = TipoOrdine.valueOf(r.getTipo());
-		StatoOrdine stato = StatoOrdine.valueOf(r.getStato());
+		TipoOrdine tipo = TipoOrdine.valueOf(or.getTipo());
+		StatoOrdine stato = StatoOrdine.valueOf(or.getStato());
 		Date dataEmissione = new SimpleDateFormat("dd/MM/yyy")
-				.parse(r.getDataem());
+				.parse(or.getDataem());
 		Date dataCompletamento = new SimpleDateFormat("dd/MM/yyy")
-				.parse(r.getDataco());
-		return new Ordine(id, tipo, stato, dataEmissione, dataCompletamento);
+				.parse(or.getDataco());
+		HashMap<Prodotto, Integer> listaProdotti = getListaProdottiFromDb(
+				or.getId());
+		Ordine ord = new Ordine(id, tipo, stato, dataEmissione,
+				dataCompletamento);
+		ord.setProdotti(listaProdotti);
+		return ord;
 	}
 
 	/**
