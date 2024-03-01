@@ -20,7 +20,7 @@ public class UtenteModel extends BaseModel {
 	 * Mappa delle istanze dei modelli per implementare pattern Singleton per
 	 * ciascun utente (no + istanze modello di uno stesso utente)
 	 */
-	private static final TreeMap<String, UtenteModel> instances = loadAllUsers();
+	private static final TreeMap<String, UtenteModel> instances = fetchAllUsers();
 
 	private Utente utente;
 	private UtenteRecord record;
@@ -84,13 +84,12 @@ public class UtenteModel extends BaseModel {
 		return r;
 	}
 
-	private static TreeMap<String, UtenteModel> loadAllUsers() {
+	private static TreeMap<String, UtenteModel> fetchAllUsers() {
 		TreeMap<String, UtenteModel> map = new TreeMap<String, UtenteModel>();
 		Map<String, Record> res = DSL.select().from(UTENTE)
 				.fetchMap(UTENTE.MATRICOLA);
 		res.forEach(
 				(matr, r) -> map.put(matr, new UtenteModel((UtenteRecord) r)));
-		instances.putAll(map);
 		return map;
 	}
 
