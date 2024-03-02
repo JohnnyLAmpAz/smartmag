@@ -5,9 +5,6 @@ package smartmag.data;
  */
 public enum TipoOrdine {
 
-<<<<<<< Updated upstream
-	IN, OUT;
-=======
 	IN("IN"), OUT("OUT");
 
 	private final String tipo;
@@ -20,5 +17,5 @@ public enum TipoOrdine {
 	public String toString() {
 		return this.tipo;
 	}
->>>>>>> Stashed changes
+
 }
