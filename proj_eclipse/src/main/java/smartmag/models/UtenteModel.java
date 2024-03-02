@@ -20,7 +20,14 @@ public class UtenteModel extends BaseModel {
 	 * Mappa delle istanze dei modelli per implementare pattern Singleton per
 	 * ciascun utente (no + istanze modello di uno stesso utente)
 	 */
-	private static final TreeMap<String, UtenteModel> instances = fetchAllUsers();
+	private static final TreeMap<String, UtenteModel> instances;
+	static {
+		instances = new TreeMap<String, UtenteModel>();
+		Map<String, Record> res = DSL.select().from(UTENTE)
+				.fetchMap(UTENTE.MATRICOLA);
+		res.forEach((matr, r) -> instances.put(matr,
+				new UtenteModel((UtenteRecord) r)));
+	}
 
 	private Utente utente;
 	private UtenteRecord record;
@@ -34,12 +41,21 @@ public class UtenteModel extends BaseModel {
 	}
 
 	private UtenteModel(Utente u, UtenteRecord ur) {
+
+		if (u == null) {
+			if (ur == null) {
+				throw new IllegalArgumentException("UtenteRecord nullo!");
+			}
+			u = utenteFromRecord(ur);
+		} else if (ur == null) {
+			if (u == null || !u.isValid())
+				throw new IllegalArgumentException("Utente nullo!");
+			ur = fetchUtenteByMatr(u.getMatricola());
+		}
+
 		if (instances.containsKey(u.getMatricola()))
 			throw new IllegalArgumentException("Modello già creato!");
-		if (u == null || !u.isValid())
-			throw new IllegalArgumentException("Utente non valido!");
-		if (ur == null)
-			throw new IllegalArgumentException("UtenteRecord non valido!");
+
 		this.utente = u;
 		this.record = ur;
 		instances.put(u.getMatricola(), this);
@@ -99,15 +115,6 @@ public class UtenteModel extends BaseModel {
 		return r;
 	}
 
-	private static TreeMap<String, UtenteModel> fetchAllUsers() {
-		TreeMap<String, UtenteModel> map = new TreeMap<String, UtenteModel>();
-		Map<String, Record> res = DSL.select().from(UTENTE)
-				.fetchMap(UTENTE.MATRICOLA);
-		res.forEach(
-				(matr, r) -> map.put(matr, new UtenteModel((UtenteRecord) r)));
-		return map;
-	}
-
 	/**
 	 * Ritorna l'unica istanza (singleton) del modello relativo ad un utente
 	 * specifico
@@ -145,7 +152,9 @@ public class UtenteModel extends BaseModel {
 
 	public static UtenteModel createUtente(Utente u)
 			throws IllegalArgumentException {
-		UtenteModel m = new UtenteModel(u);
+		UtenteModel m = getUtenteModelOf(u.getMatricola());
+		if (m == null)
+			m = new UtenteModel(u);
 		if (m.isSavedInDb())
 			throw new IllegalArgumentException("Utente già registrato");
 		m.create();
@@ -164,7 +173,20 @@ public class UtenteModel extends BaseModel {
 		return um.utente;
 	}
 
+	/**
+	 * Restituisce una TreeMap di tutti i modelli degli utenti come copia di
+	 * instances
+	 */
+	@SuppressWarnings("unchecked")
+	public static TreeMap<String, UtenteModel> getAllUserModels() {
+		return (TreeMap<String, UtenteModel>) instances.clone();
+	}
+
 	public static void main(String[] args) {
+
+		UtenteModel.getAllUserModels()
+				.forEach((matr, um) -> System.out.println(um.getUtente()));
+
 		System.out.println(login("m.rossi", "1234"));
 		UtenteModel m = UtenteModel.getUtenteModelOf("m.rossi");
 		if (m != null)
