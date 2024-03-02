@@ -8,23 +8,30 @@ import java.util.Objects;
 /**
  * Classe che rappresenta un Ordine di prodotti
  */
-public class Ordine {
+public class Ordine implements Comparable<Ordine> {
 
 	private int id;
 	private TipoOrdine tipo;
 	private StatoOrdine stato;
 	private Date dataEmissione;
 	private Date dataCompletamento;
-	// nella hashmap l'integer assegnato a ciascun prodotto è la quantità!
 	private HashMap<Prodotto, Integer> prodotti;
 
 	public Ordine(int id, TipoOrdine tipo, StatoOrdine stato,
-			Date dataEmissione, Date dataCompletamento) {
+			Date dataEmissione, Date dataCompletamento,
+			HashMap<Prodotto, Integer> prodotti) {
 		this.id = id;
 		this.tipo = tipo;
 		this.stato = stato;
 		this.dataEmissione = dataEmissione;
 		this.dataCompletamento = dataCompletamento;
+		this.prodotti = prodotti;
+	}
+
+	public Ordine(int id, TipoOrdine tipo, StatoOrdine stato,
+			Date dataEmissione, Date dataCompletamento) {
+		this(id, tipo, stato, dataEmissione, dataCompletamento, null);
+
 	}
 
 	public Ordine(int id, TipoOrdine tipo, StatoOrdine stato,
@@ -147,4 +154,26 @@ public class Ordine {
 		o.setProdotti(hm);
 		System.out.println(o.toString());
 	}
+
+	@Override
+	public int compareTo(Ordine o) {
+		return Integer.compare(id, o.getId());
+	}
+
+	public Ordine clone() {
+
+		Ordine o = new Ordine(id, tipo, stato, null, null, null);
+
+		if (dataEmissione != null)
+			o.setDataEmissione((Date) dataEmissione.clone());
+
+		if (dataCompletamento != null)
+			o.setDataCompletamento((Date) dataCompletamento.clone());
+
+		if (prodotti != null)
+			o.setProdotti((HashMap<Prodotto, Integer>) prodotti.clone());
+
+		return o;
+	}
+
 }

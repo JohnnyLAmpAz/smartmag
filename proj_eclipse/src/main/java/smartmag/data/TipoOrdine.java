@@ -5,17 +5,20 @@ package smartmag.data;
  */
 public enum TipoOrdine {
 
+<<<<<<< Updated upstream
 	IN, OUT;
+=======
+	IN("IN"), OUT("OUT");
+
+	private final String tipo;
+
+	TipoOrdine(String s) {
+		this.tipo = s;
+	}
 
 	@Override
 	public String toString() {
-		switch (this) {
-		case IN:
-			return "IN";
-		case OUT:
-			return "OUT";
-		default:
-			throw new IllegalArgumentException();
-		}
+		return this.tipo;
 	}
+>>>>>>> Stashed changes
 }
