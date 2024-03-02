@@ -64,16 +64,16 @@ public class UtenteRecord extends UpdatableRecordImpl<UtenteRecord> implements R
     }
 
     /**
-     * Setter for <code>Utente.pwdHash</code>.
+     * Setter for <code>Utente.password</code>.
      */
-    public void setPwdhash(String value) {
+    public void setPassword(String value) {
         set(3, value);
     }
 
     /**
-     * Getter for <code>Utente.pwdHash</code>.
+     * Getter for <code>Utente.password</code>.
      */
-    public String getPwdhash() {
+    public String getPassword() {
         return (String) get(3);
     }
 
@@ -131,7 +131,7 @@ public class UtenteRecord extends UpdatableRecordImpl<UtenteRecord> implements R
 
     @Override
     public Field<String> field4() {
-        return Utente.UTENTE.PWDHASH;
+        return Utente.UTENTE.PASSWORD;
     }
 
     @Override
@@ -156,7 +156,7 @@ public class UtenteRecord extends UpdatableRecordImpl<UtenteRecord> implements R
 
     @Override
     public String component4() {
-        return getPwdhash();
+        return getPassword();
     }
 
     @Override
@@ -181,7 +181,7 @@ public class UtenteRecord extends UpdatableRecordImpl<UtenteRecord> implements R
 
     @Override
     public String value4() {
-        return getPwdhash();
+        return getPassword();
     }
 
     @Override
@@ -209,7 +209,7 @@ public class UtenteRecord extends UpdatableRecordImpl<UtenteRecord> implements R
 
     @Override
     public UtenteRecord value4(String value) {
-        setPwdhash(value);
+        setPassword(value);
         return this;
     }
 
@@ -243,13 +243,13 @@ public class UtenteRecord extends UpdatableRecordImpl<UtenteRecord> implements R
     /**
      * Create a detached, initialised UtenteRecord
      */
-    public UtenteRecord(String matricola, String nome, String cognome, String pwdhash, String ruolo) {
+    public UtenteRecord(String matricola, String nome, String cognome, String password, String ruolo) {
         super(Utente.UTENTE);
 
         setMatricola(matricola);
         setNome(nome);
         setCognome(cognome);
-        setPwdhash(pwdhash);
+        setPassword(password);
         setRuolo(ruolo);
         resetChangedOnNotNull();
     }

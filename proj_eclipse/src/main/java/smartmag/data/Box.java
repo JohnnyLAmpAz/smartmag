@@ -6,11 +6,11 @@ public class Box {
 
 	private String indirizzo;
 	private Prodotto prodotto;
-	private int quantità;
+	private int quantita;
 
 	public Box(String indirizzo, int quantità, Prodotto prodotto) {
 		this.indirizzo = indirizzo;
-		this.quantità = quantità;
+		this.quantita = quantità;
 		this.prodotto = prodotto;
 	}
 
@@ -31,16 +31,16 @@ public class Box {
 	}
 
 	public int getQuantità() {
-		return quantità;
+		return quantita;
 	}
 
-	public void setQuantità(int quantità) {
-		this.quantità = quantità;
+	public void setQuantità(int quantita) {
+		this.quantita = quantita;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(indirizzo, prodotto, quantità);
+		return Objects.hash(indirizzo, prodotto, quantita);
 	}
 
 	@Override
@@ -54,21 +54,23 @@ public class Box {
 		Box other = (Box) obj;
 		return Objects.equals(indirizzo, other.indirizzo)
 				&& Objects.equals(prodotto, other.prodotto)
-				&& quantità == other.quantità;
+				&& quantita == other.quantita;
 	}
 
 	@Override
 	public String toString() {
 		return "Box [indirizzo=" + indirizzo + ", prodotto=" + prodotto
-				+ ", quantità=" + quantità + "]";
+				+ ", quantità=" + quantita + "]";
 	}
 
 	public Boolean isValid() {
-		String[] parti = indirizzo.split("-");
-		if (parti.length == 3 && parti[0].matches("[a-zA-Z]+")
-				&& parti[1].matches("\\d+") && parti[2].matches("\\d+"))
-			if (this.quantità > 0 && this.prodotto != null)
+		String regexInd = "^[A-Z]+(-([1-9]\\d*|0)){2}$";
+		if (indirizzo != null && indirizzo.matches(regexInd) && quantita >= 0) {
+			if (prodotto != null && prodotto.isValid())
 				return true;
+			if (prodotto == null && quantita == 0)
+				return true;
+		}
 		return false;
 	}
 }

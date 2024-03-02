@@ -5,5 +5,17 @@ package smartmag.data;
  */
 public enum TipoOrdine {
 
-	IN, OUT;
+	IN("IN"), OUT("OUT");
+
+	private final String tipo;
+
+	TipoOrdine(String s) {
+		this.tipo = s;
+	}
+
+	@Override
+	public String toString() {
+		return this.tipo;
+	}
+
 }

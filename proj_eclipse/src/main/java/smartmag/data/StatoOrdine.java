@@ -5,5 +5,17 @@ package smartmag.data;
  */
 public enum StatoOrdine {
 
-	IN_ATTESA, IN_SVOLGIMENTO, COMPLETATO;
+	IN_ATTESA("IN_ATTESA"), IN_SVOLGIMENTO("IN_SVOLGIMENTO"),
+	COMPLETATO("COMPLETATO");
+
+	private final String stato;
+
+	StatoOrdine(String s) {
+		this.stato = s;
+	}
+
+	@Override
+	public String toString() {
+		return this.stato;
+	}
 }
