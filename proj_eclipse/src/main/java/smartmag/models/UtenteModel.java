@@ -59,6 +59,15 @@ public class UtenteModel extends BaseModel {
 	}
 
 	/**
+	 * Restituisce una copia dell'oggetto Utente legato al record
+	 * 
+	 * @return copia dell'Utente
+	 */
+	public Utente getUtente() {
+		return utente.clone();
+	}
+
+	/**
 	 * Refreshes content of Utente from DB
 	 */
 	private void refreshFromDb() {

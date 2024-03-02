@@ -121,4 +121,11 @@ public class Utente implements Comparable<Utente> {
 		return this.matricola.compareTo(o.matricola);
 	}
 
+	@Override
+	public Utente clone() {
+
+		// Sono tutti immutable (stringhe ed enum)
+		return new Utente(matricola, nome, cognome, password, tipo);
+	}
+
 }
