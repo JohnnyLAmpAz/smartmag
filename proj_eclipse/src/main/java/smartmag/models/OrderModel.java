@@ -157,7 +157,7 @@ public class OrderModel extends BaseModel {
 	 * DELETE ON CASCADE, cancella anche i record id prodotti ordini
 	 */
 	@SuppressWarnings("unlikely-arg-type")
-	public void deleteOrdine() throws ParseException {
+	public void deleteRecords() throws ParseException {
 		if (orderIsSavedInDb()) {
 			orderRecord.delete(); // DELETE con UpdatableRecord
 			instances.remove(getOrderModelOf(ordine));

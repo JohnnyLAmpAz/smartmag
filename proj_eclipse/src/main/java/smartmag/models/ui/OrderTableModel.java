@@ -69,6 +69,29 @@ public class OrderTableModel extends AbstractTableModel
 		}
 	}
 
+	/**
+	 * Restituisce l'istanza del modello Ordine di indice (riga) specificato.
+	 * Utile per ricavare l'ordine selezionato).
+	 * 
+	 * @param index indice posizione ordine
+	 * @return modello ordine
+	 */
+	public OrderModel getOrderModelAt(int index) {
+		// Riga (Utente)
+		OrderModel om = null;
+		int i = 0;
+		for (Integer idO : ordini.keySet()) {
+			if (index == i) {
+				om = ordini.get(idO);
+				break;
+			}
+			i++;
+		}
+		if (om == null)
+			throw new IndexOutOfBoundsException("Riga non presente!");
+		return om;
+	}
+
 	@Override
 	public String getColumnName(int column) {
 		return columnNames[column];
