@@ -27,8 +27,7 @@ public class BoxModel extends BaseModel {
 	public static BoxModel getBoxModel(Box b) {
 		if (b != null && b.isValid()) {
 			if (!instances.containsKey(b.getIndirizzo())) {
-				if ((DSL.select().from(PRODOTTO)
-						.where(PRODOTTO.ID.eq(b.getProd().getId()))) != null) {
+				if (ProductModel.fetchProdById(b.getProd().getId()) != null) {
 					BoxModel bm = new BoxModel(b);
 					instances.put(b.getIndirizzo(), bm);
 					return bm;
@@ -59,7 +58,7 @@ public class BoxModel extends BaseModel {
 	 * 
 	 * @return true se é presente, false se non lo é
 	 */
-	public boolean isSavedInDb() {
+	private boolean isSavedInDb() {
 		refreshFromDb();
 		return record != null;
 	}
@@ -73,16 +72,12 @@ public class BoxModel extends BaseModel {
 		return box;
 	}
 
-	protected void setBox(Box b) {
-		if (b != null && b.isValid() && (DSL.select().from(PRODOTTO)
-				.where(PRODOTTO.ID.eq(b.getProd().getId())) != null)) {
-			this.box = b;
-		} else
-			throw new IllegalArgumentException("box o prodotto non valido");
-
-	}
-
-	public BoxRecord getRecord() {
+	/**
+	 * restituisce il record
+	 * 
+	 * @return
+	 */
+	protected BoxRecord getRecord() {
 		return record;
 	}
 
@@ -128,11 +123,11 @@ public class BoxModel extends BaseModel {
 	 * 
 	 * @param p nuovo prodotto da assegnare al box
 	 */
-	public void cambiaProdotto(Prodotto p) {
+	private void cambiaProdotto(Prodotto p) {
 
 		if (box != null && box.isValid() && box.getQuantità() == 0) {
-			if (p != null && p.isValid() && (DSL.select().from(PRODOTTO)
-					.where(PRODOTTO.ID.eq(p.getId()))) != null) {
+			if (p != null && p.isValid()
+					&& ProductModel.fetchProdById(p.getId()) != null) {
 				box.setProd(p);
 			} else
 				throw new IllegalArgumentException("prodotto non valido");
@@ -144,7 +139,7 @@ public class BoxModel extends BaseModel {
 	/**
 	 * cancella il record dell'ordine
 	 */
-	public void deleteRecord() {
+	protected void deleteRecord() {
 		if (isSavedInDb()) {
 			record.delete();
 		}
@@ -155,7 +150,7 @@ public class BoxModel extends BaseModel {
 	 * 
 	 * @param quantita numero di unita di prodotto aggiunte
 	 */
-	public void rifornisci(int quantita) {
+	protected void rifornisci(int quantita) {
 
 		int qi = this.box.getQuantità();
 		this.box.setQuantità(qi + quantita);
@@ -169,7 +164,7 @@ public class BoxModel extends BaseModel {
 	 * 
 	 * @param qta numero di unita di prodotto da prelevare
 	 */
-	public void preleva(int qta) {
+	protected void preleva(int qta) {
 		if (box.getQuantità() > qta) {
 			box.setQuantità(this.box.getQuantità() - qta);
 			record.setQta(box.getQuantità());
@@ -185,7 +180,7 @@ public class BoxModel extends BaseModel {
 	 * 
 	 * @param qta
 	 */
-	public void setQuantita(int qta) {
+	private void setQuantita(int qta) {
 		this.box.setQuantità(qta);
 		record.setQta(box.getQuantità());
 		record.update();
