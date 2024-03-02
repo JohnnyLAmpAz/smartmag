@@ -61,4 +61,9 @@ public class UsersTableModel extends AbstractTableModel {
 		};
 	}
 
+	@Override
+	public String getColumnName(int column) {
+		return columnNames[column];
+	}
+
 }
