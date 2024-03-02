@@ -6,6 +6,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
+import smartmag.models.UtenteModel;
 import smartmag.models.ui.UsersTableModel;
 
 public class UsersTablePanel extends JPanel {
@@ -26,6 +27,13 @@ public class UsersTablePanel extends JPanel {
 		table = new JTable(tableModel);
 		scrollPane.setViewportView(table);
 
+	}
+
+	public UtenteModel getSelectedUserModel() {
+		int i = table.getSelectedRow();
+		if (i < 0)
+			return null;
+		return tableModel.getUserModelAt(i);
 	}
 
 }

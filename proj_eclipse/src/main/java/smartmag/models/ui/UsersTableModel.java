@@ -2,12 +2,15 @@ package smartmag.models.ui;
 
 import java.util.TreeMap;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
 
 import smartmag.data.Utente;
 import smartmag.models.UtenteModel;
 
-public class UsersTableModel extends AbstractTableModel {
+public class UsersTableModel extends AbstractTableModel
+		implements ChangeListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -15,8 +18,36 @@ public class UsersTableModel extends AbstractTableModel {
 	private String[] columnNames;
 
 	public UsersTableModel() {
-		utenti = UtenteModel.getAllUserModels();
+		refreshDataFromModel();
+		UtenteModel.addChangeListener(this);
 		columnNames = new String[] { "Matricola", "Nome", "Cognome", "Ruolo" };
+	}
+
+	private void refreshDataFromModel() {
+		utenti = UtenteModel.getAllUserModels();
+	}
+
+	/**
+	 * Restituisce l'istanza del modello Utente di indice (riga) specificato.
+	 * Utile per ricavare l'utente selezionato).
+	 * 
+	 * @param index indice posizione dell'utente
+	 * @return modello dell'utente
+	 */
+	public UtenteModel getUserModelAt(int index) {
+		// Riga (Utente)
+		UtenteModel um = null;
+		int i = 0;
+		for (String matr : utenti.keySet()) {
+			if (index == i) {
+				um = utenti.get(matr);
+				break;
+			}
+			i++;
+		}
+		if (um == null)
+			throw new IndexOutOfBoundsException("Riga non presente!");
+		return um;
 	}
 
 	@Override
@@ -33,17 +64,7 @@ public class UsersTableModel extends AbstractTableModel {
 	public Object getValueAt(int rowIndex, int columnIndex) {
 
 		// Riga (Utente)
-		Utente u = null;
-		int i = 0;
-		for (String matr : utenti.keySet()) {
-			if (rowIndex == i) {
-				u = utenti.get(matr).getUtente();
-				break;
-			}
-			i++;
-		}
-		if (u == null)
-			throw new IndexOutOfBoundsException("Riga non presente!");
+		Utente u = getUserModelAt(rowIndex).getUtente();
 
 		// Colonna (campo dell'utente)
 		return switch (columnIndex) {
@@ -64,6 +85,16 @@ public class UsersTableModel extends AbstractTableModel {
 	@Override
 	public String getColumnName(int column) {
 		return columnNames[column];
+	}
+
+	@Override
+	public void stateChanged(ChangeEvent e) {
+
+		// Aggiorna dati dal modello
+		refreshDataFromModel();
+
+		// Notifica la finestra della variazione dei dati
+		fireTableDataChanged();
 	}
 
 }
