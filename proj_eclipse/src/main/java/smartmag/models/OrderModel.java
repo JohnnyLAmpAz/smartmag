@@ -457,6 +457,7 @@ public class OrderModel extends BaseModel {
 	 * DB La TreeMap è una mappa ordinata degli elementi
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	public static TreeMap<Integer, OrderModel> fetchAllOrderModels() {
 		return (TreeMap<Integer, OrderModel>) instances.clone();
 	}

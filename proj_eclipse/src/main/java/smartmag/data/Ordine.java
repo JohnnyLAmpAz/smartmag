@@ -160,6 +160,7 @@ public class Ordine implements Comparable<Ordine> {
 		return Integer.compare(id, o.getId());
 	}
 
+	@SuppressWarnings("unchecked")
 	public Ordine clone() {
 
 		Ordine o = new Ordine(id, tipo, stato, null, null, null);
