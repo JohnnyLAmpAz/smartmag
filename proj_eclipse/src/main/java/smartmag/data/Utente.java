@@ -7,7 +7,7 @@ import java.util.Objects;
  * Rappresenta un utente presente in magazzino
  */
 
-public class Utente {
+public class Utente implements Comparable<Utente> {
 
 	private String matricola;
 	private String nome;
@@ -114,6 +114,18 @@ public class Utente {
 				&& Objects.equals(nome, other.nome)
 				&& Objects.equals(password, other.password)
 				&& tipo == other.tipo;
+	}
+
+	@Override
+	public int compareTo(Utente o) {
+		return this.matricola.compareTo(o.matricola);
+	}
+
+	@Override
+	public Utente clone() {
+
+		// Sono tutti immutable (stringhe ed enum)
+		return new Utente(matricola, nome, cognome, password, tipo);
 	}
 
 }

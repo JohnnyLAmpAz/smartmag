@@ -2,8 +2,8 @@ package smartmag.models;
 
 import static ingsw_proj_magazzino.db.generated.Tables.UTENTE;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.jooq.Record;
 
@@ -11,25 +11,54 @@ import ingsw_proj_magazzino.db.generated.tables.records.UtenteRecord;
 import smartmag.data.TipoUtente;
 import smartmag.data.Utente;
 
+/**
+ * Modello degli Utenti
+ */
 public class UtenteModel extends BaseModel {
 
-	private static final HashMap<String, UtenteModel> instances = new HashMap<String, UtenteModel>();
+	/**
+	 * Mappa delle istanze dei modelli per implementare pattern Singleton per
+	 * ciascun utente (no + istanze modello di uno stesso utente)
+	 */
+	private static final TreeMap<String, UtenteModel> instances;
+	static {
+		instances = new TreeMap<String, UtenteModel>();
+		Map<String, Record> res = DSL.select().from(UTENTE)
+				.fetchMap(UTENTE.MATRICOLA);
+		res.forEach((matr, r) -> instances.put(matr,
+				new UtenteModel((UtenteRecord) r)));
+	}
 
 	private Utente utente;
 	private UtenteRecord record;
 
 	private UtenteModel(Utente u) {
-		if (u == null || !u.isValid())
-			throw new IllegalArgumentException("Utente non valido!");
-		this.utente = u;
-		this.record = fetchUtenteByMatr(u.getMatricola());
+		this(u, fetchUtenteByMatr(u.getMatricola()));
 	}
 
 	private UtenteModel(UtenteRecord r) {
-		if (r == null)
-			throw new IllegalArgumentException("UtenteRecord non valido!");
-		this.record = r;
-		this.utente = utenteFromRecord(r);
+		this(utenteFromRecord(r), r);
+	}
+
+	private UtenteModel(Utente u, UtenteRecord ur) {
+
+		if (u == null) {
+			if (ur == null) {
+				throw new IllegalArgumentException("UtenteRecord nullo!");
+			}
+			u = utenteFromRecord(ur);
+		} else if (ur == null) {
+			if (u == null || !u.isValid())
+				throw new IllegalArgumentException("Utente nullo!");
+			ur = fetchUtenteByMatr(u.getMatricola());
+		}
+
+		if (instances.containsKey(u.getMatricola()))
+			throw new IllegalArgumentException("Modello già creato!");
+
+		this.utente = u;
+		this.record = ur;
+		instances.put(u.getMatricola(), this);
 	}
 
 	public boolean isSavedInDb() {
@@ -49,6 +78,15 @@ public class UtenteModel extends BaseModel {
 
 	public void delete() {
 		record.delete();
+	}
+
+	/**
+	 * Restituisce una copia dell'oggetto Utente legato al record
+	 * 
+	 * @return copia dell'Utente
+	 */
+	public Utente getUtente() {
+		return utente.clone();
 	}
 
 	/**
@@ -77,16 +115,6 @@ public class UtenteModel extends BaseModel {
 		return r;
 	}
 
-	private static HashMap<String, UtenteModel> loadAllUsers() {
-		HashMap<String, UtenteModel> map = new HashMap<String, UtenteModel>();
-		Map<String, Record> res = DSL.select().from(UTENTE)
-				.fetchMap(UTENTE.MATRICOLA);
-		res.forEach(
-				(matr, r) -> map.put(matr, new UtenteModel((UtenteRecord) r)));
-		instances.putAll(map);
-		return map;
-	}
-
 	/**
 	 * Ritorna l'unica istanza (singleton) del modello relativo ad un utente
 	 * specifico
@@ -102,7 +130,6 @@ public class UtenteModel extends BaseModel {
 				if (r == null)
 					return null;
 				UtenteModel um = new UtenteModel(r);
-				instances.put(matr, um);
 				return um;
 			} else {
 				return instances.get(matr);
@@ -125,11 +152,12 @@ public class UtenteModel extends BaseModel {
 
 	public static UtenteModel createUtente(Utente u)
 			throws IllegalArgumentException {
-		UtenteModel m = new UtenteModel(u);
+		UtenteModel m = getUtenteModelOf(u.getMatricola());
+		if (m == null)
+			m = new UtenteModel(u);
 		if (m.isSavedInDb())
 			throw new IllegalArgumentException("Utente già registrato");
 		m.create();
-		instances.put(u.getMatricola(), m);
 		return m;
 	}
 
@@ -145,7 +173,20 @@ public class UtenteModel extends BaseModel {
 		return um.utente;
 	}
 
+	/**
+	 * Restituisce una TreeMap di tutti i modelli degli utenti come copia di
+	 * instances
+	 */
+	@SuppressWarnings("unchecked")
+	public static TreeMap<String, UtenteModel> getAllUserModels() {
+		return (TreeMap<String, UtenteModel>) instances.clone();
+	}
+
 	public static void main(String[] args) {
+
+		UtenteModel.getAllUserModels()
+				.forEach((matr, um) -> System.out.println(um.getUtente()));
+
 		System.out.println(login("m.rossi", "1234"));
 		UtenteModel m = UtenteModel.getUtenteModelOf("m.rossi");
 		if (m != null)

@@ -1,6 +1,10 @@
 package smartmag.models;
 
 import java.io.IOException;
+import java.util.ArrayList;
+
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.jooq.DSLContext;
 
@@ -20,8 +24,46 @@ public abstract class BaseModel {
 		try {
 			DSL = Db.getInstance().getDslContext();
 		} catch (IOException e) {
-			throw new Error("Error occurred while reading DB file"); 
+			throw new Error("Error occurred while reading DB file");
 		}
 	}
 
+	/**
+	 * Lista di ChangeListeners che verranno notificati con
+	 * notifyChangeListeners
+	 */
+	protected static ArrayList<ChangeListener> listeners = new ArrayList<ChangeListener>();
+
+	/**
+	 * Aggiunge un ChangeListeners
+	 * 
+	 * @param cl listener
+	 */
+	public static void addChangeListener(ChangeListener cl) {
+		listeners.add(cl);
+	}
+
+	/**
+	 * Rimuove un ChangeListener
+	 * 
+	 * @param cl listener
+	 */
+	public static void removeChangeListener(ChangeListener cl) {
+		listeners.remove(cl);
+	}
+
+	/**
+	 * Notifica tutti i ChangeListeners registrati. Si noti come i listener si
+	 * registrano alla classe del modello stessa (lista statica); ciò perché un
+	 * evento dovrebbe essere lanciato per una qualsiasi modifica che riguarda
+	 * una <b>qualunque</b> istanza di questo modello. Questo per semplificare
+	 * la gestione degli eventi.
+	 * 
+	 * @param e evento
+	 */
+	protected static void notifyChangeListeners(ChangeEvent e) {
+		for (ChangeListener l : listeners) {
+			l.stateChanged(e);
+		}
+	}
 }
