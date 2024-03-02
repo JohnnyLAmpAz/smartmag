@@ -285,7 +285,6 @@ public class OrderModel extends BaseModel {
 		if (o != null && o.isValid()) {
 			if (!instances.containsKey(o.getId())) {
 				OrderModel om = new OrderModel(o);
-				instances.put(o.getId(), om);
 				return om;
 			} else {
 				return instances.get(o.getId());
