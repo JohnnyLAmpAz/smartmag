@@ -4,7 +4,8 @@ import static ingsw_proj_magazzino.db.generated.Tables.BOX;
 import static ingsw_proj_magazzino.db.generated.Tables.PRODOTTO;
 
 import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 import ingsw_proj_magazzino.db.generated.tables.records.BoxRecord;
 import ingsw_proj_magazzino.db.generated.tables.records.ProdottoRecord;
@@ -13,44 +14,45 @@ import smartmag.data.Prodotto;
 
 public class BoxModel extends BaseModel {
 
-	private static HashMap<String, BoxModel> instances = new HashMap<String, BoxModel>();
+	/**
+	 * mappa per implementare unicitá delle istanze dei modelli di ogni box
+	 */
+	private static TreeMap<String, BoxModel> instances;
+	static {
+		instances = new TreeMap<String, BoxModel>();
+		Map<String, org.jooq.Record> res = DSL.select().from(BOX)
+				.fetchMap(BOX.ID);
+		res.forEach((id, r) -> instances.put(id, new BoxModel((BoxRecord) r)));
+	}
+
 	private Box box;
 	private BoxRecord record;
 
-	/**
-	 * restituisce il modello del box passato come parametro e lo salva
-	 * all'interno dell'hashmap che contiene i modelli di tutti i box
-	 * 
-	 * @param b box del quale si vuole ottenere il modello
-	 * @return modello del box
-	 */
-	public static BoxModel getBoxModel(Box b) {
-		if (b != null && b.isValid()) {
-			if (!instances.containsKey(b.getIndirizzo())) {
-				if (ProductModel.fetchProdById(b.getProd().getId()) != null) {
-					BoxModel bm = new BoxModel(b);
-					instances.put(b.getIndirizzo(), bm);
-					return bm;
-				} else {
-					throw new IllegalArgumentException(
-							"prodotto non esistente");
-				}
+	private BoxModel(Box b, BoxRecord br) {
+		if (b == null) {
+			if (br == null)
+				throw new IllegalArgumentException("BoxRecord nullo");
+			b = boxFromRecord(br);
+		} else if (br == null) {
+			if (b == null || !b.isValid())
+				throw new IllegalArgumentException("utente nullo");
+			br = fetchBoxByIndirizzo(b.getIndirizzo());
+		}
 
-			} else {
-				return instances.get(b.getIndirizzo());
-			}
-		} else
-			throw new IllegalArgumentException("box non valido");
+		if (instances.containsKey(b.getIndirizzo())) {
+			throw new IllegalArgumentException("modello giá creato");
+		}
+		this.box = b;
+		this.record = br;
+		instances.put(b.getIndirizzo(), this);
 	}
 
-	/**
-	 * metodo costruttore della classe BoxModel
-	 * 
-	 * @param b box del quale si vuole generare il modello
-	 */
 	private BoxModel(Box b) {
-		this.record = fetchBoxByIndirizzo(b.getIndirizzo());
-		this.box = b;
+		this(b, fetchBoxByIndirizzo(b.getIndirizzo()));
+	}
+
+	private BoxModel(BoxRecord r) {
+		this(boxFromRecord(r), r);
 	}
 
 	/**
@@ -189,6 +191,31 @@ public class BoxModel extends BaseModel {
 	// metodi statici
 
 	/**
+	 * restituisce il modello del box passato come parametro e lo salva
+	 * all'interno dell'hashmap che contiene i modelli di tutti i box
+	 * 
+	 * @param b box del quale si vuole ottenere il modello
+	 * @return modello del box
+	 */
+	public static BoxModel getBoxModel(Box b) {
+		if (b != null && b.isValid()) {
+			if (!instances.containsKey(b.getIndirizzo())) {
+				if (ProductModel.fetchProdById(b.getProd().getId()) != null) {
+					BoxModel bm = new BoxModel(b);
+					return bm;
+				} else {
+					throw new IllegalArgumentException(
+							"prodotto non esistente");
+				}
+
+			} else {
+				return instances.get(b.getIndirizzo());
+			}
+		} else
+			throw new IllegalArgumentException("box non valido");
+	}
+
+	/**
 	 * recupera dal db il record relativo al box corrispondente all'indirizzo
 	 * inserito
 	 * 
@@ -235,6 +262,10 @@ public class BoxModel extends BaseModel {
 			throw new IllegalArgumentException(
 					"prodotto non presente nel database");
 
+	}
+
+	public static TreeMap<String, BoxModel> getAllBoxModels() {
+		return (TreeMap<String, BoxModel>) instances.clone();
 	}
 
 }

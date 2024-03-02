@@ -105,7 +105,7 @@ public class ProductModel extends BaseModel {
 
 	// Metodi statici
 
-	private static ProdottoRecord fetchProdById(int id) {
+	static ProdottoRecord fetchProdById(int id) {
 		ProdottoRecord r = (ProdottoRecord) DSL.select().from(PRODOTTO)
 				.where(PRODOTTO.ID.eq(id)).fetchOne(); // SELECT
 		return r;
