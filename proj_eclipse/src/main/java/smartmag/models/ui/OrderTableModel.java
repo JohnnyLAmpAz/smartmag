@@ -2,12 +2,15 @@ package smartmag.models.ui;
 
 import java.util.TreeMap;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
 
 import smartmag.data.Ordine;
 import smartmag.models.OrderModel;
 
-public class OrderTableModel extends AbstractTableModel {
+public class OrderTableModel extends AbstractTableModel
+		implements ChangeListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -15,9 +18,13 @@ public class OrderTableModel extends AbstractTableModel {
 	private String[] columnNames;
 
 	public OrderTableModel() {
-		ordini = OrderModel.getAllOrderModels();
+		refreshDataFromModel();
 		columnNames = new String[] { "Ordine", "Tipo", "Data emissione",
 				"Data completamento", "Stato" };
+	}
+
+	private void refreshDataFromModel() {
+		ordini = OrderModel.getAllOrderModels();
 	}
 
 	@Override
@@ -67,4 +74,10 @@ public class OrderTableModel extends AbstractTableModel {
 		return columnNames[column];
 	}
 
+	@Override
+	public void stateChanged(ChangeEvent e) {
+		refreshDataFromModel();
+		fireTableDataChanged(); // aggiorna la tabella se il modello ha subito
+								// variazioni
+	}
 }
