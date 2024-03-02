@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.jooq.Record;
 import org.jooq.Result;
@@ -26,7 +27,24 @@ import smartmag.data.TipoOrdine;
 public class OrderModel extends BaseModel {
 
 	// l'integer nell'HashMap è l'id dell'ordine
-	private static HashMap<Integer, OrderModel> instances = new HashMap<Integer, OrderModel>();
+	private static TreeMap<Integer, OrderModel> instances;
+
+	// quando viene generato istances la aggiorna prendendo i modelli dal DB
+	static {
+		Map<Integer, Record> res = DSL.select().from(ORDINE)
+				.fetchMap(ORDINE.ID);
+		res.forEach(
+				(id, r) -> {
+					try {
+						instances.put(id, new OrderModel(
+								ordineFromOrdineRecord((OrdineRecord) r)));
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				});
+	}
+
 	private Ordine ordine;
 	private OrdineRecord orderRecord;
 	private ArrayList<ProdottiordiniRecord> listaProdottiOrdiniRecord;
@@ -49,6 +67,13 @@ public class OrderModel extends BaseModel {
 				order);
 		if (!instances.containsKey(order))
 			instances.put(order.getId(), this); // carico OrderModel in hashmap
+	}
+
+	/**
+	 * Restituisce il clone dell'ordine del modello
+	 */
+	public Ordine getOrdine() {
+		return ordine.clone();
 	}
 
 	/**
@@ -161,11 +186,19 @@ public class OrderModel extends BaseModel {
 	/**
 	 * crea un nuovo record di prodottoOrdine ottenendo i prodotti e le quantità
 	 * dall'ordine del modello
+	 * 
+	 * @throws SQLIntegrityConstraintViolationException
 	 */
-	private void createProdottoOrdineRecord() {
+	private void createProdottoOrdineRecord()
+			throws SQLIntegrityConstraintViolationException {
 		HashMap<Prodotto, Integer> prodotti = ordine.getProdotti();
 
 		for (Map.Entry<Prodotto, Integer> entry : prodotti.entrySet()) {
+			if (productOrderIsSavedInDb(entry.getKey().getId()))
+				throw new SQLIntegrityConstraintViolationException(
+						"Prodotto #" + entry.getKey().getId()
+								+ " record prodotto esiste già!");
+
 			Prodotto p = entry.getKey();
 			int qta = entry.getValue();
 			ProdottiordiniRecord por = DSL.newRecord(PRODOTTIORDINI);
@@ -405,6 +438,8 @@ public class OrderModel extends BaseModel {
 		return r;
 	}
 
+	// Generic Static Methods ======
+
 	/**
 	 * Crea il modello dell'ordine se non esiste già, inoltre crea sia il record
 	 * dell'ordine che il record di prodottoOrdine
@@ -414,10 +449,20 @@ public class OrderModel extends BaseModel {
 	 */
 	public static OrderModel create(Ordine o)
 			throws SQLIntegrityConstraintViolationException, ParseException {
+
 		OrderModel om = getOrderModelOf(o);
 		om.createOrdineRecord();
 		om.createProdottoOrdineRecord();
 		return om;
+	}
+
+	/**
+	 * Restituisce una copia della TreeMap di tutti i modelli degli ordini nel
+	 * DB La TreeMap è una mappa ordinata degli elementi
+	 * 
+	 */
+	public static TreeMap<Integer, OrderModel> fetchAllOrderModels() {
+		return (TreeMap<Integer, OrderModel>) instances.clone();
 	}
 
 }
