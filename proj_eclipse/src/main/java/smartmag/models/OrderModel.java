@@ -33,16 +33,15 @@ public class OrderModel extends BaseModel {
 	static {
 		Map<Integer, Record> res = DSL.select().from(ORDINE)
 				.fetchMap(ORDINE.ID);
-		res.forEach(
-				(id, r) -> {
-					try {
-						instances.put(id, new OrderModel(
-								ordineFromOrdineRecord((OrdineRecord) r)));
-					} catch (ParseException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				});
+		res.forEach((id, r) -> {
+			try {
+				instances.put(id, new OrderModel(
+						ordineFromOrdineRecord((OrdineRecord) r)));
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		});
 	}
 
 	private Ordine ordine;
@@ -65,7 +64,7 @@ public class OrderModel extends BaseModel {
 		// aggiorno la lista dei prodottiOrdiniRecord
 		this.listaProdottiOrdiniRecord = fetchProductOrderRecordListByOrder(
 				order);
-		if (!instances.containsKey(order))
+		if (!instances.containsKey(order.getId()))
 			instances.put(order.getId(), this); // carico OrderModel in hashmap
 	}
 
@@ -250,8 +249,7 @@ public class OrderModel extends BaseModel {
 	 * @param o ordine
 	 * @param p prodotto
 	 */
-	public void deleteProdottoOrdine(Prodotto p)
-			throws ParseException {
+	public void deleteProdottoOrdine(Prodotto p) throws ParseException {
 		if (!productOrderIsSavedInDb(p.getId())) {
 			ProdottiordiniRecord por = (ProdottiordiniRecord) fetchProductOrderRecordById(
 					this.ordine.getId(), p.getId());
@@ -304,8 +302,7 @@ public class OrderModel extends BaseModel {
 	 */
 	private static OrdineRecord fetchOrderRecordById(int id) {
 		OrdineRecord r = (OrdineRecord) DSL.select().from(ORDINE)
-				.where(ORDINE.ID.eq(id))
-				.fetchOne(); // SELECT
+				.where(ORDINE.ID.eq(id)).fetchOne(); // SELECT
 		return r;
 	}
 
@@ -431,8 +428,7 @@ public class OrderModel extends BaseModel {
 			int idP) {
 
 		ProdottiordiniRecord r = (ProdottiordiniRecord) DSL.select()
-				.from(PRODOTTIORDINI)
-				.where(PRODOTTIORDINI.ORDINE.eq(idO)
+				.from(PRODOTTIORDINI).where(PRODOTTIORDINI.ORDINE.eq(idO)
 						.and(PRODOTTIORDINI.PROD.eq(idP)))
 				.fetchOne(); // SELECT
 		return r;
