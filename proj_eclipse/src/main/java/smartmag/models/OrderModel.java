@@ -458,7 +458,7 @@ public class OrderModel extends BaseModel {
 	 * 
 	 */
 	@SuppressWarnings("unchecked")
-	public static TreeMap<Integer, OrderModel> fetchAllOrderModels() {
+	public static TreeMap<Integer, OrderModel> getAllOrderModels() {
 		return (TreeMap<Integer, OrderModel>) instances.clone();
 	}
 
