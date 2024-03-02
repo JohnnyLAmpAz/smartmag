@@ -5,11 +5,14 @@ import static ingsw_proj_magazzino.db.generated.Tables.UTENTE;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.swing.JFrame;
+
 import org.jooq.Record;
 
 import ingsw_proj_magazzino.db.generated.tables.records.UtenteRecord;
 import smartmag.data.TipoUtente;
 import smartmag.data.Utente;
+import smartmag.ui.UsersTablePanel;
 
 /**
  * Modello degli Utenti
@@ -198,5 +201,9 @@ public class UtenteModel extends BaseModel {
 				"1234", TipoUtente.RESPONSABILE));
 		System.out.println(m == UtenteModel.getUtenteModelOf("l.verdi"));
 
+		JFrame f = new JFrame();
+		f.setContentPane(new UsersTablePanel());
+		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		f.setVisible(true);
 	}
 }
