@@ -26,17 +26,23 @@ public class UtenteModel extends BaseModel {
 	private UtenteRecord record;
 
 	private UtenteModel(Utente u) {
-		if (u == null || !u.isValid())
-			throw new IllegalArgumentException("Utente non valido!");
-		this.utente = u;
-		this.record = fetchUtenteByMatr(u.getMatricola());
+		this(u, fetchUtenteByMatr(u.getMatricola()));
 	}
 
 	private UtenteModel(UtenteRecord r) {
-		if (r == null)
+		this(utenteFromRecord(r), r);
+	}
+
+	private UtenteModel(Utente u, UtenteRecord ur) {
+		if (instances.containsKey(u.getMatricola()))
+			throw new IllegalArgumentException("Modello già creato!");
+		if (u == null || !u.isValid())
+			throw new IllegalArgumentException("Utente non valido!");
+		if (ur == null)
 			throw new IllegalArgumentException("UtenteRecord non valido!");
-		this.record = r;
-		this.utente = utenteFromRecord(r);
+		this.utente = u;
+		this.record = ur;
+		instances.put(u.getMatricola(), this);
 	}
 
 	public boolean isSavedInDb() {
@@ -117,7 +123,6 @@ public class UtenteModel extends BaseModel {
 				if (r == null)
 					return null;
 				UtenteModel um = new UtenteModel(r);
-				instances.put(matr, um);
 				return um;
 			} else {
 				return instances.get(matr);
@@ -144,7 +149,6 @@ public class UtenteModel extends BaseModel {
 		if (m.isSavedInDb())
 			throw new IllegalArgumentException("Utente già registrato");
 		m.create();
-		instances.put(u.getMatricola(), m);
 		return m;
 	}
 
