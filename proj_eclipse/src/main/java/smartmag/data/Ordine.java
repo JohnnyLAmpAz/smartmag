@@ -15,6 +15,7 @@ public class Ordine {
 	private StatoOrdine stato;
 	private Date dataEmissione;
 	private Date dataCompletamento;
+	// nella hashmap l'integer assegnato a ciascun prodotto è la quantità!
 	private HashMap<Prodotto, Integer> prodotti;
 
 	public Ordine(int id, TipoOrdine tipo, StatoOrdine stato,

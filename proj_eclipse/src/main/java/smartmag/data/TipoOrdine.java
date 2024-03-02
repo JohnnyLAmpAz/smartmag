@@ -6,4 +6,16 @@ package smartmag.data;
 public enum TipoOrdine {
 
 	IN, OUT;
+
+	@Override
+	public String toString() {
+		switch (this) {
+		case IN:
+			return "IN";
+		case OUT:
+			return "OUT";
+		default:
+			throw new IllegalArgumentException();
+		}
+	}
 }
