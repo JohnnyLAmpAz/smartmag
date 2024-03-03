@@ -66,7 +66,7 @@ public class ProductTableModel extends AbstractTableModel
 	 * @param index indice posizione prodotto
 	 * @return modello prodotto
 	 */
-	public ProductModel getProductModelat(int rowIndex) {
+	public ProductModel getProductModelAt(int rowIndex) {
 		ProductModel pm = null;
 		int i = 0;
 
