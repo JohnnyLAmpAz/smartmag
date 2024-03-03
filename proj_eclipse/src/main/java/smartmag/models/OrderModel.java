@@ -76,6 +76,18 @@ public class OrderModel extends BaseModel {
 	}
 
 	/**
+	 * Restituisce il clone della lista di tutti i record ProdottiOrdini
+	 * dell'ordine nell'istanza del modello
+	 * 
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public ArrayList<ProdottiordiniRecord> getListaProdottiOrdini() {
+		return (ArrayList<ProdottiordiniRecord>) fetchProductOrderRecordListByOrder(
+				ordine).clone();
+	}
+
+	/**
 	 * Crea un nuovo record dell'ordine usando l'ordine del modello
 	 */
 	private void createOrdineRecord()

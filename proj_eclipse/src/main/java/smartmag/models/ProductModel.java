@@ -138,4 +138,5 @@ public class ProductModel extends BaseModel {
 			return 0;
 		return max + 1;
 	}
+
 }
