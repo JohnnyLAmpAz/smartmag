@@ -88,7 +88,7 @@ public class ProductModel extends BaseModel {
 	}
 
 	public Prodotto getProdotto() {
-		return prodotto;
+		return prodotto.clone();
 	}
 
 	protected void setProdotto(Prodotto p) {
