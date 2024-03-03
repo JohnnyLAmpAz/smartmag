@@ -145,7 +145,6 @@ public class BoxModel extends BaseModel {
 					&& ProductModel.fetchProdById(p.getId()) != null) {
 				box.setProd(p);
 				record.setProdotto(p.getId());
-				;
 				record.update();
 				notifyChangeListeners(null);
 			} else
