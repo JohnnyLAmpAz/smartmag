@@ -85,7 +85,7 @@ public class BoxModel extends BaseModel {
 		return record;
 	}
 
-	public BoxModel CreateBox(Box b)
+	public static BoxModel createBox(Box b)
 			throws SQLIntegrityConstraintViolationException {
 		BoxModel bm = getBoxModel(b);
 		if (bm == null)
