@@ -90,7 +90,6 @@ public class ProductTableModel extends AbstractTableModel
 
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		// TODO Auto-generated method stub
 		refreshFromModel();
 		fireTableDataChanged();
 	}
