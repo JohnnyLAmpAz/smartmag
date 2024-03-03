@@ -184,6 +184,8 @@ public class UtenteModel extends BaseModel {
 
 	public static void main(String[] args) {
 
+		BaseModel.setDifferentDbPath("db/test.sqlite");
+
 		UtenteModel.getAllUserModels()
 				.forEach((matr, um) -> System.out.println(um.getUtente()));
 

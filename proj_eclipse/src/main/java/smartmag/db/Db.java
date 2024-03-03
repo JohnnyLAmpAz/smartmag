@@ -15,17 +15,20 @@ import org.jooq.impl.DSL;
 
 public class Db {
 
-	private Connection conn;
-	private DSLContext dslContext;
-
-	public static final String DB_FILE_PATH = "db/db.sqlite";
+	public static final String DB_FILE_DEFAULT_PATH = "db/db.sqlite";
 	public static final String DB_URL_FISTPART = "jdbc:sqlite:";
 	public static final SQLDialect SQL_DIALECT = SQLDialect.SQLITE;
 	public static final String SQL_DDL_DB_FILE = "db/config/db_creation.sql";
 
 	private static Db db;
 
+	private Connection conn;
+	private DSLContext dslContext;
+	private String dbPath;
+
 	private Db(String dbPath) throws IOException {
+
+		this.dbPath = dbPath;
 
 		// Crea connessione al Db (se non esiste crealo)
 		try {
@@ -40,12 +43,13 @@ public class Db {
 	}
 
 	public static Db getInstance() throws IOException {
-		return getInstance(DB_FILE_PATH);
+		return getInstance(DB_FILE_DEFAULT_PATH);
 	}
 
 	public static Db getInstance(String dbPath) throws IOException {
-		// Singleton
-		if (db == null) {
+
+		// Singleton (nuova istanza se null o percorso diverso)
+		if (db == null || dbPath != db.dbPath) {
 
 			boolean created = !(new File(dbPath).exists());
 			db = new Db(dbPath);
