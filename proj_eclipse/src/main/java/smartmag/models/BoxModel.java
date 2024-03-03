@@ -295,7 +295,7 @@ public class BoxModel extends BaseModel {
 		return treeMapFilter(bm);
 	}
 
-	public static TreeMap<String, BoxModel> treeMapFilter(
+	private static TreeMap<String, BoxModel> treeMapFilter(
 			TreeMap<String, BoxModel> m) {
 		TreeMap<String, BoxModel> filtrata = new TreeMap<String, BoxModel>();
 		for (Map.Entry<String, BoxModel> entry : m.entrySet()) {
