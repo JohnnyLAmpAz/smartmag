@@ -73,4 +73,9 @@ public class Box {
 		}
 		return false;
 	}
+
+	public Box clone() {
+		Box b = new Box(this.indirizzo, this.quantita, this.prodotto.clone());
+		return b;
+	}
 }
