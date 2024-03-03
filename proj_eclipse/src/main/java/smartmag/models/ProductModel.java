@@ -21,7 +21,6 @@ public class ProductModel extends BaseModel {
 				.fetchMap(PRODOTTO.ID);
 		res.forEach((id, r) -> instances.put(id,
 				new ProductModel((ProdottoRecord) r)));
-		// notify?)
 	}
 
 	private Prodotto prodotto;
@@ -47,17 +46,17 @@ public class ProductModel extends BaseModel {
 		this.prodotto = p;
 		this.record = r;
 		instances.put(p.getId(), this);
-		// notify?
+
 	}
 
 	private ProductModel(Prodotto p) {
 		this(p, fetchProdById(p.getId()));
-		// notifica?
+
 	}
 
 	private ProductModel(ProdottoRecord r) {
 		this(prodottoFromRecord(r), r);
-		// notifica?)
+
 	}
 
 	public ProductModel createProdotto(Prodotto p)
@@ -84,7 +83,7 @@ public class ProductModel extends BaseModel {
 		copyProdottoIntoRecord(prodotto, r);
 		r.store(); // INSERT
 		this.record = r;
-		// notify
+		notifyChangeListeners(null);
 	}
 
 	public Prodotto getProdotto() {
@@ -119,15 +118,14 @@ public class ProductModel extends BaseModel {
 			this.prodotto.setSoglia(p.getSoglia());
 		}
 
-		// TODO: event
+		notifyChangeListeners(null);
 	}
 
 	public void deleteProdotto() {
 		if (isSavedInDb()) {
 			record.delete();// DELETE con UpdatableRecord
 			record = null;
-			// notify
-
+			notifyChangeListeners(null);
 		}
 	}
 
@@ -140,6 +138,7 @@ public class ProductModel extends BaseModel {
 		record = (ProdottoRecord) fetchProdById(p.getId());
 		copyProdottoIntoRecord(p, record);
 		record.store(); // UPDATE con UpdatableRecord
+		notifyChangeListeners(null);
 	}
 
 	// Metodi statici

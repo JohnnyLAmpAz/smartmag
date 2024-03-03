@@ -24,7 +24,6 @@ public class BoxModel extends BaseModel {
 		instances = new TreeMap<String, BoxModel>();
 		Map<String, Record> res = DSL.select().from(BOX).fetchMap(BOX.ID);
 		res.forEach((id, r) -> instances.put(id, new BoxModel((BoxRecord) r)));
-		notifyChangeListeners(null);
 	}
 
 	private Box box;
@@ -128,8 +127,8 @@ public class BoxModel extends BaseModel {
 			this.box.setIndirizzo(b.getIndirizzo());
 			this.box.setQuantità(b.getQuantità());
 			this.box.setProd(b.getProd());
+			notifyChangeListeners(null);
 		}
-		notifyChangeListeners(null);
 	}
 
 	/**
@@ -145,14 +144,15 @@ public class BoxModel extends BaseModel {
 			if (p != null && p.isValid()
 					&& ProductModel.fetchProdById(p.getId()) != null) {
 				box.setProd(p);
-				// da aggiornare record
+				record.setProdotto(p.getId());
+				;
+				record.update();
 				notifyChangeListeners(null);
 			} else
 				throw new IllegalArgumentException("prodotto non valido");
 		} else
 			throw new IllegalArgumentException(
 					"attenzione: il box deve essere valido e vuoto");
-
 	}
 
 	/**
