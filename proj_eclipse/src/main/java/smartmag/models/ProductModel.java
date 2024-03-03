@@ -93,7 +93,7 @@ public class ProductModel extends BaseModel {
 	protected void setProdotto(Prodotto p) {
 
 		if (p != null && p.isValid())
-			this.prodotto = p;
+			this.prodotto = p.clone();
 		else
 			throw new IllegalArgumentException("Prodotto non valido!");
 	}
