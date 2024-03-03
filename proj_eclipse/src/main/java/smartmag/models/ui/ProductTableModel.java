@@ -29,19 +29,16 @@ public class ProductTableModel extends AbstractTableModel
 
 	@Override
 	public int getRowCount() {
-		// TODO Auto-generated method stub
 		return prodotti.size();
 	}
 
 	@Override
 	public int getColumnCount() {
-		// TODO Auto-generated method stub
 		return columnNames.length;
 	}
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		// TODO Auto-generated method stub
 		Prodotto p = getProductModelAt(rowIndex).getProdotto();
 		return switch (columnIndex) {
 		case 0:

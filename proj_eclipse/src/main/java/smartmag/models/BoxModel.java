@@ -88,8 +88,6 @@ public class BoxModel extends BaseModel {
 	public static BoxModel createBox(Box b)
 			throws SQLIntegrityConstraintViolationException {
 		BoxModel bm = getBoxModel(b);
-		if (bm == null)
-			bm = new BoxModel(b);
 		if (bm.isSavedInDb())
 			throw new IllegalArgumentException("box già presente");
 		bm.create();

@@ -62,9 +62,6 @@ public class ProductModel extends BaseModel {
 	public ProductModel createProdotto(Prodotto p)
 			throws SQLIntegrityConstraintViolationException {
 		ProductModel pm = getProductModelOf(p);
-		if (pm == null) {
-			pm = new ProductModel(p);
-		}
 		if (pm.isSavedInDb()) {
 			throw new IllegalArgumentException("prodotto già presente");
 		}
@@ -103,7 +100,7 @@ public class ProductModel extends BaseModel {
 		return record != null;
 	}
 
-	public ProdottoRecord getRecord() {
+	protected ProdottoRecord getRecord() {
 		return record;
 	}
 
@@ -196,7 +193,7 @@ public class ProductModel extends BaseModel {
 		return treeMapFilter(pm);
 	}
 
-	public static TreeMap<Integer, ProductModel> treeMapFilter(
+	private static TreeMap<Integer, ProductModel> treeMapFilter(
 			TreeMap<Integer, ProductModel> m) {
 		TreeMap<Integer, ProductModel> filtrata = new TreeMap<Integer, ProductModel>();
 		for (Map.Entry<Integer, ProductModel> entry : m.entrySet()) {
