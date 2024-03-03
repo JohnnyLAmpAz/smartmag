@@ -7,6 +7,8 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.jooq.Record;
+
 import ingsw_proj_magazzino.db.generated.tables.records.BoxRecord;
 import ingsw_proj_magazzino.db.generated.tables.records.ProdottoRecord;
 import smartmag.data.Box;
@@ -20,8 +22,7 @@ public class BoxModel extends BaseModel {
 	private static TreeMap<String, BoxModel> instances;
 	static {
 		instances = new TreeMap<String, BoxModel>();
-		Map<String, org.jooq.Record> res = DSL.select().from(BOX)
-				.fetchMap(BOX.ID);
+		Map<String, Record> res = DSL.select().from(BOX).fetchMap(BOX.ID);
 		res.forEach((id, r) -> instances.put(id, new BoxModel((BoxRecord) r)));
 		notifyChangeListeners(null);
 	}

@@ -1,10 +1,13 @@
 package smartmag.models;
 
+import static ingsw_proj_magazzino.db.generated.Tables.PRODOTTO;
+import static org.jooq.impl.DSL.max;
+
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.jooq.impl.DSL;
+import org.jooq.Record;
 
 import ingsw_proj_magazzino.db.generated.tables.records.ProdottoRecord;
 import smartmag.data.Prodotto;
@@ -14,7 +17,7 @@ public class ProductModel extends BaseModel {
 	private static TreeMap<Integer, ProductModel> instances;
 	static {
 		instances = new TreeMap<Integer, ProductModel>();
-		Map<Integer, org.jooq.Record> res = DSL.select().from(PRODOTTO)
+		Map<Integer, Record> res = DSL.select().from(PRODOTTO)
 				.fetchMap(PRODOTTO.ID);
 		res.forEach((id, r) -> instances.put(id,
 				new ProductModel((ProdottoRecord) r)));
@@ -57,7 +60,8 @@ public class ProductModel extends BaseModel {
 		// notifica?)
 	}
 
-	public ProductModel createProdotto(Prodotto p) {
+	public ProductModel createProdotto(Prodotto p)
+			throws SQLIntegrityConstraintViolationException {
 		ProductModel pm = getProductModelOf(p);
 		if (pm == null) {
 			pm = new ProductModel(p);
@@ -83,7 +87,7 @@ public class ProductModel extends BaseModel {
 		// notify
 	}
 
-	protected Prodotto getProdotto() {
+	public Prodotto getProdotto() {
 		return prodotto;
 	}
 
