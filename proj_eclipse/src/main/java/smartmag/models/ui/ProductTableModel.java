@@ -42,7 +42,7 @@ public class ProductTableModel extends AbstractTableModel
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		// TODO Auto-generated method stub
-		Prodotto p = getProductModelat(rowIndex).getProdotto();
+		Prodotto p = getProductModelAt(rowIndex).getProdotto();
 		return switch (columnIndex) {
 		case 0:
 			yield p.getId();
