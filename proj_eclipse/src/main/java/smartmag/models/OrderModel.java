@@ -6,9 +6,9 @@ import static org.jooq.impl.DSL.max;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -31,6 +31,7 @@ public class OrderModel extends BaseModel {
 
 	// quando viene generato istances la aggiorna prendendo i modelli dal DB
 	static {
+		instances = new TreeMap<Integer, OrderModel>();
 		Map<Integer, Record> res = DSL.select().from(ORDINE)
 				.fetchMap(ORDINE.ID);
 		res.forEach((id, r) -> {
@@ -330,10 +331,17 @@ public class OrderModel extends BaseModel {
 
 		TipoOrdine tipo = TipoOrdine.valueOf(or.getTipo());
 		StatoOrdine stato = StatoOrdine.valueOf(or.getStato());
-		Date dataEmissione = new SimpleDateFormat("dd/MM/yyy")
-				.parse(or.getDataem());
-		Date dataCompletamento = new SimpleDateFormat("dd/MM/yyy")
-				.parse(or.getDataco());
+
+		DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
+		LocalDate dataEmissione = LocalDate.parse(or.getDataem(), formatter);
+		LocalDate dataCompletamento;
+
+		if (or.getDataco() == null)
+			dataCompletamento = null;
+		else
+			dataCompletamento = LocalDate.parse(or.getDataco(),
+					formatter);
+
 		HashMap<Prodotto, Integer> listaProdotti = fetchListaProdottiFromDb(
 				or.getId());
 		Ordine ord = new Ordine(id, tipo, stato, dataEmissione,
@@ -352,8 +360,17 @@ public class OrderModel extends BaseModel {
 	private static void copyOrdineIntoRecord(Ordine o, OrdineRecord r) {
 		r.setTipo(o.getTipo().name());
 		r.setStato(o.getStato().name());
-		r.setDataem(o.getDataEmissione().toString());
-		r.setDataco(o.getDataCompletamento().toString());
+
+		LocalDate emDate = o.getDataEmissione();
+		LocalDate coDate = o.getDataCompletamento();
+
+		DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
+
+		String formattedDateEm = emDate.format(formatter);
+		String formattedDateCo = coDate.format(formatter);
+
+		r.setDataem(formattedDateEm);
+		r.setDataco(formattedDateCo);
 	}
 
 	/**
@@ -392,7 +409,7 @@ public class OrderModel extends BaseModel {
 	 */
 	private static HashMap<Prodotto, Integer> fetchListaProdottiFromDb(int id) {
 		Result<Record> result = DSL.select().from(PRODOTTIORDINI)
-				.where(ORDINE.ID.eq(id)).fetch();
+				.where(PRODOTTIORDINI.ORDINE.eq(id)).fetch();
 		HashMap<Prodotto, Integer> prodotti = new HashMap<>();
 		ProdottoRecord pr;
 		Prodotto p;
@@ -484,6 +501,28 @@ public class OrderModel extends BaseModel {
 			}
 		}
 		return filtrata;
+	}
+
+	public static void main(String[] args)
+			throws SQLIntegrityConstraintViolationException, ParseException {
+		LocalDate dem = LocalDate.of(2024, 04, 03);
+		LocalDate dco = LocalDate.of(2024, 04, 04);
+		Prodotto p = new Prodotto(1, "scala", "marcia", 10, 2);
+		HashMap<Prodotto, Integer> prodotti = new HashMap<>();
+		prodotti.put(p, p.getId());
+		System.out.println(dem);
+		System.out.println(dco);
+
+		Ordine o = new Ordine(3, TipoOrdine.IN, StatoOrdine.IN_ATTESA, dem,
+				dco);
+		o.setProdotti(prodotti);
+		System.out.println(o.isValid());
+		System.out.println(dco + "    " + dem);
+		create(o);
+		OrderModel om = new OrderModel(o);
+		getAllOrderModels();
+		instances.forEach(
+				(id, om1) -> System.out.println(om1.getOrdine().getId()));
 	}
 
 }
