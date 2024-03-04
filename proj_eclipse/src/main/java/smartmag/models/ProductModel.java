@@ -4,60 +4,72 @@ import static ingsw_proj_magazzino.db.generated.Tables.PRODOTTO;
 import static org.jooq.impl.DSL.max;
 
 import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.jooq.Record;
 
 import ingsw_proj_magazzino.db.generated.tables.records.ProdottoRecord;
 import smartmag.data.Prodotto;
 
 public class ProductModel extends BaseModel {
 
-	private static HashMap<Integer, ProductModel> instances = new HashMap<Integer, ProductModel>();
+	private static TreeMap<Integer, ProductModel> instances;
+	static {
+		instances = new TreeMap<Integer, ProductModel>();
+		Map<Integer, Record> res = DSL.select().from(PRODOTTO)
+				.fetchMap(PRODOTTO.ID);
+		res.forEach((id, r) -> instances.put(id,
+				new ProductModel((ProdottoRecord) r)));
+	}
 
 	private Prodotto prodotto;
 	private ProdottoRecord record;
 
-	public static ProductModel getProductModelOf(Prodotto p) {
-
-		if (p != null && p.isValid()) {
-			if (!instances.containsKey(p.getId())) {
-				ProductModel pm = new ProductModel(p);
-				instances.put(p.getId(), pm);
-				return pm;
-			} else {
-				return instances.get(p.getId());
+	private ProductModel(Prodotto p, ProdottoRecord r) {
+		if (p == null) {
+			if (r == null) {
+				throw new IllegalArgumentException("ProductRecord nullo");
 			}
-		} else
-			throw new IllegalArgumentException("Prodotto non valido!");
-	}
+			p = prodottoFromRecord(r);
+		}
+		if (r == null) {
+			if (p == null || !p.isValid()) {
+				throw new IllegalArgumentException("prodotto nullo");
+			}
+			r = fetchProdById(p.getId());
+		}
 
-	public boolean isSavedInDb() {
-		refreshFromDb();
-		return record != null;
+		if (instances.containsKey(p.getId())) {
+			throw new IllegalArgumentException("modello giá creato");
+		}
+		this.prodotto = p;
+		this.record = r;
+		instances.put(p.getId(), this);
+
 	}
 
 	private ProductModel(Prodotto p) {
-		this.prodotto = p;
-		this.record = fetchProdById(p.getId());
+		this(p, fetchProdById(p.getId()));
+
 	}
 
-	protected Prodotto getProdotto() {
-		return prodotto;
+	private ProductModel(ProdottoRecord r) {
+		this(prodottoFromRecord(r), r);
+
 	}
 
-	protected void setProdotto(Prodotto p) {
-
-		if (p != null && p.isValid())
-			this.prodotto = p;
-		else
-			throw new IllegalArgumentException("Prodotto non valido!");
-	}
-
-	public ProdottoRecord getRecord() {
-		return record;
-	}
-
-	public void createProdotto()
+	public ProductModel createProdotto(Prodotto p)
 			throws SQLIntegrityConstraintViolationException {
+		ProductModel pm = getProductModelOf(p);
+		if (pm.isSavedInDb()) {
+			throw new IllegalArgumentException("prodotto già presente");
+		}
+		pm.create();
+		return pm;
+	}
+
+	public void create() throws SQLIntegrityConstraintViolationException {
 
 		if (isSavedInDb())
 			throw new SQLIntegrityConstraintViolationException(
@@ -68,8 +80,28 @@ public class ProductModel extends BaseModel {
 		copyProdottoIntoRecord(prodotto, r);
 		r.store(); // INSERT
 		this.record = r;
+		notifyChangeListeners(null);
+	}
 
-		// TODO: event
+	public Prodotto getProdotto() {
+		return prodotto.clone();
+	}
+
+	protected void setProdotto(Prodotto p) {
+
+		if (p != null && p.isValid())
+			this.prodotto = p.clone();
+		else
+			throw new IllegalArgumentException("Prodotto non valido!");
+	}
+
+	public boolean isSavedInDb() {
+		refreshFromDb();
+		return record != null;
+	}
+
+	protected ProdottoRecord getRecord() {
+		return record;
 	}
 
 	// Refresh (from DB) record and Prodotto obj
@@ -83,12 +115,14 @@ public class ProductModel extends BaseModel {
 			this.prodotto.setSoglia(p.getSoglia());
 		}
 
-		// TODO: event
+		notifyChangeListeners(null);
 	}
 
 	public void deleteProdotto() {
 		if (isSavedInDb()) {
-			record.delete(); // DELETE con UpdatableRecord
+			record.delete();// DELETE con UpdatableRecord
+			record = null;
+			notifyChangeListeners(null);
 		}
 	}
 
@@ -101,9 +135,23 @@ public class ProductModel extends BaseModel {
 		record = (ProdottoRecord) fetchProdById(p.getId());
 		copyProdottoIntoRecord(p, record);
 		record.store(); // UPDATE con UpdatableRecord
+		notifyChangeListeners(null);
 	}
 
 	// Metodi statici
+
+	public static ProductModel getProductModelOf(Prodotto p) {
+
+		if (p != null && p.isValid()) {
+			if (!instances.containsKey(p.getId())) {
+				ProductModel pm = new ProductModel(p);
+				return pm;
+			} else {
+				return instances.get(p.getId());
+			}
+		} else
+			throw new IllegalArgumentException("Prodotto non valido!");
+	}
 
 	static ProdottoRecord fetchProdById(int id) {
 		ProdottoRecord r = (ProdottoRecord) DSL.select().from(PRODOTTO)
@@ -137,5 +185,22 @@ public class ProductModel extends BaseModel {
 		if (max == null)
 			return 0;
 		return max + 1;
+	}
+
+	public static TreeMap<Integer, ProductModel> getAllProductModels() {
+		TreeMap<Integer, ProductModel> pm = (TreeMap<Integer, ProductModel>) instances
+				.clone();
+		return treeMapFilter(pm);
+	}
+
+	private static TreeMap<Integer, ProductModel> treeMapFilter(
+			TreeMap<Integer, ProductModel> m) {
+		TreeMap<Integer, ProductModel> filtrata = new TreeMap<Integer, ProductModel>();
+		for (Map.Entry<Integer, ProductModel> entry : m.entrySet()) {
+			if (entry.getValue().record != null) {
+				filtrata.put(entry.getKey(), entry.getValue());
+			}
+		}
+		return filtrata;
 	}
 }

@@ -7,6 +7,8 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.jooq.Record;
+
 import ingsw_proj_magazzino.db.generated.tables.records.BoxRecord;
 import ingsw_proj_magazzino.db.generated.tables.records.ProdottoRecord;
 import smartmag.data.Box;
@@ -20,8 +22,7 @@ public class BoxModel extends BaseModel {
 	private static TreeMap<String, BoxModel> instances;
 	static {
 		instances = new TreeMap<String, BoxModel>();
-		Map<String, org.jooq.Record> res = DSL.select().from(BOX)
-				.fetchMap(BOX.ID);
+		Map<String, Record> res = DSL.select().from(BOX).fetchMap(BOX.ID);
 		res.forEach((id, r) -> instances.put(id, new BoxModel((BoxRecord) r)));
 	}
 
@@ -45,6 +46,7 @@ public class BoxModel extends BaseModel {
 		this.box = b;
 		this.record = br;
 		instances.put(b.getIndirizzo(), this);
+		notifyChangeListeners(null);
 	}
 
 	private BoxModel(Box b) {
@@ -71,7 +73,7 @@ public class BoxModel extends BaseModel {
 	 * @return
 	 */
 	protected Box getBox() {
-		return box;
+		return box.clone();
 	}
 
 	/**
@@ -83,6 +85,15 @@ public class BoxModel extends BaseModel {
 		return record;
 	}
 
+	public static BoxModel createBox(Box b)
+			throws SQLIntegrityConstraintViolationException {
+		BoxModel bm = getBoxModel(b);
+		if (bm.isSavedInDb())
+			throw new IllegalArgumentException("box già presente");
+		bm.create();
+		return bm;
+	}
+
 	/**
 	 * permette di creare il record del box nel database, solo se non é giá
 	 * presente
@@ -90,7 +101,7 @@ public class BoxModel extends BaseModel {
 	 * @throws SQLIntegrityConstraintViolationException se il record é giá
 	 *                                                  presente nel db
 	 */
-	public void createBox() throws SQLIntegrityConstraintViolationException {
+	public void create() throws SQLIntegrityConstraintViolationException {
 		if (isSavedInDb()) {
 			throw new SQLIntegrityConstraintViolationException(
 					"il box#" + box.getIndirizzo() + " esiste giá");
@@ -100,6 +111,7 @@ public class BoxModel extends BaseModel {
 		copyBoxIntoRecord(box, r);
 		r.store();
 		this.record = r;
+		notifyChangeListeners(null);
 	}
 
 	/**
@@ -113,9 +125,8 @@ public class BoxModel extends BaseModel {
 			this.box.setIndirizzo(b.getIndirizzo());
 			this.box.setQuantità(b.getQuantità());
 			this.box.setProd(b.getProd());
+			notifyChangeListeners(null);
 		}
-
-		// TODO: event
 	}
 
 	/**
@@ -131,6 +142,9 @@ public class BoxModel extends BaseModel {
 			if (p != null && p.isValid()
 					&& ProductModel.fetchProdById(p.getId()) != null) {
 				box.setProd(p);
+				record.setProdotto(p.getId());
+				record.update();
+				notifyChangeListeners(null);
 			} else
 				throw new IllegalArgumentException("prodotto non valido");
 		} else
@@ -144,6 +158,9 @@ public class BoxModel extends BaseModel {
 	protected void deleteRecord() {
 		if (isSavedInDb()) {
 			record.delete();
+			record = null;
+			instances.remove(box.getIndirizzo());
+			notifyChangeListeners(null);
 		}
 	}
 
@@ -158,6 +175,7 @@ public class BoxModel extends BaseModel {
 		this.box.setQuantità(qi + quantita);
 		record.setQta(box.getQuantità());
 		record.update();
+		notifyChangeListeners(null);
 	}
 
 	/**
@@ -171,10 +189,12 @@ public class BoxModel extends BaseModel {
 			box.setQuantità(this.box.getQuantità() - qta);
 			record.setQta(box.getQuantità());
 			record.update();
+			notifyChangeListeners(null);
 		} else {
 			throw new IllegalArgumentException(
 					"qta richiesta maggiore di quella disponibile");
 		}
+
 	}
 
 	/**
@@ -186,6 +206,7 @@ public class BoxModel extends BaseModel {
 		this.box.setQuantità(qta);
 		record.setQta(box.getQuantità());
 		record.update();
+		notifyChangeListeners(null);
 	}
 
 	// metodi statici
@@ -264,8 +285,23 @@ public class BoxModel extends BaseModel {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	public static TreeMap<String, BoxModel> getAllBoxModels() {
-		return (TreeMap<String, BoxModel>) instances.clone();
+
+		TreeMap<String, BoxModel> bm = (TreeMap<String, BoxModel>) instances
+				.clone();
+		return treeMapFilter(bm);
+	}
+
+	private static TreeMap<String, BoxModel> treeMapFilter(
+			TreeMap<String, BoxModel> m) {
+		TreeMap<String, BoxModel> filtrata = new TreeMap<String, BoxModel>();
+		for (Map.Entry<String, BoxModel> entry : m.entrySet()) {
+			if (entry.getValue().record != null) {
+				filtrata.put(entry.getKey(), entry.getValue());
+			}
+		}
+		return filtrata;
 	}
 
 }
