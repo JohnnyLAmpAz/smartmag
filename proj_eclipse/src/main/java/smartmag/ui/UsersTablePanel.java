@@ -9,14 +9,18 @@ import javax.swing.JTable;
 import smartmag.models.UtenteModel;
 import smartmag.models.ui.UsersTableModel;
 
+/**
+ * JPanel con tabella di tutti gli Utenti all'interno di uno ScrollPane
+ */
 public class UsersTablePanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
+
 	private JTable table;
 	private UsersTableModel tableModel = new UsersTableModel();
 
 	/**
-	 * Create the panel.
+	 * Crea il pannello
 	 */
 	public UsersTablePanel() {
 		setLayout(new BorderLayout(0, 0));

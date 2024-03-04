@@ -9,22 +9,45 @@ import javax.swing.table.AbstractTableModel;
 import smartmag.data.Utente;
 import smartmag.models.UtenteModel;
 
+/**
+ * JTableModel per tabelle di tutti gli Utenti. Implementando ChangeListener, si
+ * registra all'UtenteModel per reagire a qualunque modifica che riguarda gli
+ * utenti.
+ */
 public class UsersTableModel extends AbstractTableModel
 		implements ChangeListener {
 
 	private static final long serialVersionUID = 1L;
 
-	private TreeMap<String, UtenteModel> utenti;
-	private String[] columnNames;
+	/**
+	 * Testate delle colonne
+	 */
+	private static final String[] COLUMN_NAMES = new String[] { "Matricola",
+			"Nome", "Cognome", "Ruolo" };;
 
+	/**
+	 * Mappa degli utenti mostrati in tabella
+	 */
+	private TreeMap<String, UtenteModel> utenti;
+
+	/**
+	 * Recupera tutti gli utenti dal modello degli utenti e si registra come
+	 * ChangeListener per i cambiamenti.
+	 */
 	public UsersTableModel() {
 		refreshDataFromModel();
 		UtenteModel.addChangeListener(this);
-		columnNames = new String[] { "Matricola", "Nome", "Cognome", "Ruolo" };
 	}
 
+	/**
+	 * Aggiorna la mappa locale recuperando i dati degli utenti dal DB
+	 * attraverso il modello, per poi notificare l'interfaccia del cambiamento
+	 */
 	private void refreshDataFromModel() {
 		utenti = UtenteModel.getAllUserModels();
+
+		// Notifica la finestra della variazione dei dati
+		fireTableDataChanged();
 	}
 
 	/**
@@ -57,7 +80,7 @@ public class UsersTableModel extends AbstractTableModel
 
 	@Override
 	public int getColumnCount() {
-		return columnNames.length;
+		return COLUMN_NAMES.length;
 	}
 
 	@Override
@@ -84,7 +107,7 @@ public class UsersTableModel extends AbstractTableModel
 
 	@Override
 	public String getColumnName(int column) {
-		return columnNames[column];
+		return COLUMN_NAMES[column];
 	}
 
 	@Override
@@ -92,9 +115,6 @@ public class UsersTableModel extends AbstractTableModel
 
 		// Aggiorna dati dal modello
 		refreshDataFromModel();
-
-		// Notifica la finestra della variazione dei dati
-		fireTableDataChanged();
 	}
 
 }

@@ -216,7 +216,6 @@ public class UtenteModel extends BaseModel {
 	/**
 	 * Restituisce una TreeMap di tutti i modelli degli utenti salvati a DB
 	 */
-	@SuppressWarnings("unchecked")
 	public static TreeMap<String, UtenteModel> getAllUserModels() {
 		TreeMap<String, UtenteModel> m = new TreeMap<>();
 		instances.forEach((matr, um) -> {
