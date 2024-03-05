@@ -4,8 +4,6 @@ import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -20,7 +18,6 @@ public class ProvaTabellaOrdini extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTable tabellaOrdini;
-	private final Action action = new SwingAction();
 	private OrderTableModel modello = new OrderTableModel();
 
 	/**
@@ -61,7 +58,12 @@ public class ProvaTabellaOrdini extends JFrame {
 		JButton btnAggiungi = new JButton("Aggiungi");
 		btnAggiungi.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				// Richiama il Jdialog per poter inserire l'ordine
+				OrderDialog dialog = new OrderDialog();
+				dialog.setModal(true);
+				dialog.setVisible(true);
 			}
+
 		});
 		btnAggiungi.setBounds(22, 448, 163, 51);
 		contentPane.add(btnAggiungi);
@@ -71,6 +73,10 @@ public class ProvaTabellaOrdini extends JFrame {
 		contentPane.add(btnModifica);
 		btnModifica.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				// Richiama il JDialog per poter modificare i valori dell'ordine
+				OrderDialog dialog = new OrderDialog();
+				dialog.setModal(true);
+				dialog.setVisible(true);
 			}
 		});
 
@@ -78,19 +84,9 @@ public class ProvaTabellaOrdini extends JFrame {
 		btnElimina.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			}
+
 		});
 		btnElimina.setBounds(445, 448, 163, 51);
 		contentPane.add(btnElimina);
-
-	}
-
-	private class SwingAction extends AbstractAction {
-		public SwingAction() {
-			putValue(NAME, "SwingAction");
-			putValue(SHORT_DESCRIPTION, "Some short description");
-		}
-
-		public void actionPerformed(ActionEvent e) {
-		}
 	}
 }

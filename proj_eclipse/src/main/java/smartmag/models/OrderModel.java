@@ -507,13 +507,26 @@ public class OrderModel extends BaseModel {
 			throws SQLIntegrityConstraintViolationException, ParseException {
 		LocalDate dem = LocalDate.of(2024, 04, 03);
 		LocalDate dco = LocalDate.of(2024, 04, 04);
-		Prodotto p = new Prodotto(1, "scala", "marcia", 10, 2);
+		Prodotto p = new Prodotto(2, "scala2", "marcia", 10, 2);
+		Prodotto p1 = new Prodotto(3, "scala3", "marcia", 10, 2);
+		Prodotto p2 = new Prodotto(4, "scala4", "marcia", 10, 2);
+		Prodotto p3 = new Prodotto(5, "scala5", "marcia", 10, 2);
 		HashMap<Prodotto, Integer> prodotti = new HashMap<>();
 		prodotti.put(p, p.getId());
+		prodotti.put(p1, p1.getId());
+		prodotti.put(p2, p2.getId());
+		prodotti.put(p3, p3.getId());
 		System.out.println(dem);
 		System.out.println(dco);
 
-		Ordine o = new Ordine(3, TipoOrdine.IN, StatoOrdine.IN_ATTESA, dem,
+		ProductModel.createProdotto(p);
+		ProductModel.createProdotto(p1);
+		ProductModel.createProdotto(p2);
+		ProductModel.createProdotto(p3);
+		ArrayList<Prodotto> prods = ProductModel.getAllProduct();
+		System.out.println(prods);
+
+		Ordine o = new Ordine(6, TipoOrdine.OUT, StatoOrdine.IN_ATTESA, dem,
 				dco);
 		o.setProdotti(prodotti);
 		System.out.println(o.isValid());

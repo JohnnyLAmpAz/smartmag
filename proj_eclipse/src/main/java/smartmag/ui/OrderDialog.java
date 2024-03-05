@@ -1,20 +1,26 @@
 package smartmag.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.ListCellRenderer;
 import javax.swing.border.EmptyBorder;
 
+import smartmag.data.Prodotto;
 import smartmag.data.StatoOrdine;
 import smartmag.data.TipoOrdine;
+import smartmag.models.ProductModel;
 
 public class OrderDialog extends JDialog {
 
@@ -41,7 +47,7 @@ public class OrderDialog extends JDialog {
 	 * Create the dialog.
 	 */
 	public OrderDialog() {
-		setBounds(100, 100, 450, 344);
+		setBounds(100, 100, 492, 540);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
@@ -98,10 +104,37 @@ public class OrderDialog extends JDialog {
 		comboStato.setBounds(169, 71, 257, 33);
 		contentPanel.add(comboStato);
 
-		JComboBox comboStato_1 = new JComboBox();
-		comboStato_1.setModel(new DefaultComboBoxModel(TipoOrdine.values()));
-		comboStato_1.setBounds(169, 115, 257, 33);
-		contentPanel.add(comboStato_1);
+		JComboBox comboTipo = new JComboBox();
+		comboTipo.setModel(new DefaultComboBoxModel(TipoOrdine.values()));
+		comboTipo.setBounds(169, 115, 257, 33);
+		contentPanel.add(comboTipo);
+
+		Vector<Prodotto> vectorProdotti = new Vector<>(
+				ProductModel.getAllProduct());
+
+		JComboBox<Prodotto> comboProdotti = new JComboBox<Prodotto>(
+				vectorProdotti);
+
+		comboProdotti.setRenderer(new ListCellRenderer<Prodotto>() {
+
+			@Override
+			public Component getListCellRendererComponent(
+					JList<? extends Prodotto> list, Prodotto value, int index,
+					boolean isSelected, boolean cellHasFocus) {
+				return new JLabel(
+						"ID: " + value.getId() + " " + value.getNome());
+			}
+		});
+		comboProdotti.addItemListener(
+				e -> System.out.println(comboProdotti.getSelectedItem()));
+
+		comboProdotti.setBounds(169, 247, 257, 33);
+		contentPanel.add(comboProdotti);
+
+		JLabel lblProdotti = new JLabel("Prodotti");
+		lblProdotti.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		lblProdotti.setBounds(8, 247, 84, 33);
+		contentPanel.add(lblProdotti);
 		{
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
