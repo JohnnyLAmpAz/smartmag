@@ -77,18 +77,6 @@ public class OrderModel extends BaseModel {
 	}
 
 	/**
-	 * Restituisce il clone della lista di tutti i record ProdottiOrdini
-	 * dell'ordine nell'istanza del modello
-	 * 
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public ArrayList<ProdottiordiniRecord> getListaProdottiOrdini() {
-		return (ArrayList<ProdottiordiniRecord>) fetchProductOrderRecordListByOrder(
-				ordine).clone();
-	}
-
-	/**
 	 * Crea un nuovo record dell'ordine usando l'ordine del modello
 	 */
 	private void createOrdineRecord()
@@ -135,7 +123,6 @@ public class OrderModel extends BaseModel {
 
 		if (p.isValid() && q > 0) {
 			createProdottoOrdineRecord(p, q);
-			notifyChangeListeners(null); // evento per notificare il cambiamento
 		} else
 			throw new SQLIntegrityConstraintViolationException(
 					"Ordine #" + p.getId() + " prodotto non valido o qta < 0");
@@ -157,7 +144,6 @@ public class OrderModel extends BaseModel {
 
 		o.setStato(StatoOrdine.valueOf(newStato));
 		updateOrdine(o);
-		notifyChangeListeners(null); // evento per notificare il cambiamento
 	}
 
 	// TODO Dopo avere il modello di movimentazione controlla le disponibilità
@@ -170,10 +156,10 @@ public class OrderModel extends BaseModel {
 	 * DELETE ON CASCADE, cancella anche i record id prodotti ordini
 	 */
 	@SuppressWarnings("unlikely-arg-type")
-	public void deleteRecords() throws ParseException {
+	public void deleteOrdine() throws ParseException {
 		if (orderIsSavedInDb()) {
 			orderRecord.delete(); // DELETE con UpdatableRecord
-			instances.remove(getOrderModelOf(ordine));
+			orderRecord = null;
 			notifyChangeListeners(null); // evento per notificare il cambiamento
 		}
 	}
@@ -492,7 +478,7 @@ public class OrderModel extends BaseModel {
 		return treeMapFilter(tm);
 	}
 
-	public static TreeMap<Integer, OrderModel> treeMapFilter(
+	private static TreeMap<Integer, OrderModel> treeMapFilter(
 			TreeMap<Integer, OrderModel> om) {
 		TreeMap<Integer, OrderModel> filtrata = new TreeMap<Integer, OrderModel>();
 		for (Map.Entry<Integer, OrderModel> entry : om.entrySet()) {
