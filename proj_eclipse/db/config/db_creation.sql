@@ -44,8 +44,8 @@ CREATE TABLE "Utente" (
 
 CREATE TABLE "Movimentazione" (
 	"ordine"	INTEGER,
-	"prod"	INTEGER,
 	"box"	TEXT,
+	"prod"	INTEGER NOT NULL,
 	"qta"	INTEGER NOT NULL CHECK("qta" > 0),
 	"stato"	TEXT NOT NULL DEFAULT NON_ASSEGNATA CHECK("stato" IN ("NON_ASSEGNATA", "PRESA_IN_CARICO", "PRELEVATA", "COMPLETATA", "ANNULLATA")),
 	"magazziniere"	TEXT COLLATE BINARY,
