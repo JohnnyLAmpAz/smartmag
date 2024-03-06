@@ -4,6 +4,12 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.SQLIntegrityConstraintViolationException;
+import java.text.ParseException;
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
@@ -17,9 +23,11 @@ import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.border.EmptyBorder;
 
+import smartmag.data.Ordine;
 import smartmag.data.Prodotto;
 import smartmag.data.StatoOrdine;
 import smartmag.data.TipoOrdine;
+import smartmag.models.OrderModel;
 import smartmag.models.ProductModel;
 
 public class OrderDialog extends JDialog {
@@ -135,6 +143,42 @@ public class OrderDialog extends JDialog {
 		lblProdotti.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		lblProdotti.setBounds(8, 247, 84, 33);
 		contentPanel.add(lblProdotti);
+
+		JButton btnInserisci = new JButton("Inserisci");
+		btnInserisci.setBounds(47, 377, 135, 54);
+		contentPanel.add(btnInserisci);
+		btnInserisci.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				String id1 = campoID.getText();
+				int id = Integer.parseInt(campoID.getText());
+				String co = campoDataCo.getText();
+				String em = campoDataEm.getText();
+				StatoOrdine stato = (StatoOrdine) comboStato.getSelectedItem();
+				TipoOrdine tipo = (TipoOrdine) comboTipo.getSelectedItem();
+				Prodotto prod = (Prodotto) comboProdotti.getSelectedItem();
+				LocalDate ldco = LocalDate.parse(co);
+				LocalDate ldem = LocalDate.parse(em);
+
+				System.out.println("ID: " + id1 + "co" + co + "em" + em
+						+ "stato" + stato + "tipo" + tipo + "prod" + prod);
+				HashMap<Prodotto, Integer> prodotti = new HashMap<>();
+				prodotti.put(prod, 1);
+				Ordine o = new Ordine(id, tipo, stato, ldem, ldco, prodotti);
+
+				try {
+					OrderModel.create(o);
+				} catch (SQLIntegrityConstraintViolationException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+
+		});
+
 		{
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -151,5 +195,7 @@ public class OrderDialog extends JDialog {
 				buttonPane.add(cancelButton);
 			}
 		}
+
 	}
+
 }
