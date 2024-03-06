@@ -124,7 +124,7 @@ public class Ordine extends TableImpl<OrdineRecord> {
     @Override
     public List<Check<OrdineRecord>> getChecks() {
         return Arrays.asList(
-            Internal.createCheck(this, DSL.name(""), "(dataCo is null or dataCo like '____-__-__')", true)
+            Internal.createCheck(this, DSL.name(""), "stato in (IN_ATTESA, IN_SVOLGIMENTO, COMPLETATO)", true)
         );
     }
 

@@ -1,6 +1,6 @@
 package smartmag.data;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -13,12 +13,12 @@ public class Ordine implements Comparable<Ordine> {
 	private int id;
 	private TipoOrdine tipo;
 	private StatoOrdine stato;
-	private Date dataEmissione;
-	private Date dataCompletamento;
+	private LocalDate dataEmissione;
+	private LocalDate dataCompletamento;
 	private HashMap<Prodotto, Integer> prodotti;
 
 	public Ordine(int id, TipoOrdine tipo, StatoOrdine stato,
-			Date dataEmissione, Date dataCompletamento,
+			LocalDate dataEmissione, LocalDate dataCompletamento,
 			HashMap<Prodotto, Integer> prodotti) {
 		this.id = id;
 		this.tipo = tipo;
@@ -29,13 +29,13 @@ public class Ordine implements Comparable<Ordine> {
 	}
 
 	public Ordine(int id, TipoOrdine tipo, StatoOrdine stato,
-			Date dataEmissione, Date dataCompletamento) {
+			LocalDate dataEmissione, LocalDate dataCompletamento) {
 		this(id, tipo, stato, dataEmissione, dataCompletamento, null);
 
 	}
 
 	public Ordine(int id, TipoOrdine tipo, StatoOrdine stato,
-			Date dataEmissione) {
+			LocalDate dataEmissione) {
 		this(id, tipo, stato, dataEmissione, null);
 	}
 
@@ -63,19 +63,19 @@ public class Ordine implements Comparable<Ordine> {
 		this.stato = stato;
 	}
 
-	public Date getDataEmissione() {
+	public LocalDate getDataEmissione() {
 		return dataEmissione;
 	}
 
-	public void setDataEmissione(Date dataEmissione) {
+	public void setDataEmissione(LocalDate dataEmissione) {
 		this.dataEmissione = dataEmissione;
 	}
 
-	public Date getDataCompletamento() {
+	public LocalDate getDataCompletamento() {
 		return dataCompletamento;
 	}
 
-	public void setDataCompletamento(Date dataCompletamento) {
+	public void setDataCompletamento(LocalDate dataCompletamento) {
 		this.dataCompletamento = dataCompletamento;
 	}
 
@@ -120,7 +120,7 @@ public class Ordine implements Comparable<Ordine> {
 	public boolean isValid() {
 		if (id < 0 || tipo == null || stato == null || dataEmissione == null
 				|| (stato == StatoOrdine.COMPLETATO
-						&& dataCompletamento.after(new Date()))
+						&& dataCompletamento.compareTo(LocalDate.now()) > 0)
 				|| prodotti == null || prodotti.size() < 1)
 			return false;
 		return true;
@@ -147,7 +147,7 @@ public class Ordine implements Comparable<Ordine> {
 
 	public static void main(String[] args) {
 		Ordine o = new Ordine(0, TipoOrdine.IN, StatoOrdine.IN_ATTESA,
-				new Date());
+				LocalDate.now());
 		HashMap<Prodotto, Integer> hm = new HashMap<Prodotto, Integer>();
 		hm.put(new Prodotto(12, null, null, 0, 0), 2);
 		hm.put(new Prodotto(25, null, null, 0, 0), 24);
@@ -163,13 +163,8 @@ public class Ordine implements Comparable<Ordine> {
 	@SuppressWarnings("unchecked")
 	public Ordine clone() {
 
-		Ordine o = new Ordine(id, tipo, stato, null, null, null);
-
-		if (dataEmissione != null)
-			o.setDataEmissione((Date) dataEmissione.clone());
-
-		if (dataCompletamento != null)
-			o.setDataCompletamento((Date) dataCompletamento.clone());
+		Ordine o = new Ordine(id, tipo, stato, dataEmissione, dataCompletamento,
+				null);
 
 		if (prodotti != null)
 			o.setProdotti((HashMap<Prodotto, Integer>) prodotti.clone());
