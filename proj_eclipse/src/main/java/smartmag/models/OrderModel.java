@@ -275,6 +275,19 @@ public class OrderModel extends BaseModel {
 
 	// Static methods for order ======
 	/**
+	 * Restituisce il modello dell'ordine con ID specificato. Se non è stato mai
+	 * creato, restituisce null.
+	 * 
+	 * @param orderId ID dell'ordine di cui si vuole ottenere il modello
+	 * @return modello dell'ordine
+	 */
+	public static OrderModel getOrderModelById(int orderId) {
+		if (!instances.containsKey(orderId))
+			return null;
+		return instances.get(orderId);
+	}
+
+	/**
 	 * Restituisce il modello dell'ordine che è stato passato al metodo
 	 * 
 	 * @param o ordine del quale si vuole ottenere il modello

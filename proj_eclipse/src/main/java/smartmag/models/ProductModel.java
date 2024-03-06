@@ -140,6 +140,19 @@ public class ProductModel extends BaseModel {
 
 	// Metodi statici
 
+	/**
+	 * Recupera il ProductModel in base all'ID prodotto. Se non è mai stato
+	 * creato restituisce null.
+	 * 
+	 * @param prodId ID del prodotto
+	 * @return modello trovato o null
+	 */
+	public static ProductModel getProductModelById(int prodId) {
+		if (!instances.containsKey(prodId))
+			return null;
+		return instances.get(prodId);
+	}
+
 	public static ProductModel getProductModelOf(Prodotto p) {
 
 		if (p != null && p.isValid()) {

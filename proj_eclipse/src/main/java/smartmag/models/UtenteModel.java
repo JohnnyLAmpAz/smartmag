@@ -98,7 +98,7 @@ public class UtenteModel extends BaseModel {
 			this.utente = utenteFromRecord(this.record);
 		}
 
-		// TODO: event
+		notifyChangeListeners(null);
 	}
 
 	// Metodi statici
@@ -117,23 +117,17 @@ public class UtenteModel extends BaseModel {
 
 	/**
 	 * Ritorna l'unica istanza (singleton) del modello relativo ad un utente
-	 * specifico
+	 * specifico. Se non esiste, ritorna null
 	 * 
-	 * @param matr Utente
-	 * @return Modello
+	 * @param matr matricola dell'utente d'interesse
+	 * @return Modello trovato o null
 	 */
 	public static UtenteModel getUtenteModelOf(String matr) {
 
 		if (matr != null && !matr.isBlank()) {
-			if (!instances.containsKey(matr)) {
-				UtenteRecord r = fetchUtenteByMatr(matr);
-				if (r == null)
-					return null;
-				UtenteModel um = new UtenteModel(r);
-				return um;
-			} else {
-				return instances.get(matr);
-			}
+			if (!instances.containsKey(matr))
+				return null;
+			return instances.get(matr);
 		} else
 			throw new IllegalArgumentException("Matricola non valida!");
 	}

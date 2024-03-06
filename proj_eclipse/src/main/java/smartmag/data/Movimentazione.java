@@ -2,9 +2,16 @@ package smartmag.data;
 
 import java.util.Objects;
 
+/**
+ * Classe contenitore dei dati di una movimentazione.
+ */
 public class Movimentazione {
 
-	public static final String ZSC = "zona SC";
+	/**
+	 * Costante di testo che rappresenta la zona di carico/scarico
+	 */
+	public static final String ZSC = "C/S";
+
 	private StatoMovimentazione stato;
 	private int quantità;
 	private Ordine ordine;
@@ -75,6 +82,18 @@ public class Movimentazione {
 
 	public void setMagazziniere(Utente magazziniere) {
 		this.magazziniere = magazziniere;
+	}
+
+	/**
+	 * Restituisce un oggetto MovimId che costituisce la chiave primaria della
+	 * movimentazione.
+	 * 
+	 * @return
+	 */
+	public MovimId getMovimId() {
+		if (!isValid())
+			return null;
+		return new MovimId(ordine.getId(), box.getIndirizzo());
 	}
 
 	@Override

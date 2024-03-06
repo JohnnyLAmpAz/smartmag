@@ -72,7 +72,7 @@ public class BoxModel extends BaseModel {
 	 * 
 	 * @return
 	 */
-	protected Box getBox() {
+	public Box getBox() {
 		return box.clone();
 	}
 
@@ -210,6 +210,19 @@ public class BoxModel extends BaseModel {
 	}
 
 	// metodi statici
+
+	/**
+	 * Recupera il modello del box corrispondente all'indirizzo specificato. Se
+	 * non esiste restituisce null.
+	 * 
+	 * @param boxAddr
+	 * @return modello trovato o null
+	 */
+	public static BoxModel getBoxModelByAddr(String boxAddr) {
+		if (!instances.containsKey(boxAddr))
+			return null;
+		return instances.get(boxAddr);
+	}
 
 	/**
 	 * restituisce il modello del box passato come parametro e lo salva
