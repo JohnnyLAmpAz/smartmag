@@ -6,7 +6,7 @@ import smartmag.utils.Tupla;
  * Tupla immutable che contiene l'identificativo di una movimentazione: ID
  * Ordine e ID Box
  */
-public class MovimId {
+public class MovimId implements Comparable<MovimId> {
 
 	private Tupla<Integer, String> id;
 
@@ -20,5 +20,13 @@ public class MovimId {
 
 	public String getBoxId() {
 		return id.y;
+	}
+
+	@Override
+	public int compareTo(MovimId o) {
+		int cmpOrdineId = getOrdineId().compareTo(o.getOrdineId());
+		if (cmpOrdineId == 0)
+			return getBoxId().compareTo(o.getBoxId());
+		return cmpOrdineId;
 	}
 }
