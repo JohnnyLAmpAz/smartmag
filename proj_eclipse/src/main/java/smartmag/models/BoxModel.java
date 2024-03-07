@@ -24,7 +24,6 @@ public class BoxModel extends BaseModel {
 		instances = new TreeMap<String, BoxModel>();
 		Map<String, Record> res = DSL.select().from(BOX).fetchMap(BOX.ID);
 		res.forEach((id, r) -> instances.put(id, new BoxModel((BoxRecord) r)));
-		notifyChangeListeners(null);
 	}
 
 	private Box box;
@@ -86,11 +85,9 @@ public class BoxModel extends BaseModel {
 		return record;
 	}
 
-	public BoxModel CreateBox(Box b)
+	public static BoxModel createBox(Box b)
 			throws SQLIntegrityConstraintViolationException {
 		BoxModel bm = getBoxModel(b);
-		if (bm == null)
-			bm = new BoxModel(b);
 		if (bm.isSavedInDb())
 			throw new IllegalArgumentException("box già presente");
 		bm.create();
@@ -104,7 +101,7 @@ public class BoxModel extends BaseModel {
 	 * @throws SQLIntegrityConstraintViolationException se il record é giá
 	 *                                                  presente nel db
 	 */
-	public void create() throws SQLIntegrityConstraintViolationException {
+	private void create() throws SQLIntegrityConstraintViolationException {
 		if (isSavedInDb()) {
 			throw new SQLIntegrityConstraintViolationException(
 					"il box#" + box.getIndirizzo() + " esiste giá");
@@ -128,8 +125,8 @@ public class BoxModel extends BaseModel {
 			this.box.setIndirizzo(b.getIndirizzo());
 			this.box.setQuantità(b.getQuantità());
 			this.box.setProd(b.getProd());
+			notifyChangeListeners(null);
 		}
-		notifyChangeListeners(null);
 	}
 
 	/**
@@ -145,14 +142,14 @@ public class BoxModel extends BaseModel {
 			if (p != null && p.isValid()
 					&& ProductModel.fetchProdById(p.getId()) != null) {
 				box.setProd(p);
-				// da aggiornare record
+				record.setProdotto(p.getId());
+				record.update();
 				notifyChangeListeners(null);
 			} else
 				throw new IllegalArgumentException("prodotto non valido");
 		} else
 			throw new IllegalArgumentException(
 					"attenzione: il box deve essere valido e vuoto");
-
 	}
 
 	/**
@@ -162,7 +159,6 @@ public class BoxModel extends BaseModel {
 		if (isSavedInDb()) {
 			record.delete();
 			record = null;
-			instances.remove(box.getIndirizzo());
 			notifyChangeListeners(null);
 		}
 	}
@@ -296,7 +292,7 @@ public class BoxModel extends BaseModel {
 		return treeMapFilter(bm);
 	}
 
-	public static TreeMap<String, BoxModel> treeMapFilter(
+	private static TreeMap<String, BoxModel> treeMapFilter(
 			TreeMap<String, BoxModel> m) {
 		TreeMap<String, BoxModel> filtrata = new TreeMap<String, BoxModel>();
 		for (Map.Entry<String, BoxModel> entry : m.entrySet()) {

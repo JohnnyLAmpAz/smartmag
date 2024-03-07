@@ -1,96 +1,141 @@
 package smartmag.models.ui;
 
-import java.util.ArrayList;
+import java.awt.Rectangle;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
+import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
 
-import ingsw_proj_magazzino.db.generated.tables.records.ProdottiordiniRecord;
-import smartmag.data.Ordine;
+import smartmag.data.Prodotto;
 import smartmag.models.OrderModel;
-import smartmag.models.ProductModel;
 
 public class ProductOrderTableModel extends AbstractTableModel
 		implements ChangeListener {
 
 	private static final long serialVersionUID = 1L;
-	private String[] columnNames;
-	private Ordine order;
-	// ArrayList mantiene l'ordine di inserimento
-	private ArrayList<ProdottiordiniRecord> listaProdOrdRecord;
-	private static TreeMap<Integer, ProductModel> prodotti;
+	private static final String[] COLUMN_NAMES = new String[] { "ID prodotto",
+			"Nome prodotto", "Quantità" };
 
+	/**
+	 * Modello dell'ordine. Con questo si ha accesso all'ordine e di coseguenza
+	 * alla "lista della spesa".
+	 */
+	private OrderModel orderModel;
+
+	/**
+	 * Mappa della "lista della spesa" (Prodotto => Quantità) relativa
+	 * all'ordine del modello specificato. Si tratta di un clone di quella
+	 * effettiva del modello.
+	 */
+	private HashMap<Prodotto, Integer> listaSpesa;
+
+	/**
+	 * Costruisce il modello di una tabella relativa alla "lista della spesa"
+	 * dell'ordine di cui si specifica il modello.
+	 * 
+	 * @param o Modello dell'ordine d'interesse
+	 */
 	public ProductOrderTableModel(OrderModel o) {
-		refreshProductList();
-		this.order = o.getOrdine();
-		listaProdOrdRecord = o.getListaProdottiOrdini();
-
-		columnNames = new String[] { "ID ordine", "ID prodotto",
-				"Nome prodotto", "Quantità" };
-
+		if (o == null)
+			throw new IllegalArgumentException(
+					"La tabella deve essere associata ad un modello di un ordine!");
+		this.orderModel = o;
+		refreshData();
 	}
 
-	private void refreshProductList() {
-		prodotti = ProductModel.getAllProductModels();
+	/**
+	 * Aggiorna la lista della spesa attingendo dal modello
+	 */
+	private void refreshData() {
+		this.listaSpesa = this.orderModel.getOrdine().getProdotti();
 	}
 
 	@Override
 	public int getRowCount() {
-		// il numero delle righe è dato dal numero di ProdottiordiniRecord
-		// relativi a quell'ordine
-		return listaProdOrdRecord.size();
+		return listaSpesa.size();
 	}
 
 	@Override
 	public int getColumnCount() {
-		return columnNames.length;
+		return COLUMN_NAMES.length;
 	}
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		ProdottiordiniRecord por1 = null;
-		ProductModel pm = null;
-		int i = 0;
+		Prodotto prod = null;
+		Integer qta = -1;
 
-		for (ProdottiordiniRecord por : listaProdOrdRecord) {
-			if (rowIndex == i) {
-				por1 = por;
-				break;
+		// Seleziono il prodotto (in base a indice riga) iterando la mappa
+		int i = 0;
+		for (Map.Entry<Prodotto, Integer> entry : listaSpesa.entrySet()) {
+			if (i != rowIndex) {
+				i++;
+				continue;
 			}
-			i++;
+
+			prod = entry.getKey();
+			qta = entry.getValue();
+			break;
 		}
+
+		if (prod == null)
+			throw new IndexOutOfBoundsException();
+
+		// Restituisco il campo richiesto
+		// | ID prodotto | Nome prodotto | Quantità |
 		switch (columnIndex) {
-		case 0:
-			return por1.getOrdine();
-		case 1:
-			return por1.getProd();
-		case 2:
-			for (Map.Entry<Integer, ProductModel> entry : prodotti.entrySet()) {
-				if (entry.getKey().equals(por1.getProd())) {
-					pm = entry.getValue();
-					break;
-				}
-			}
-			return pm.getProdotto().getNome();
-		case 3:
-			return por1.getQta();
-		default:
-			throw new IllegalArgumentException();
+			case 0:
+				return prod.getId();
+			case 1:
+				return prod.getNome();
+			case 2:
+				return qta;
+			default:
+				throw new IllegalArgumentException();
 		}
 	}
 
 	@Override
 	public String getColumnName(int column) {
-		return columnNames[column];
+		return COLUMN_NAMES[column];
 	}
 
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		fireTableDataChanged(); // aggiorna la tabella se il modello ha subito
-		// variazioni
+
+		// Aggiorna listaSpesa
+		refreshData();
+
+		// aggiorna la tabella se il modello ha subito variazioni
+		fireTableDataChanged();
 	}
 
+	// TODO: to test
+	public static void main(String[] args) {
+
+		// tabella dei prodotti dell'ordine #0
+		OrderModel orderModel = OrderModel.getAllOrderModels().get(0);
+
+		for (Map.Entry<Prodotto, Integer> entry : orderModel.getOrdine()
+				.getProdotti().entrySet()) {
+			Prodotto prod = entry.getKey();
+			Integer qta = entry.getValue();
+			System.out.println("%d X #%d: %s".formatted(qta, prod.getId(),
+					prod.getNome()));
+		}
+
+		JFrame frame = new JFrame("Lista spesa ordine #0");
+		JTable table = new JTable(new ProductOrderTableModel(orderModel));
+		JScrollPane panel = new JScrollPane(table);
+		frame.setContentPane(panel);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setBounds(new Rectangle(300, 200));
+		frame.setLocationRelativeTo(null);
+		frame.setVisible(true);
+	}
 }

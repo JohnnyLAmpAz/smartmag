@@ -29,20 +29,17 @@ public class ProductTableModel extends AbstractTableModel
 
 	@Override
 	public int getRowCount() {
-		// TODO Auto-generated method stub
 		return prodotti.size();
 	}
 
 	@Override
 	public int getColumnCount() {
-		// TODO Auto-generated method stub
 		return columnNames.length;
 	}
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		// TODO Auto-generated method stub
-		Prodotto p = getProductModelat(rowIndex).getProdotto();
+		Prodotto p = getProductModelAt(rowIndex).getProdotto();
 		return switch (columnIndex) {
 		case 0:
 			yield p.getId();
@@ -66,7 +63,7 @@ public class ProductTableModel extends AbstractTableModel
 	 * @param index indice posizione prodotto
 	 * @return modello prodotto
 	 */
-	public ProductModel getProductModelat(int rowIndex) {
+	public ProductModel getProductModelAt(int rowIndex) {
 		ProductModel pm = null;
 		int i = 0;
 
@@ -90,7 +87,6 @@ public class ProductTableModel extends AbstractTableModel
 
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		// TODO Auto-generated method stub
 		refreshFromModel();
 		fireTableDataChanged();
 	}
