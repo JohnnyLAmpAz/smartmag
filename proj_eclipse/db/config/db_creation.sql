@@ -19,8 +19,8 @@ CREATE TABLE "Ordine" (
 	"id"	INTEGER,
 	"tipo"	TEXT NOT NULL CHECK("tipo" IN ("IN", "OUT")),
 	"stato"	TEXT NOT NULL CHECK("stato" IN ("IN_ATTESA", "IN_SVOLGIMENTO", "COMPLETATO")),
-	"dataEm"	TEXT NOT NULL DEFAULT '1970-01-01' CHECK(dataEm LIKE '____-__-__'),
-	"dataCo"	TEXT CHECK(dataCo IS NULL OR dataCo LIKE '____-__-__'),
+	"dataEm"	TEXT NOT NULL DEFAULT '1970-01-01',
+	"dataCo"	TEXT,
 	PRIMARY KEY("id")
 );
 
