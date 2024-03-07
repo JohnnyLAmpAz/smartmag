@@ -76,7 +76,7 @@ public class OrderTableModel extends AbstractTableModel
 	 * @param index indice posizione ordine
 	 * @return modello ordine
 	 */
-	public OrderModel getOrderModelAt(int index) {
+	public static OrderModel getOrderModelAt(int index) {
 		// Riga (Utente)
 		OrderModel om = null;
 		int i = 0;

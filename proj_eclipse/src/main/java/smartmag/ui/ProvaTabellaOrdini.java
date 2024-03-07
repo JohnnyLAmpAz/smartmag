@@ -74,7 +74,8 @@ public class ProvaTabellaOrdini extends JFrame {
 		btnModifica.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Richiama il JDialog per poter modificare i valori dell'ordine
-				OrderDialog dialog = new OrderDialog();
+				OrderDialog dialog = new OrderDialog(modello
+						.getOrderModelAt(tabellaOrdini.getSelectedRow()));
 				dialog.setModal(true);
 				dialog.setVisible(true);
 			}
