@@ -4,6 +4,7 @@ import static ingsw_proj_magazzino.db.generated.Tables.BOX;
 import static ingsw_proj_magazzino.db.generated.Tables.PRODOTTO;
 
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -274,8 +275,8 @@ public class BoxModel extends BaseModel {
 		String indirizzo = r.getId();
 		int IDprodotto = r.getProdotto();
 		int qta = r.getQta();
-		ProdottoRecord pr = (ProdottoRecord) DSL.select().from(PRODOTTO)
-				.where(PRODOTTO.ID.eq(IDprodotto));
+		ProdottoRecord pr = DSL.selectFrom(PRODOTTO)
+				.where(PRODOTTO.ID.eq(IDprodotto)).fetchOne();
 		Prodotto p = ProductModel.prodottoFromRecord(pr);
 		return new Box(indirizzo, qta, p);
 	}
@@ -316,4 +317,22 @@ public class BoxModel extends BaseModel {
 		return filtrata;
 	}
 
+	/**
+	 * Restituisce una lista di modelli di box contenenti il prodotto cercato.
+	 * 
+	 * @param p Prodotto cercato
+	 * @return Lista di BoxModel
+	 */
+	protected static ArrayList<BoxModel> findBoxesWithProd(Prodotto p) {
+		ArrayList<BoxModel> ls = new ArrayList<BoxModel>();
+		for (Map.Entry<String, BoxModel> entry : instances.entrySet()) {
+			BoxModel bm = entry.getValue();
+
+			// Se il box contiene una quantità positiva del prodotto cercato, lo
+			// seleziono
+			if (bm.box.getQuantità() > 0 && bm.box.getProd().equals(p))
+				ls.add(bm);
+		}
+		return ls;
+	}
 }

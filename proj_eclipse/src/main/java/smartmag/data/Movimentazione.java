@@ -12,15 +12,15 @@ public class Movimentazione {
 	 */
 	public static final String ZSC = "C/S";
 
-	private StatoMovimentazione stato;
+	private StatoMovim stato;
 	private int quantità;
 	private Ordine ordine;
 	private Prodotto prodotto;
 	private Box box;
 	private Utente magazziniere;
 
-	public Movimentazione(StatoMovimentazione stato, int quantità,
-			Ordine ordine, Prodotto prodotto, Box box) {
+	public Movimentazione(StatoMovim stato, int quantità, Ordine ordine,
+			Prodotto prodotto, Box box) {
 		super();
 		this.stato = stato;
 		this.quantità = quantità;
@@ -30,17 +30,17 @@ public class Movimentazione {
 		this.magazziniere = null;
 	}
 
-	public Movimentazione(StatoMovimentazione stato, int quantità,
-			Ordine ordine, Prodotto prodotto, Box box, Utente magazziniere) {
+	public Movimentazione(StatoMovim stato, int quantità, Ordine ordine,
+			Prodotto prodotto, Box box, Utente magazziniere) {
 		this(stato, quantità, ordine, prodotto, box);
 		this.magazziniere = magazziniere;
 	}
 
-	public StatoMovimentazione getStato() {
+	public StatoMovim getStato() {
 		return stato;
 	}
 
-	public void setStato(StatoMovimentazione stato) {
+	public void setStato(StatoMovim stato) {
 		this.stato = stato;
 	}
 
@@ -120,20 +120,30 @@ public class Movimentazione {
 
 	@Override
 	public String toString() {
-		return "Movimentazione [stato=" + stato + ", quantità=" + quantità
-				+ ", ordine=" + ordine + ", prodotto=" + prodotto + ", box="
-				+ box + ", magazziniere=" + magazziniere + ", origine="
-				+ getOrigine() + ", destinazione=" + getDestinazione() + "]";
+		StringBuffer s = new StringBuffer();
+		s.append("[");
+		s.append(ordine.getTipo() == TipoOrdine.IN ? ZSC : box.getIndirizzo());
+		s.append(" -> ");
+		s.append(ordine.getTipo() == TipoOrdine.OUT ? ZSC : box.getIndirizzo());
+		s.append("] ");
+		s.append("%d x PROD#%d_%s".formatted(quantità, prodotto.getId(),
+				prodotto.getNome()));
+
+		return s.toString();
 	}
 
 	public Boolean isValid() {
-		if (quantità < 0 || stato == null || ordine == null || prodotto == null
-				|| box == null || magazziniere == null
-				|| !magazziniere.isValid() || !box.isValid()
-				|| !prodotto.isValid() || !ordine.isValid()
-				|| (magazziniere.getTipo() != TipoUtente.MAGAZZINIERE
-						&& magazziniere.getTipo() != TipoUtente.QUALIFICATO))
-			return false;
+		if (quantità <= 0 || stato == null || ordine == null
+				|| !ordine.isValid() || prodotto == null || !prodotto.isValid()
+				|| box == null || !box.isValid()) {
+			if (stato != StatoMovim.NON_ASSEGNATA) {
+				if (magazziniere == null || !magazziniere.isValid()
+						|| (magazziniere.getTipo() != TipoUtente.MAGAZZINIERE
+								&& magazziniere
+										.getTipo() != TipoUtente.QUALIFICATO))
+					return false;
+			}
+		}
 		return true;
 	}
 
@@ -151,4 +161,19 @@ public class Movimentazione {
 			return box.getIndirizzo();
 	}
 
+	@Override
+	public Movimentazione clone() {
+		Movimentazione m = new Movimentazione(stato, quantità, null, null, null,
+				null);
+		if (ordine != null)
+			m.setOrdine(ordine);
+		if (prodotto != null)
+			m.setProdotto(prodotto);
+		if (box != null)
+			m.setBox(box);
+		if (magazziniere != null)
+			m.setMagazziniere(magazziniere);
+
+		return m;
+	}
 }

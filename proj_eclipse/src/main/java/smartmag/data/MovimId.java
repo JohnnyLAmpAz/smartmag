@@ -4,21 +4,21 @@ import smartmag.utils.Tupla;
 
 /**
  * Tupla immutable che contiene l'identificativo di una movimentazione: ID
- * Ordine e ID Box
+ * Ordine e indirizzo Box
  */
 public class MovimId implements Comparable<MovimId> {
 
 	private Tupla<Integer, String> id;
 
-	public MovimId(Integer ordineId, String boxId) {
-		id = new Tupla<Integer, String>(ordineId, boxId);
+	public MovimId(Integer ordineId, String boxAddr) {
+		id = new Tupla<Integer, String>(ordineId, boxAddr);
 	}
 
 	public Integer getOrdineId() {
 		return id.x;
 	}
 
-	public String getBoxId() {
+	public String getBoxAddr() {
 		return id.y;
 	}
 
@@ -26,7 +26,12 @@ public class MovimId implements Comparable<MovimId> {
 	public int compareTo(MovimId o) {
 		int cmpOrdineId = getOrdineId().compareTo(o.getOrdineId());
 		if (cmpOrdineId == 0)
-			return getBoxId().compareTo(o.getBoxId());
+			return getBoxAddr().compareTo(o.getBoxAddr());
 		return cmpOrdineId;
+	}
+
+	@Override
+	public String toString() {
+		return "[ORDER#%d | BOX@%s]".formatted(getOrdineId(), getBoxAddr());
 	}
 }

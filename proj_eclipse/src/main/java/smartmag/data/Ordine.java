@@ -135,8 +135,8 @@ public class Ordine implements Comparable<Ordine> {
 				stato.toString(), dataEmissione.toString());
 		if (prodotti != null) {
 			for (Entry<Prodotto, Integer> entry : prodotti.entrySet())
-				s += "(%d x %d)".formatted(entry.getValue(),
-						entry.getKey().getId());
+				s += "(%d x #%d:%s)".formatted(entry.getValue(),
+						entry.getKey().getId(), entry.getKey().getNome());
 		}
 
 		if (dataCompletamento != null)

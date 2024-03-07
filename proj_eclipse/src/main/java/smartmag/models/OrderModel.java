@@ -338,8 +338,7 @@ public class OrderModel extends BaseModel {
 		if (or.getDataco() == null)
 			dataCompletamento = null;
 		else
-			dataCompletamento = LocalDate.parse(or.getDataco(),
-					formatter);
+			dataCompletamento = LocalDate.parse(or.getDataco(), formatter);
 
 		HashMap<Prodotto, Integer> listaProdotti = fetchListaProdottiFromDb(
 				or.getId());
@@ -485,7 +484,6 @@ public class OrderModel extends BaseModel {
 	 */
 	@SuppressWarnings("unchecked")
 	public static TreeMap<Integer, OrderModel> getAllOrderModels() {
-
 		TreeMap<Integer, OrderModel> tm = (TreeMap<Integer, OrderModel>) instances
 				.clone();
 		return treeMapFilter(tm);
