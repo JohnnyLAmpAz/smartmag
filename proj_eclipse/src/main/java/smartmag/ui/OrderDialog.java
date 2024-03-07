@@ -127,6 +127,10 @@ public class OrderDialog extends JDialog {
 		contentPanel.add(comboTipo);
 		comboTipo.setSelectedItem(om.getOrdine().getTipo());
 
+		// TODO trovare metodo per prendere i prodotti da orderModel
+		// comboProdotti = new JComboBox<Prodotto>(
+		// vectorProdotti);
+
 		{
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));

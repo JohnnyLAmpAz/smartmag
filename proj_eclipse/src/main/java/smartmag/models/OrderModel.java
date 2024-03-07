@@ -61,10 +61,13 @@ public class OrderModel extends BaseModel {
 		this.orderRecord = fetchOrderRecordById(order.getId());
 		// la prima volta che si crea il modello, poichè la lista dei prodotti è
 		// vuota, la prende dal db e la aggiorna anche nell'oggetto ordine
-		this.ordine.setProdotti(fetchListaProdottiFromDb(order.getId()));
+		// this.ordine.setProdotti(fetchListaProdottiFromDb(order.getId()));
 		// aggiorno la lista dei prodottiOrdiniRecord
 		this.listaProdottiOrdiniRecord = fetchProductOrderRecordListByOrder(
 				order);
+		if (listaProdottiOrdiniRecord == null)
+			listaProdottiOrdiniRecord = new ArrayList<>();
+
 		if (!instances.containsKey(order.getId()))
 			instances.put(order.getId(), this); // carico OrderModel in hashmap
 	}
@@ -278,8 +281,11 @@ public class OrderModel extends BaseModel {
 	 */
 	public boolean productOrderIsSavedInDb(int idP) {
 		for (ProdottiordiniRecord por : listaProdottiOrdiniRecord) {
+			if (por == null)
+				return false;
 			if (this.ordine.getId() == por.getProd() && idP == por.getProd())
 				return true;
+			// TODO aggiornare dati
 		}
 		return false;
 	}

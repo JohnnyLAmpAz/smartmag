@@ -18,6 +18,7 @@ public class OrderTableModel extends AbstractTableModel
 	private String[] columnNames;
 
 	public OrderTableModel() {
+		OrderModel.addChangeListener(this);
 		refreshDataFromModel();
 		columnNames = new String[] { "Ordine", "Tipo", "Data emissione",
 				"Data completamento", "Stato" };
