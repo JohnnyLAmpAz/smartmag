@@ -110,11 +110,12 @@ public class OrderModel extends BaseModel {
 		if (!orderIsSavedInDb())
 			throw new SQLIntegrityConstraintViolationException(
 					"Ordine #" + o.getId() + " non esiste!");
-
+		// TODO check values
 		orderRecord = (OrdineRecord) fetchOrderRecordById(o.getId());
 		copyOrdineIntoRecord(o, orderRecord);
 		orderRecord.store(); // UPDATE con UpdatableRecord
-
+		this.ordine = o;
+		updateProdottoOrdineRecord();
 		// evento per notificare il cambiamento
 		notifyChangeListeners(null);
 	}
@@ -213,6 +214,29 @@ public class OrderModel extends BaseModel {
 			Prodotto p = entry.getKey();
 			int qta = entry.getValue();
 			ProdottiordiniRecord por = DSL.newRecord(PRODOTTIORDINI);
+			copyProdOrderIntoRecord(this.ordine, p, qta, por);
+			por.store();
+			this.listaProdottiOrdiniRecord.add(por);
+		}
+		notifyChangeListeners(null); // evento per notificare il cambiamento
+	}
+
+	private void updateProdottoOrdineRecord()
+			throws SQLIntegrityConstraintViolationException {
+		listaProdottiOrdiniRecord = new ArrayList<ProdottiordiniRecord>();
+
+		HashMap<Prodotto, Integer> prodotti = ordine.getProdotti();
+
+		for (Map.Entry<Prodotto, Integer> entry : prodotti.entrySet()) {
+
+			Prodotto p = entry.getKey();
+			ProdottiordiniRecord por = fetchProductOrderRecordById(
+					ordine.getId(), p.getId());
+			int qta = entry.getValue();
+
+			if (por == null)
+				por = DSL.newRecord(PRODOTTIORDINI);
+
 			copyProdOrderIntoRecord(this.ordine, p, qta, por);
 			por.store();
 			this.listaProdottiOrdiniRecord.add(por);
@@ -359,7 +383,10 @@ public class OrderModel extends BaseModel {
 		DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
 
 		String formattedDateEm = emDate.format(formatter);
-		String formattedDateCo = coDate.format(formatter);
+		String formattedDateCo = null;
+
+		if (coDate != null)
+			formattedDateCo = coDate.format(formatter);
 
 		r.setDataem(formattedDateEm);
 		r.setDataco(formattedDateCo);
@@ -370,7 +397,7 @@ public class OrderModel extends BaseModel {
 	 * 
 	 * @return
 	 */
-	private static int getNextAvailableOrderId() {
+	public static int getNextAvailableOrderId() {
 		Integer max = DSL.select(max(ORDINE.ID)).from(ORDINE).fetchOne()
 				.value1();
 		if (max == null)

@@ -3,6 +3,7 @@ package smartmag.ui;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.ParseException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -11,6 +12,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 
+import smartmag.models.OrderModel;
 import smartmag.models.ui.OrderTableModel;
 
 public class ProvaTabellaOrdini extends JFrame {
@@ -84,6 +86,15 @@ public class ProvaTabellaOrdini extends JFrame {
 		JButton btnElimina = new JButton("Elimina");
 		btnElimina.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				OrderModel om = modello
+						.getOrderModelAt(tabellaOrdini.getSelectedRow());
+				try {
+					if (om != null)
+						om.deleteOrdine();
+				} catch (ParseException e1) {
+					// TODO
+				}
+
 			}
 
 		});

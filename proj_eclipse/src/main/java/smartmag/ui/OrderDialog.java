@@ -19,6 +19,8 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.border.EmptyBorder;
@@ -29,17 +31,26 @@ import smartmag.data.StatoOrdine;
 import smartmag.data.TipoOrdine;
 import smartmag.models.OrderModel;
 import smartmag.models.ProductModel;
+import smartmag.models.ui.ProductOrderTableModel;
 
 public class OrderDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
+
 	private final JPanel contentPanel = new JPanel();
 	private JTextField campoID;
 	private JTextField campoDataEm;
 	private JTextField campoDataCo;
 	private JComboBox<StatoOrdine> comboStato;
 	private JComboBox<TipoOrdine> comboTipo;
-	JComboBox<Prodotto> comboProdotti;
+	private JComboBox<Prodotto> comboProdotti;
+	private JTextField campoQuantità;
+	private JButton btnInserisciProdott;
+	private JButton btnEliminaProdotto;
+	private final HashMap<Prodotto, Integer> prodotti;
+	private OrderModel orderModel;
+	private ProductOrderTableModel modelloTabProductOrder;
+	private JTable tableProdotti;
 
 	/**
 	 * Launch the application.
@@ -58,18 +69,25 @@ public class OrderDialog extends JDialog {
 	 * Create the dialog.
 	 */
 	public OrderDialog(OrderModel om) {
-		setBounds(100, 100, 492, 540);
+		this.orderModel = om;
+
+		if (om == null)
+			prodotti = new HashMap<Prodotto, Integer>();
+		else
+			prodotti = om.getOrdine().getProdotti();
+
+		this.modelloTabProductOrder = new ProductOrderTableModel(prodotti);
+
+		setBounds(100, 100, 462, 711);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 		contentPanel.setLayout(null);
 
 		campoID = new JTextField();
-		campoID.setBounds(169, 27, 257, 33);
+		campoID.setBounds(152, 27, 274, 33);
 		contentPanel.add(campoID);
 		campoID.setColumns(10);
-		campoID.setText(Integer.toString(om.getOrdine().getId()));
-		campoID.setEditable(false);
 
 		JLabel lblNewLabel = new JLabel("ID ordine");
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 15));
@@ -84,9 +102,9 @@ public class OrderDialog extends JDialog {
 		{
 			campoDataEm = new JTextField();
 			campoDataEm.setColumns(10);
-			campoDataEm.setBounds(169, 159, 257, 33);
+			campoDataEm.setBounds(152, 159, 274, 33);
+			campoDataEm.setText(LocalDate.now().toString());
 			contentPanel.add(campoDataEm);
-			campoDataEm.setText(om.getOrdine().getDataEmissione().toString());
 		}
 		{
 			JLabel lblDataEm = new JLabel("Data emissione");
@@ -109,143 +127,20 @@ public class OrderDialog extends JDialog {
 		{
 			campoDataCo = new JTextField();
 			campoDataCo.setColumns(10);
-			campoDataCo.setBounds(169, 203, 257, 33);
+			campoDataCo.setBounds(152, 203, 274, 33);
 			contentPanel.add(campoDataCo);
-			campoDataCo
-					.setText(om.getOrdine().getDataCompletamento().toString());
 		}
 
 		comboStato = new JComboBox<StatoOrdine>();
-		comboStato.setModel(new DefaultComboBoxModel(StatoOrdine.values()));
-		comboStato.setBounds(169, 71, 257, 33);
-		contentPanel.add(comboStato);
-		comboStato.setSelectedItem(om.getOrdine().getStato());
-
-		comboTipo = new JComboBox<>();
-		comboTipo.setModel(new DefaultComboBoxModel(TipoOrdine.values()));
-		comboTipo.setBounds(169, 115, 257, 33);
-		contentPanel.add(comboTipo);
-		comboTipo.setSelectedItem(om.getOrdine().getTipo());
-
-		// TODO trovare metodo per prendere i prodotti da orderModel
-		// comboProdotti = new JComboBox<Prodotto>(
-		// vectorProdotti);
-
-		{
-			JPanel buttonPane = new JPanel();
-			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
-			getContentPane().add(buttonPane, BorderLayout.SOUTH);
-			{
-				JButton okButton = new JButton("OK");
-				okButton.setActionCommand("OK");
-				buttonPane.add(okButton);
-				getRootPane().setDefaultButton(okButton);
-			}
-			{
-				JButton cancelButton = new JButton("Cancel");
-				cancelButton.setActionCommand("Cancel");
-				buttonPane.add(cancelButton);
-			}
-		}
-		JButton btnInserisciMod = new JButton("InserisciMod");
-		btnInserisciMod.setBounds(47, 377, 135, 54);
-		contentPanel.add(btnInserisciMod);
-		btnInserisciMod.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				String id1 = campoID.getText();
-				int id = Integer.parseInt(campoID.getText());
-				String co = campoDataCo.getText();
-				String em = campoDataEm.getText();
-				StatoOrdine stato = (StatoOrdine) comboStato.getSelectedItem();
-				TipoOrdine tipo = (TipoOrdine) comboTipo.getSelectedItem();
-
-				LocalDate ldco = LocalDate.parse(co);
-				LocalDate ldem = LocalDate.parse(em);
-
-				HashMap<Prodotto, Integer> prodotti = new HashMap<>();
-				prodotti = om.getOrdine().getProdotti();
-				System.out.println("ID: " + id1 + "co" + co + "em" + em
-						+ "stato" + stato + "tipo" + tipo + "prod" + prodotti);
-				Ordine o = new Ordine(id, tipo, stato, ldem, ldco, prodotti);
-
-				try {
-					OrderModel.create(o);
-				} catch (SQLIntegrityConstraintViolationException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (ParseException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			}
-
-		});
-
-	}
-
-	public OrderDialog() {
-
-		setBounds(100, 100, 492, 540);
-		getContentPane().setLayout(new BorderLayout());
-		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-		getContentPane().add(contentPanel, BorderLayout.CENTER);
-		contentPanel.setLayout(null);
-
-		campoID = new JTextField();
-		campoID.setBounds(169, 27, 257, 33);
-		contentPanel.add(campoID);
-		campoID.setColumns(10);
-
-		JLabel lblNewLabel = new JLabel("ID ordine");
-		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		lblNewLabel.setBounds(8, 27, 84, 33);
-		contentPanel.add(lblNewLabel);
-		{
-			JLabel lblStato = new JLabel("Stato");
-			lblStato.setFont(new Font("Tahoma", Font.PLAIN, 15));
-			lblStato.setBounds(8, 71, 84, 33);
-			contentPanel.add(lblStato);
-		}
-		{
-			campoDataEm = new JTextField();
-			campoDataEm.setColumns(10);
-			campoDataEm.setBounds(169, 159, 257, 33);
-			contentPanel.add(campoDataEm);
-		}
-		{
-			JLabel lblDataEm = new JLabel("Data emissione");
-			lblDataEm.setFont(new Font("Tahoma", Font.PLAIN, 15));
-			lblDataEm.setBounds(8, 159, 151, 33);
-			contentPanel.add(lblDataEm);
-		}
-		{
-			JLabel lblTipo = new JLabel("Tipo");
-			lblTipo.setFont(new Font("Tahoma", Font.PLAIN, 15));
-			lblTipo.setBounds(8, 115, 84, 33);
-			contentPanel.add(lblTipo);
-		}
-		{
-			JLabel lblDataCo = new JLabel("Data completamento");
-			lblDataCo.setFont(new Font("Tahoma", Font.PLAIN, 15));
-			lblDataCo.setBounds(8, 203, 151, 33);
-			contentPanel.add(lblDataCo);
-		}
-		{
-			campoDataCo = new JTextField();
-			campoDataCo.setColumns(10);
-			campoDataCo.setBounds(169, 203, 257, 33);
-			contentPanel.add(campoDataCo);
-		}
-
-		comboStato = new JComboBox();
-		comboStato.setModel(new DefaultComboBoxModel(StatoOrdine.values()));
-		comboStato.setBounds(169, 71, 257, 33);
+		comboStato.setModel(
+				new DefaultComboBoxModel<StatoOrdine>(StatoOrdine.values()));
+		comboStato.setBounds(152, 71, 274, 33);
 		contentPanel.add(comboStato);
 
-		comboTipo = new JComboBox();
-		comboTipo.setModel(new DefaultComboBoxModel(TipoOrdine.values()));
-		comboTipo.setBounds(169, 115, 257, 33);
+		comboTipo = new JComboBox<TipoOrdine>();
+		comboTipo.setModel(
+				new DefaultComboBoxModel<TipoOrdine>(TipoOrdine.values()));
+		comboTipo.setBounds(152, 115, 274, 33);
 		contentPanel.add(comboTipo);
 
 		{
@@ -263,6 +158,22 @@ public class OrderDialog extends JDialog {
 				cancelButton.setActionCommand("Cancel");
 				buttonPane.add(cancelButton);
 			}
+		}
+		if (om != null) {
+			campoID.setText(Integer.toString(om.getOrdine().getId()));
+			campoID.setEditable(false);
+			campoDataEm.setText(om.getOrdine().getDataEmissione().toString());
+			LocalDate dataCompletamento = om.getOrdine().getDataCompletamento();
+			if (dataCompletamento != null)
+				campoDataCo.setText(dataCompletamento.toString());
+
+			comboStato.setSelectedItem(om.getOrdine().getStato());
+			comboTipo.setSelectedItem(om.getOrdine().getTipo());
+		}
+		if (om == null) {
+			campoID.setText(
+					Integer.toString(OrderModel.getNextAvailableOrderId()));
+			campoID.setEditable(false);
 		}
 
 		Vector<Prodotto> vectorProdotti = new Vector<>(
@@ -271,30 +182,40 @@ public class OrderDialog extends JDialog {
 		comboProdotti = new JComboBox<Prodotto>(
 				vectorProdotti);
 
-		JButton btnInserisciOrdine = new JButton("Inserisci");
-		btnInserisciOrdine.setBounds(47, 377, 135, 54);
+		JButton btnInserisciOrdine = new JButton("Inserisci ordine");
+		btnInserisciOrdine.setBounds(8, 576, 141, 54);
 		contentPanel.add(btnInserisciOrdine);
 		btnInserisciOrdine.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
 				String id1 = campoID.getText();
 				int id = Integer.parseInt(campoID.getText());
 				String co = campoDataCo.getText();
 				String em = campoDataEm.getText();
 				StatoOrdine stato = (StatoOrdine) comboStato.getSelectedItem();
 				TipoOrdine tipo = (TipoOrdine) comboTipo.getSelectedItem();
-				Prodotto prod = (Prodotto) comboProdotti.getSelectedItem();
-				LocalDate ldco = LocalDate.parse(co);
-				LocalDate ldem = LocalDate.parse(em);
+				LocalDate ldco = null;
+				LocalDate ldem = null;
+
+				try {
+					ldem = LocalDate.parse(em);
+					if (co != null)
+						ldco = LocalDate.parse(co);
+					else
+						ldco = null;
+				} catch (Exception e1) {
+					// TODO
+				}
 
 				System.out.println("ID: " + id1 + "co" + co + "em" + em
-						+ "stato" + stato + "tipo" + tipo + "prod" + prod);
-				HashMap<Prodotto, Integer> prodotti = new HashMap<>();
-				prodotti.put(prod, 1);
+						+ "stato" + stato + "tipo" + tipo);
+
 				Ordine o = new Ordine(id, tipo, stato, ldem, ldco, prodotti);
 
 				try {
-					OrderModel.create(o);
+					if (orderModel != null)
+						orderModel.updateOrdine(o);
+					else
+						OrderModel.create(o);
 				} catch (SQLIntegrityConstraintViolationException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -319,14 +240,77 @@ public class OrderDialog extends JDialog {
 		comboProdotti.addItemListener(
 				e -> System.out.println(comboProdotti.getSelectedItem()));
 
-		comboProdotti.setBounds(169, 247, 257, 33);
+		comboProdotti.setBounds(152, 430, 274, 33);
 		contentPanel.add(comboProdotti);
 
 		JLabel lblProdotti = new JLabel("Prodotti");
 		lblProdotti.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		lblProdotti.setBounds(8, 247, 84, 33);
+		lblProdotti.setBounds(8, 430, 84, 33);
 		contentPanel.add(lblProdotti);
+
+		JLabel lblQuantit = new JLabel("Quantità");
+		lblQuantit.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		lblQuantit.setBounds(8, 474, 84, 33);
+		contentPanel.add(lblQuantit);
+
+		campoQuantità = new JTextField();
+		campoQuantità.setColumns(10);
+		campoQuantità.setBounds(152, 474, 274, 33);
+		contentPanel.add(campoQuantità);
+
+		btnInserisciProdott = new JButton("Inserisci prodotto");
+		btnInserisciProdott.setBounds(152, 518, 133, 54);
+		contentPanel.add(btnInserisciProdott);
+
+		JScrollPane scrollPane_1 = new JScrollPane();
+		scrollPane_1.setBounds(18, 257, 408, 149);
+		contentPanel.add(scrollPane_1);
+
+		modelloTabProductOrder = new ProductOrderTableModel(prodotti);
+
+		tableProdotti = new JTable(modelloTabProductOrder);
+		scrollPane_1.setViewportView(tableProdotti);
+
+		btnEliminaProdotto = new JButton("Elimina prodotto");
+		btnEliminaProdotto.setBounds(293, 518, 133, 54);
+		contentPanel.add(btnEliminaProdotto);
+
+		btnInserisciProdott.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Prodotto prod = (Prodotto) comboProdotti.getSelectedItem();
+				prodotti.put(prod,
+						Integer.parseInt(campoQuantità.getText()));
+				modelloTabProductOrder.fireTableDataChanged();
+
+			}
+		});
+
+		btnEliminaProdotto.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Prodotto prod = getProdAt(
+						tableProdotti.getSelectedRow(), prodotti);
+				prodotti.remove(prod);
+				modelloTabProductOrder.fireTableDataChanged();
+			}
+		});
 
 	}
 
+	public OrderDialog() {
+		this(null);
+	}
+
+	private static Prodotto getProdAt(int index,
+			HashMap<Prodotto, Integer> prod) {
+		// Riga (Utente)
+
+		int i = 0;
+		for (Prodotto p : prod.keySet()) {
+			if (index == i) {
+				return p;
+			}
+			i++;
+		}
+		return null;
+	}
 }
