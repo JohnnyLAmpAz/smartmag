@@ -35,109 +35,84 @@ public class MovimenModel extends BaseModel {
 	}
 
 	/**
-	 * Movimentazione relativa al modello
-	 */
-	private Movimentazione movim;
-
-	/**
-	 * Record della movimentazione
-	 */
-	private MovimentazioneRecord record;
-
-	/**
-	 * Costruisce un'istanza del modello sulla base di un record non nullo
+	 * Restituisce una mappa di tutti i modelli delle movimentazioni gestite.
 	 * 
-	 * @param record
-	 * 
-	 * @throws IllegalArgumentException se record è null
+	 * @return mappa indicizzata dalla PK (ordine, box) delle movimentazioni
 	 */
-	private MovimenModel(MovimentazioneRecord record) {
-		if (record == null)
-			throw new IllegalArgumentException();
-		this.record = record;
-		this.movim = movimFromRecord(record);
-		instances.put(new MovimId(record.getOrdine(), record.getBox()), this);
-		notifyChangeListeners(null);
+	public static TreeMap<MovimId, MovimenModel> getAllMovimenModels() {
+		return new TreeMap<>(instances);
 	}
 
 	/**
-	 * Costruisce il modello di una nuova movimentazione con stato
-	 * NON_ASSEGNATA.
+	 * Se già creato, restituisce il modello della movimentazione con ID
+	 * specificato, altrimenti null.
 	 * 
-	 * @param m Movimentazione
-	 * @throws IllegalArgumentException se la movimentazione è già stata creata
+	 * @param id Tupla (ordineId, boxAddr) che identifica una movimentazione
+	 * @return Modello della movimentazione cercata, oppure null se non presente
 	 */
-	private MovimenModel(Movimentazione m) {
-		if (instances.containsKey(m.getMovimId()))
-			throw new IllegalArgumentException("Movimentazione già creata!");
-		if (m == null || !m.isValid()
-				|| m.getStato() != StatoMovim.NON_ASSEGNATA
-				|| m.getMagazziniere() != null)
-			throw new IllegalArgumentException("Movimentazione non valida!");
-
-		this.movim = m;
-
-		// Creo nuovo record
-		MovimentazioneRecord mr = DSL.newRecord(MOVIMENTAZIONE);
-		mr.setOrdine(m.getOrdine().getId());
-		mr.setBox(m.getBox().getIndirizzo());
-		mr.setProd(m.getProdotto().getId());
-		mr.setQta(m.getQuantità());
-		mr.setStato(m.getStato().name());
-		Utente u = m.getMagazziniere();
-		mr.setMagazziniere(u == null ? null : u.getMatricola());
-
-		// Salvo
-		mr.store();
-		this.record = mr;
-		instances.put(new MovimId(record.getOrdine(), record.getBox()), this);
-		notifyChangeListeners(null);
+	public static MovimenModel getModelOf(MovimId id) {
+		if (instances.containsKey(id))
+			return instances.get(id);
+		return null;
 	}
 
 	/**
-	 * Verifica se esiste un record della movimentazione gestita
+	 * Restituisce una mappa dei modelli delle movimentazioni relative ad un
+	 * ordine con ID specificato.
 	 * 
-	 * @return true se esiste un record, altrimenti false
+	 * @param orderId
+	 * @return
 	 */
-	private boolean isSavedInDb() {
-		refreshFromDb();
-		return this.record != null;
+	public static TreeMap<MovimId, MovimenModel> getMovimsModelsOf(
+			int orderId) {
+		TreeMap<MovimId, MovimenModel> res = new TreeMap<MovimId, MovimenModel>();
+		for (Map.Entry<MovimId, MovimenModel> entry : instances.entrySet()) {
+			MovimId pk = entry.getKey();
+			MovimenModel mm = entry.getValue();
+			if (pk.getOrdineId() == orderId)
+				res.put(pk, mm);
+		}
+		return res;
 	}
 
 	/**
-	 * Aggiorna il contenuto del modello dal DB
+	 * Carica dal Db tutte le movimentazioni istanziandone i modelli e
+	 * salvandoli nella mappa dei singleton.
 	 */
-	private void refreshFromDb() {
-		refreshFromRecord(fetchMovimRecord(movim.getMovimId()));
-	}
-
-	/**
-	 * Aggiorna il contenuto del modello tramite il record passato
-	 */
-	private void refreshFromRecord(MovimentazioneRecord mr) {
-		this.record = mr;
-		if (this.record != null) {
-			this.movim = movimFromRecord(this.record);
+	public static void loadModelsFromDb() {
+		Result<Record> res = DSL.select().from(MOVIMENTAZIONE).fetch();
+		for (Record record : res) {
+			MovimentazioneRecord mr = (MovimentazioneRecord) record;
+			MovimId pk = movimIdFromRecord(mr);
+			if (instances.containsKey(pk))
+				instances.get(pk).refreshFromRecord(mr);
+			else {
+				instances.put(pk, new MovimenModel(mr));
+			}
 		}
 		notifyChangeListeners(null);
 	}
 
-	/**
-	 * Restituisce la PK (ordineId, boxAddr) della movimentazione gestita
-	 * 
-	 * @return PK
-	 */
-	public MovimId getKey() {
-		return movimIdFromRecord(record);
-	}
+	// TODO to test
+	public static void main(String[] args) {
 
-	/**
-	 * Restituisce una copia della movimentazione gestita
-	 * 
-	 * @return clone di movim
-	 */
-	public Movimentazione getMovim() {
-		return movim.clone();
+		System.out.println("\nPRODOTTI:");
+		TreeMap<Integer, ProductModel> map = ProductModel.getAllProductModels();
+		map.forEach((id, m) -> System.out.println(m.getProdotto().toString()));
+		System.out.println("\nORDINI:");
+		TreeMap<Integer, OrderModel> omm = OrderModel.getAllOrderModels();
+		omm.forEach((id, om) -> System.out.println(om.getOrdine().toString()));
+
+		if (!MovimenModel.generatedMovimsOf(2)) {
+			TreeMap<MovimId, MovimenModel> orderMovimsOf = MovimenModel
+					.generateOrderMovimsOf(2);
+			PrintUtils.printMovimsMap(orderMovimsOf);
+		} else {
+			PrintUtils.printMovimsMap(MovimenModel.getMovimsModelsOf(2));
+		}
+
+		System.out.println("\nMOVIMENTAZIONI:");
+		PrintUtils.printMovimsMap(MovimenModel.getAllMovimenModels());
 	}
 
 	/**
@@ -183,46 +158,6 @@ public class MovimenModel extends BaseModel {
 	 */
 	private static MovimId movimIdFromRecord(MovimentazioneRecord mr) {
 		return new MovimId(mr.getOrdine(), mr.getBox());
-	}
-
-	/**
-	 * Carica dal Db tutte le movimentazioni istanziandone i modelli e
-	 * salvandoli nella mappa dei singleton.
-	 */
-	public static void loadModelsFromDb() {
-		Result<Record> res = DSL.select().from(MOVIMENTAZIONE).fetch();
-		for (Record record : res) {
-			MovimentazioneRecord mr = (MovimentazioneRecord) record;
-			MovimId pk = movimIdFromRecord(mr);
-			if (instances.containsKey(pk))
-				instances.get(pk).refreshFromRecord(mr);
-			else {
-				instances.put(pk, new MovimenModel(mr));
-			}
-		}
-		notifyChangeListeners(null);
-	}
-
-	/**
-	 * Restituisce una mappa di tutti i modelli delle movimentazioni gestite.
-	 * 
-	 * @return mappa indicizzata dalla PK (ordine, box) delle movimentazioni
-	 */
-	public static TreeMap<MovimId, MovimenModel> getAllMovimenModels() {
-		return new TreeMap<>(instances);
-	}
-
-	/**
-	 * Se già creato, restituisce il modello della movimentazione con ID
-	 * specificato, altrimenti null.
-	 * 
-	 * @param id Tupla (ordineId, boxAddr) che identifica una movimentazione
-	 * @return Modello della movimentazione cercata, oppure null se non presente
-	 */
-	public static MovimenModel getModelOf(MovimId id) {
-		if (instances.containsKey(id))
-			return instances.get(id);
-		return null;
 	}
 
 	/**
@@ -298,43 +233,108 @@ public class MovimenModel extends BaseModel {
 	}
 
 	/**
-	 * Restituisce una mappa dei modelli delle movimentazioni relative ad un
-	 * ordine con ID specificato.
-	 * 
-	 * @param orderId
-	 * @return
+	 * Movimentazione relativa al modello
 	 */
-	public static TreeMap<MovimId, MovimenModel> getMovimsModelsOf(
-			int orderId) {
-		TreeMap<MovimId, MovimenModel> res = new TreeMap<MovimId, MovimenModel>();
-		for (Map.Entry<MovimId, MovimenModel> entry : instances.entrySet()) {
-			MovimId pk = entry.getKey();
-			MovimenModel mm = entry.getValue();
-			if (pk.getOrdineId() == orderId)
-				res.put(pk, mm);
-		}
-		return res;
+	private Movimentazione movim;
+
+	/**
+	 * Record della movimentazione
+	 */
+	private MovimentazioneRecord record;
+
+	/**
+	 * Costruisce il modello di una nuova movimentazione con stato
+	 * NON_ASSEGNATA.
+	 * 
+	 * @param m Movimentazione
+	 * @throws IllegalArgumentException se la movimentazione è già stata creata
+	 */
+	private MovimenModel(Movimentazione m) {
+		if (instances.containsKey(m.getMovimId()))
+			throw new IllegalArgumentException("Movimentazione già creata!");
+		if (m == null || !m.isValid()
+				|| m.getStato() != StatoMovim.NON_ASSEGNATA
+				|| m.getMagazziniere() != null)
+			throw new IllegalArgumentException("Movimentazione non valida!");
+
+		this.movim = m;
+
+		// Creo nuovo record
+		MovimentazioneRecord mr = DSL.newRecord(MOVIMENTAZIONE);
+		mr.setOrdine(m.getOrdine().getId());
+		mr.setBox(m.getBox().getIndirizzo());
+		mr.setProd(m.getProdotto().getId());
+		mr.setQta(m.getQuantità());
+		mr.setStato(m.getStato().name());
+		Utente u = m.getMagazziniere();
+		mr.setMagazziniere(u == null ? null : u.getMatricola());
+
+		// Salvo
+		mr.store();
+		this.record = mr;
+		instances.put(new MovimId(record.getOrdine(), record.getBox()), this);
+		notifyChangeListeners(null);
 	}
 
-	// TODO to test
-	public static void main(String[] args) {
+	/**
+	 * Costruisce un'istanza del modello sulla base di un record non nullo
+	 * 
+	 * @param record
+	 * 
+	 * @throws IllegalArgumentException se record è null
+	 */
+	private MovimenModel(MovimentazioneRecord record) {
+		if (record == null)
+			throw new IllegalArgumentException();
+		this.record = record;
+		this.movim = movimFromRecord(record);
+		instances.put(new MovimId(record.getOrdine(), record.getBox()), this);
+		notifyChangeListeners(null);
+	}
 
-		System.out.println("\nPRODOTTI:");
-		TreeMap<Integer, ProductModel> map = ProductModel.getAllProductModels();
-		map.forEach((id, m) -> System.out.println(m.getProdotto().toString()));
-		System.out.println("\nORDINI:");
-		TreeMap<Integer, OrderModel> omm = OrderModel.getAllOrderModels();
-		omm.forEach((id, om) -> System.out.println(om.getOrdine().toString()));
+	/**
+	 * Restituisce la PK (ordineId, boxAddr) della movimentazione gestita
+	 * 
+	 * @return PK
+	 */
+	public MovimId getKey() {
+		return movimIdFromRecord(record);
+	}
 
-		if (!MovimenModel.generatedMovimsOf(2)) {
-			TreeMap<MovimId, MovimenModel> orderMovimsOf = MovimenModel
-					.generateOrderMovimsOf(2);
-			PrintUtils.printMovimsMap(orderMovimsOf);
-		} else {
-			PrintUtils.printMovimsMap(MovimenModel.getMovimsModelsOf(2));
+	/**
+	 * Restituisce una copia della movimentazione gestita
+	 * 
+	 * @return clone di movim
+	 */
+	public Movimentazione getMovim() {
+		return movim.clone();
+	}
+
+	/**
+	 * Verifica se esiste un record della movimentazione gestita
+	 * 
+	 * @return true se esiste un record, altrimenti false
+	 */
+	private boolean isSavedInDb() {
+		refreshFromDb();
+		return this.record != null;
+	}
+
+	/**
+	 * Aggiorna il contenuto del modello dal DB
+	 */
+	private void refreshFromDb() {
+		refreshFromRecord(fetchMovimRecord(movim.getMovimId()));
+	}
+
+	/**
+	 * Aggiorna il contenuto del modello tramite il record passato
+	 */
+	private void refreshFromRecord(MovimentazioneRecord mr) {
+		this.record = mr;
+		if (this.record != null) {
+			this.movim = movimFromRecord(this.record);
 		}
-
-		System.out.println("\nMOVIMENTAZIONI:");
-		PrintUtils.printMovimsMap(MovimenModel.getAllMovimenModels());
+		notifyChangeListeners(null);
 	}
 }
