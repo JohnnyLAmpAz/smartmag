@@ -135,7 +135,7 @@ public class Ordine implements Comparable<Ordine> {
 				stato.toString(), dataEmissione.toString());
 		if (prodotti != null) {
 			for (Entry<Prodotto, Integer> entry : prodotti.entrySet())
-				s += "(%d x #%d:%s)".formatted(entry.getValue(),
+				s += "(%d x #%d_%s)".formatted(entry.getValue(),
 						entry.getKey().getId(), entry.getKey().getNome());
 		}
 
@@ -149,8 +149,8 @@ public class Ordine implements Comparable<Ordine> {
 		Ordine o = new Ordine(0, TipoOrdine.IN, StatoOrdine.IN_ATTESA,
 				LocalDate.now());
 		HashMap<Prodotto, Integer> hm = new HashMap<Prodotto, Integer>();
-		hm.put(new Prodotto(12, null, null, 0, 0), 2);
-		hm.put(new Prodotto(25, null, null, 0, 0), 24);
+		hm.put(new Prodotto(12, "NOME", null, 0, 0), 2);
+		hm.put(new Prodotto(25, "NOME", null, 0, 0), 24);
 		o.setProdotti(hm);
 		System.out.println(o.toString());
 	}

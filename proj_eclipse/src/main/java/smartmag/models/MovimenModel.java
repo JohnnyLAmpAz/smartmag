@@ -16,6 +16,7 @@ import smartmag.data.Movimentazione;
 import smartmag.data.Ordine;
 import smartmag.data.Prodotto;
 import smartmag.data.StatoMovim;
+import smartmag.data.TipoOrdine;
 import smartmag.data.Utente;
 import smartmag.utils.PrintUtils;
 
@@ -272,7 +273,8 @@ public class MovimenModel extends BaseModel {
 				// già generate
 
 				// Prendo il primo box con qta sufficiente
-				if (bm.getBox().getQuantità() >= qta) {
+				if (o.getTipo() == TipoOrdine.IN
+						|| bm.getBox().getQuantità() >= qta) {
 					Movimentazione m = new Movimentazione(
 							StatoMovim.NON_ASSEGNATA, qta, o, p, bm.getBox());
 					mm = new MovimenModel(m);
@@ -324,12 +326,15 @@ public class MovimenModel extends BaseModel {
 		TreeMap<Integer, OrderModel> omm = OrderModel.getAllOrderModels();
 		omm.forEach((id, om) -> System.out.println(om.getOrdine().toString()));
 
-		if (!MovimenModel.generatedMovimsOf(1)) {
+		if (!MovimenModel.generatedMovimsOf(2)) {
 			TreeMap<MovimId, MovimenModel> orderMovimsOf = MovimenModel
-					.generateOrderMovimsOf(1);
+					.generateOrderMovimsOf(2);
 			PrintUtils.printMovimsMap(orderMovimsOf);
 		} else {
-			PrintUtils.printMovimsMap(MovimenModel.getMovimsModelsOf(1));
+			PrintUtils.printMovimsMap(MovimenModel.getMovimsModelsOf(2));
 		}
+
+		System.out.println("\nMOVIMENTAZIONI:");
+		PrintUtils.printMovimsMap(MovimenModel.getAllMovimenModels());
 	}
 }

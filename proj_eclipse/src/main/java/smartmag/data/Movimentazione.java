@@ -121,7 +121,7 @@ public class Movimentazione {
 	@Override
 	public String toString() {
 		StringBuffer s = new StringBuffer();
-		s.append("[");
+		s.append("ORDER#%d[".formatted(ordine.getId()));
 		s.append(ordine.getTipo() == TipoOrdine.IN ? ZSC : box.getIndirizzo());
 		s.append(" -> ");
 		s.append(ordine.getTipo() == TipoOrdine.OUT ? ZSC : box.getIndirizzo());
