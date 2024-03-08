@@ -88,6 +88,15 @@ public class Utente implements Comparable<Utente> {
 		return tipo;
 	}
 
+	/**
+	 * @return true se si tratta di un magazziniere (qualificato o non), false
+	 *         se altrimenti.
+	 */
+	public boolean isForkLifter() {
+		return tipo == TipoUtente.MAGAZZINIERE
+				|| tipo == TipoUtente.QUALIFICATO;
+	}
+
 	@Override
 	public String toString() {
 		return "Utente [matricola=" + matricola + ", nome=" + nome

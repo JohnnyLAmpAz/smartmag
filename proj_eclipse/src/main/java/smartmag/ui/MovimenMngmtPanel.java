@@ -8,6 +8,9 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import smartmag.models.MovimenModel;
+import smartmag.models.UtenteModel;
+
 /**
  * JPanel della gestione delle movimentazioni volto all'uso dei Magazzinieri.
  */
@@ -35,7 +38,9 @@ public class MovimenMngmtPanel extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				return; // TODO
+				MovimenModel mm = tablePanel.getSelectedMovimModel();
+				UtenteModel um = UtenteModel.getUtenteModelOf("l.brivio1");
+				mm.assignToWorker(um.getUtente());
 			}
 		});
 		btnPanel.add(btnAdd);

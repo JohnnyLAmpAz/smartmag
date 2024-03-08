@@ -10,6 +10,7 @@ import smartmag.data.MovimId;
 import smartmag.data.Movimentazione;
 import smartmag.data.Ordine;
 import smartmag.data.Prodotto;
+import smartmag.data.Utente;
 import smartmag.models.MovimenModel;
 
 /**
@@ -20,11 +21,13 @@ public class MovimenTableModel extends AbstractTableModel
 
 	private static final long serialVersionUID = 1L;
 	private static final String[] COLUMN_NAMES = new String[] { "ID Ordine",
-			"Origine → Destinazione", "Prodotto", "Quantità", "Stato" };
+			"Origine → Destinazione", "Prodotto", "Quantità", "Stato",
+			"Magazziniere" };
 
 	private TreeMap<MovimId, MovimenModel> mmm;
 
 	public MovimenTableModel() {
+		MovimenModel.addChangeListener(this);
 		refreshData();
 	}
 
@@ -67,7 +70,7 @@ public class MovimenTableModel extends AbstractTableModel
 
 		// Colonna
 		// { "ID Ordine", "Origine → Destinazione", "Prodotto", "Quantità",
-		// "Stato" }
+		// "Stato", "Magazziniere" }
 		Movimentazione m = mm.getMovim();
 		Ordine o = m.getOrdine();
 		Prodotto p = m.getProdotto();
@@ -89,6 +92,10 @@ public class MovimenTableModel extends AbstractTableModel
 			case 4:
 				// Stato
 				yield m.getStato().name();
+			case 5:
+				// Magazziniere
+				Utente worker = m.getMagazziniere();
+				yield worker == null ? null : worker.getMatricola();
 			default:
 				throw new IndexOutOfBoundsException(
 						"Indice di campo non valido");

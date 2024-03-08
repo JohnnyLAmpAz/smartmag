@@ -320,6 +320,25 @@ public class MovimenModel extends BaseModel {
 	}
 
 	/**
+	 * Assegna la movimentazione al magazziniere specificato
+	 * 
+	 * @param u utente magazziniere
+	 */
+	public void assignToWorker(Utente u) {
+
+		// Check utente
+		if (u == null || !u.isValid() || !u.isForkLifter())
+			throw new IllegalArgumentException("Utente non valido");
+
+		movim.setMagazziniere(u);
+		record.setMagazziniere(u.getMatricola());
+		movim.setStato(StatoMovim.PRESA_IN_CARICO);
+		record.setStato(StatoMovim.PRESA_IN_CARICO.name());
+		record.store();
+		notifyChangeListeners(null);
+	}
+
+	/**
 	 * Verifica se esiste un record della movimentazione gestita
 	 * 
 	 * @return true se esiste un record, altrimenti false

@@ -32,7 +32,7 @@ public class MovimTablePanel extends JPanel {
 		scrollPane.setViewportView(table);
 	}
 
-	public MovimenModel getSelectedUserModel() {
+	public MovimenModel getSelectedMovimModel() {
 		int i = table.getSelectedRow();
 		if (i < 0)
 			return null;
