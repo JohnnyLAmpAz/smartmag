@@ -16,6 +16,7 @@ import smartmag.data.Movimentazione;
 import smartmag.data.Ordine;
 import smartmag.data.Prodotto;
 import smartmag.data.StatoMovim;
+import smartmag.data.StatoOrdine;
 import smartmag.data.TipoOrdine;
 import smartmag.data.Utente;
 import smartmag.utils.PrintUtils;
@@ -47,12 +48,12 @@ public class MovimenModel extends BaseModel {
 	 * Se già creato, restituisce il modello della movimentazione con ID
 	 * specificato, altrimenti null.
 	 * 
-	 * @param id Tupla (ordineId, boxAddr) che identifica una movimentazione
+	 * @param key Tupla (ordineId, boxAddr) che identifica una movimentazione
 	 * @return Modello della movimentazione cercata, oppure null se non presente
 	 */
-	public static MovimenModel getModelOf(MovimId id) {
-		if (instances.containsKey(id))
-			return instances.get(id);
+	public static MovimenModel getModelByKey(MovimId key) {
+		if (instances.containsKey(key))
+			return instances.get(key);
 		return null;
 	}
 
@@ -63,7 +64,7 @@ public class MovimenModel extends BaseModel {
 	 * @param orderId
 	 * @return
 	 */
-	public static TreeMap<MovimId, MovimenModel> getMovimsModelsOf(
+	public static TreeMap<MovimId, MovimenModel> getMovimsModelsOfOrder(
 			int orderId) {
 		TreeMap<MovimId, MovimenModel> res = new TreeMap<MovimId, MovimenModel>();
 		for (Map.Entry<MovimId, MovimenModel> entry : instances.entrySet()) {
@@ -108,7 +109,7 @@ public class MovimenModel extends BaseModel {
 					.generateOrderMovimsOf(2);
 			PrintUtils.printMovimsMap(orderMovimsOf);
 		} else {
-			PrintUtils.printMovimsMap(MovimenModel.getMovimsModelsOf(2));
+			PrintUtils.printMovimsMap(MovimenModel.getMovimsModelsOfOrder(2));
 		}
 
 		System.out.println("\nMOVIMENTAZIONI:");
@@ -189,7 +190,12 @@ public class MovimenModel extends BaseModel {
 			throw new IllegalArgumentException("Movimentazioni gia' generate");
 
 		TreeMap<MovimId, MovimenModel> gen = new TreeMap<MovimId, MovimenModel>();
-		Ordine o = OrderModel.getOrderModelById(orderId).getOrdine();
+		OrderModel orderModel = OrderModel.getOrderModelById(orderId);
+		Ordine o = orderModel.getOrdine();
+
+		// Check stato ordine
+		if (o.getStato() != StatoOrdine.IN_ATTESA)
+			throw new IllegalArgumentException("Stato ordine non valido");
 
 		// Scorro la lista della spesa dell'ordine
 		for (Map.Entry<Prodotto, Integer> entry : o.getProdotti().entrySet()) {
@@ -227,6 +233,9 @@ public class MovimenModel extends BaseModel {
 						"La quantità richiesta non è disponibile!");
 			}
 		}
+
+		// Cambia stato ordine da IN_ATTESA a IN_SVOLGIMENTO
+		orderModel.setStato(StatoOrdine.IN_SVOLGIMENTO);
 
 		// Restituisco la mappa delle movimentazioni generate per l'ordine
 		return gen;

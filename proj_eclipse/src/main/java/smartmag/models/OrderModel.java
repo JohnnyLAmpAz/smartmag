@@ -146,9 +146,14 @@ public class OrderModel extends BaseModel {
 		updateOrdine(o);
 	}
 
-	// TODO Dopo avere il modello di movimentazione controlla le disponibilità
-	// e permetti di cambiare lo stato dell'ordine
-	public void setStatoInSvolgimento() {
+	/**
+	 * Imposta lo stato dell'ordine
+	 */
+	protected void setStato(StatoOrdine s) {
+		ordine.setStato(s);
+		orderRecord.setStato(s.name());
+		orderRecord.store();
+		notifyChangeListeners(null);
 	}
 
 	/**

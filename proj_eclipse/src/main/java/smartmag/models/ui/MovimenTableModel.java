@@ -20,7 +20,7 @@ public class MovimenTableModel extends AbstractTableModel
 
 	private static final long serialVersionUID = 1L;
 	private static final String[] COLUMN_NAMES = new String[] { "ID Ordine",
-			"Origine → Destinazione", "Prodotto", "Quantità" };
+			"Origine → Destinazione", "Prodotto", "Quantità", "Stato" };
 
 	private TreeMap<MovimId, MovimenModel> mmm;
 
@@ -66,7 +66,8 @@ public class MovimenTableModel extends AbstractTableModel
 		MovimenModel mm = getMovimenModelAt(rowIndex);
 
 		// Colonna
-		// { "ID Ordine", "Origine → Destinazione", "Prodotto", "Quantità" }
+		// { "ID Ordine", "Origine → Destinazione", "Prodotto", "Quantità",
+		// "Stato" }
 		Movimentazione m = mm.getMovim();
 		Ordine o = m.getOrdine();
 		Prodotto p = m.getProdotto();
@@ -85,6 +86,9 @@ public class MovimenTableModel extends AbstractTableModel
 			case 3:
 				// Quantità
 				yield m.getQuantità();
+			case 4:
+				// Stato
+				yield m.getStato().name();
 			default:
 				throw new IndexOutOfBoundsException(
 						"Indice di campo non valido");
