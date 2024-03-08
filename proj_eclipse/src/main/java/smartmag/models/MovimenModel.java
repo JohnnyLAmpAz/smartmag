@@ -38,10 +38,29 @@ public class MovimenModel extends BaseModel {
 	/**
 	 * Restituisce una mappa di tutti i modelli delle movimentazioni gestite.
 	 * 
-	 * @return mappa indicizzata dalla PK (ordine, box) delle movimentazioni
+	 * @return mappa (copia di instances) indicizzata dalla PK (ordine, box)
+	 *         delle movimentazioni
 	 */
 	public static TreeMap<MovimId, MovimenModel> getAllMovimenModels() {
 		return new TreeMap<>(instances);
+	}
+
+	/**
+	 * @return Una mappa di tutti i modelli delle movimentazioni non ancora
+	 *         assegnate. Corrisponde alla lista di movimentazioni da mostrare
+	 *         ad un magazziniere.
+	 */
+	public static TreeMap<MovimId, MovimenModel> getAvailableMovimenModels() {
+		TreeMap<MovimId, MovimenModel> res = new TreeMap<MovimId, MovimenModel>();
+		for (Map.Entry<MovimId, MovimenModel> entry : instances.entrySet()) {
+			MovimId pk = entry.getKey();
+			MovimenModel mm = entry.getValue();
+
+			// Seleziono solo le movimentazioni non ancora assegnate
+			if (mm.movim.getStato() == StatoMovim.NON_ASSEGNATA)
+				res.put(pk, mm);
+		}
+		return res;
 	}
 
 	/**
@@ -104,12 +123,12 @@ public class MovimenModel extends BaseModel {
 		TreeMap<Integer, OrderModel> omm = OrderModel.getAllOrderModels();
 		omm.forEach((id, om) -> System.out.println(om.getOrdine().toString()));
 
-		if (!MovimenModel.generatedMovimsOf(2)) {
+		if (!MovimenModel.generatedMovimsOf(3)) {
 			TreeMap<MovimId, MovimenModel> orderMovimsOf = MovimenModel
-					.generateOrderMovimsOf(2);
+					.generateOrderMovimsOf(3);
 			PrintUtils.printMovimsMap(orderMovimsOf);
 		} else {
-			PrintUtils.printMovimsMap(MovimenModel.getMovimsModelsOfOrder(2));
+			PrintUtils.printMovimsMap(MovimenModel.getMovimsModelsOfOrder(3));
 		}
 
 		System.out.println("\nMOVIMENTAZIONI:");
