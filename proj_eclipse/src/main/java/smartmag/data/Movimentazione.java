@@ -10,7 +10,7 @@ public class Movimentazione {
 	/**
 	 * Costante di testo che rappresenta la zona di carico/scarico
 	 */
-	public static final String ZSC = "C/S";
+	public static final String ZCS = "C/S";
 
 	private StatoMovim stato;
 	private int quantità;
@@ -122,9 +122,9 @@ public class Movimentazione {
 	public String toString() {
 		StringBuffer s = new StringBuffer();
 		s.append("ORDER#%d[".formatted(ordine.getId()));
-		s.append(ordine.getTipo() == TipoOrdine.IN ? ZSC : box.getIndirizzo());
+		s.append(ordine.getTipo() == TipoOrdine.IN ? ZCS : box.getIndirizzo());
 		s.append(" -> ");
-		s.append(ordine.getTipo() == TipoOrdine.OUT ? ZSC : box.getIndirizzo());
+		s.append(ordine.getTipo() == TipoOrdine.OUT ? ZCS : box.getIndirizzo());
 		s.append("] ");
 		s.append("%d x PROD#%d_%s".formatted(quantità, prodotto.getId(),
 				prodotto.getNome()));
@@ -151,12 +151,12 @@ public class Movimentazione {
 		if (ordine.getTipo() == TipoOrdine.IN)
 			return box.getIndirizzo();
 		else
-			return ZSC;
+			return ZCS;
 	}
 
 	public String getOrigine() {
 		if (ordine.getTipo() == TipoOrdine.IN)
-			return ZSC;
+			return ZCS;
 		else
 			return box.getIndirizzo();
 	}

@@ -87,6 +87,15 @@ public class Ordine implements Comparable<Ordine> {
 		this.prodotti = prodotti;
 	}
 
+	/**
+	 * Restisce true se l'ordine è di tipo OUT, false se IN.
+	 * 
+	 * @return vd sopra
+	 */
+	public boolean isOutgoing() {
+		return tipo.equals(TipoOrdine.OUT);
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(dataCompletamento, dataEmissione, id, prodotti,
