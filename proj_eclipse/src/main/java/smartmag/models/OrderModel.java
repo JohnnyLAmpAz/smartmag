@@ -162,8 +162,13 @@ public class OrderModel extends BaseModel {
 	@SuppressWarnings("unlikely-arg-type")
 	public void deleteOrdine() throws ParseException {
 		if (orderIsSavedInDb()) {
+			for (ProdottiordiniRecord por : listaProdottiOrdiniRecord) {
+				if (por != null)
+					por.delete();
+			}
 			orderRecord.delete(); // DELETE con UpdatableRecord
 			orderRecord = null;
+			listaProdottiOrdiniRecord.clear();
 			notifyChangeListeners(null); // evento per notificare il cambiamento
 		}
 	}
