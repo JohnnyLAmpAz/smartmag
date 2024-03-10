@@ -4,6 +4,7 @@ import static ingsw_proj_magazzino.db.generated.Tables.PRODOTTO;
 import static org.jooq.impl.DSL.max;
 
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -59,7 +60,7 @@ public class ProductModel extends BaseModel {
 
 	}
 
-	public ProductModel createProdotto(Prodotto p)
+	public static ProductModel createProdotto(Prodotto p)
 			throws SQLIntegrityConstraintViolationException {
 		ProductModel pm = getProductModelOf(p);
 		if (pm.isSavedInDb()) {
@@ -185,6 +186,20 @@ public class ProductModel extends BaseModel {
 		if (max == null)
 			return 0;
 		return max + 1;
+	}
+
+	public static ArrayList<Prodotto> getAllProduct() {
+		TreeMap<Integer, ProductModel> tm = getAllProductModels();
+		ArrayList<Prodotto> prod = new ArrayList<Prodotto>();
+
+		int i = 0;
+
+		for (Map.Entry<Integer, ProductModel> entry : tm.entrySet()) {
+			Prodotto p = entry.getValue().getProdotto();
+			if (p != null)
+				prod.add(entry.getValue().getProdotto());
+		}
+		return prod;
 	}
 
 	public static TreeMap<Integer, ProductModel> getAllProductModels() {

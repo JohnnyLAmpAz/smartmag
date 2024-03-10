@@ -18,6 +18,7 @@ public class OrderTableModel extends AbstractTableModel
 	private String[] columnNames;
 
 	public OrderTableModel() {
+		OrderModel.addChangeListener(this);
 		refreshDataFromModel();
 		columnNames = new String[] { "Ordine", "Tipo", "Data emissione",
 				"Data completamento", "Stato" };
@@ -76,7 +77,7 @@ public class OrderTableModel extends AbstractTableModel
 	 * @param index indice posizione ordine
 	 * @return modello ordine
 	 */
-	public OrderModel getOrderModelAt(int index) {
+	public static OrderModel getOrderModelAt(int index) {
 		// Riga (Utente)
 		OrderModel om = null;
 		int i = 0;
