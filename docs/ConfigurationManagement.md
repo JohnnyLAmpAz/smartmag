@@ -17,23 +17,27 @@ La gestione delle modifiche/aggiunte all'interno del programma è stata svolta s
 1. **Apertura di un issue contente la descrizione del problema/modifica**  
    _Esempio:_
    
-     <img width="682" alt="image" src="https://github.com/JohnnyLAmpAz/smartmag/assets/145765934/0b764157-71b7-42fd-96bd-72e9b1b83826">
+     <img width="452" alt="issueW" src="https://github.com/JohnnyLAmpAz/smartmag/assets/145765934/ada92fe5-8c66-4231-8a33-0bf99612d8f6">
+
 
 3. **Creazione di un branch nel quale apportare le modifiche**  
   _Esempio:_
 
-    <img width="270" alt="image" src="https://github.com/JohnnyLAmpAz/smartmag/assets/145765934/846a52b3-5b87-4867-9e11-2733561f0bee">
+    <img width="264" alt="branchW" src="https://github.com/JohnnyLAmpAz/smartmag/assets/145765934/c153c145-deb1-4f25-b430-0e8102277893">
+
 
 5. **Generazione di una Pull Request**  
   _Esempio:_
 
 
-    <img width="914" alt="image" src="https://github.com/JohnnyLAmpAz/smartmag/assets/145765934/87116b43-496a-4f4c-9657-dc7c37692bcc">
+    <img width="611" alt="prW" src="https://github.com/JohnnyLAmpAz/smartmag/assets/145765934/45e48147-fdb3-4dd6-95d1-49bf95908e0f">
+
 
 7. **Approvazione o richiesta di ulteriori modifiche**  
   _Esempio:_
 
-    <img width="685" alt="image" src="https://github.com/JohnnyLAmpAz/smartmag/assets/145765934/8e40438e-0649-424c-89c2-b4f4087c758b">
+    <img width="451" alt="commW" src="https://github.com/JohnnyLAmpAz/smartmag/assets/145765934/777d56cd-f5d4-4637-8b42-4e7dcde8b7e7">
+
 
 9. **Merge nel main dal branch**
 10. **Chiusura del branch**
@@ -44,7 +48,8 @@ La gestione delle modifiche/aggiunte all'interno del programma è stata svolta s
 È stata utilizzata una Kanban Board composta da 4 colonne: Todo, In progress, Pending review, Done.  
 La kanban Board è stata utile per monitorare lo stato delle varie attività da svolgere, in particolare per gli issues e le Pull Request.
 
-<img width="718" alt="image" src="https://github.com/JohnnyLAmpAz/smartmag/assets/145765934/b128c0d9-b263-4999-8d0a-0b601a2b55b3">
+   <img width="715" alt="kan2W" src="https://github.com/JohnnyLAmpAz/smartmag/assets/145765934/de5a845f-1c90-46a1-b7c4-b61a99786f7e">
+
 
 - _Todo:_ contiene gli issues che sono stati generati ma non ancora in elaborazione.
 - _In progress:_ contiene gli issues che sono in fase di elaborazione ma non ancora completati.
