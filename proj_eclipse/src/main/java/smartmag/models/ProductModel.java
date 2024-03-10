@@ -4,6 +4,7 @@ import static ingsw_proj_magazzino.db.generated.Tables.PRODOTTO;
 import static org.jooq.impl.DSL.max;
 
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -138,7 +139,32 @@ public class ProductModel extends BaseModel {
 		notifyChangeListeners(null);
 	}
 
+	/**
+	 * Calcola la disponibilità (garantita) totale su tutti i box che contengono
+	 * il prodotto.
+	 * 
+	 * @return disponibilità totale
+	 */
+	public int calcDispTot() {
+		int tot = 0;
+		ArrayList<BoxModel> ls = BoxModel.findBoxesWithProd(prodotto);
+		for (BoxModel bm : ls)
+			tot += bm.getBox().getQuantità();
+		return tot;
+	}
+
 	// Metodi statici
+
+	/**
+	 * Calcola la disponibilità (garantita) totale su tutti i box che contengono
+	 * il prodotto di ID specificato.
+	 * 
+	 * @param prodId ID del prodotto
+	 * @return disponibilità totale
+	 */
+	public static int calcDispTotById(int prodId) {
+		return getProductModelById(prodId).calcDispTot();
+	}
 
 	/**
 	 * Recupera il ProductModel in base all'ID prodotto. Se non è mai stato

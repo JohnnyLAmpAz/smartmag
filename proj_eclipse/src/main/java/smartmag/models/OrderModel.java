@@ -260,6 +260,23 @@ public class OrderModel extends BaseModel {
 	}
 
 	/**
+	 * Verifica se vi è la disponibilità per tutti gli elementi della "lista
+	 * della spesa".
+	 * 
+	 * @return true se ci sono abbastanza prodotti, false se altrimenti
+	 */
+	public boolean isPreparabile() {
+		for (Map.Entry<Prodotto, Integer> entry : ordine.getProdotti()
+				.entrySet()) {
+			Prodotto p = entry.getKey();
+			Integer qta = entry.getValue();
+			if (ProductModel.calcDispTotById(p.getId()) < qta)
+				return false;
+		}
+		return true;
+	}
+
+	/**
 	 * Verifica che il record relativo a quel prodottoOrdine esista per farlo ha
 	 * bisogno dell'id ordine e dell' id prodotto
 	 * 

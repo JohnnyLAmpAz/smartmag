@@ -96,6 +96,25 @@ public class Movimentazione {
 		return new MovimId(ordine.getId(), box.getIndirizzo());
 	}
 
+	/**
+	 * Indica se i prodotti sono stati prelevati o meno dal magazziniere.
+	 * 
+	 * @return true se la qta è già stata prelevata dall'origine
+	 */
+	public boolean isQtaPrelevata() {
+		return stato.qtaPrelevata;
+	}
+
+	/**
+	 * Indica se la movimentazione, in base allo stato in cui si trovo, può
+	 * essere annullata o meno.
+	 * 
+	 * @return true se annullabile, alrimenti false.
+	 */
+	public boolean isAnnullabile() {
+		return !isQtaPrelevata() && stato != StatoMovim.ANNULLATA;
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(box, magazziniere, ordine, prodotto, quantità,
@@ -121,12 +140,17 @@ public class Movimentazione {
 	@Override
 	public String toString() {
 		StringBuffer s = new StringBuffer();
-		s.append("ORDER#%d[".formatted(ordine.getId()));
+		s.append("ORDER#%d ".formatted(ordine.getId()));
+		s.append("{" + stato.toString());
+		if (magazziniere != null)
+			s.append("@" + magazziniere.getMatricola());
+		s.append("}");
+		s.append(" [");
 		s.append(ordine.getTipo() == TipoOrdine.IN ? ZCS : box.getIndirizzo());
 		s.append(" -> ");
 		s.append(ordine.getTipo() == TipoOrdine.OUT ? ZCS : box.getIndirizzo());
-		s.append("] ");
-		s.append("%d x PROD#%d_%s".formatted(quantità, prodotto.getId(),
+		s.append("]");
+		s.append(" %d x PROD#%d_%s".formatted(quantità, prodotto.getId(),
 				prodotto.getNome()));
 
 		return s.toString();

@@ -5,6 +5,7 @@ import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 
 import smartmag.models.MovimenModel;
 import smartmag.models.ui.MovimenTableModel;
@@ -16,7 +17,7 @@ public class MovimTablePanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private JTable table;
+	JTable table;
 	private MovimenTableModel tableModel = new MovimenTableModel();
 
 	/**
@@ -29,7 +30,9 @@ public class MovimTablePanel extends JPanel {
 		add(scrollPane, BorderLayout.CENTER);
 
 		table = new JTable(tableModel);
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		scrollPane.setViewportView(table);
+
 	}
 
 	public MovimenModel getSelectedMovimModel() {
@@ -38,5 +41,4 @@ public class MovimTablePanel extends JPanel {
 			return null;
 		return tableModel.getMovimenModelAt(i);
 	}
-
 }

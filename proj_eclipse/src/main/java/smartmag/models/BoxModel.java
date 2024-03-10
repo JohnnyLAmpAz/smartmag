@@ -78,6 +78,16 @@ public class BoxModel extends BaseModel {
 	}
 
 	/**
+	 * Calcola la disponibilità tramite quantità effettiva e quantità riservata.
+	 * 
+	 * @return Quantità non riservata da movimentazioni non effettuate.
+	 */
+	public int calcDisponibilita() {
+		int reservedQta = MovimenModel.calcReservedQtOfBox(box.getIndirizzo());
+		return box.getQuantità() - reservedQta;
+	}
+
+	/**
 	 * restituisce il record
 	 * 
 	 * @return
@@ -185,7 +195,7 @@ public class BoxModel extends BaseModel {
 	 * @param qta numero di unita di prodotto da prelevare
 	 */
 	protected void preleva(int qta) {
-		if (box.getQuantità() > qta) {
+		if (box.getQuantità() >= qta) {
 			box.setQuantità(this.box.getQuantità() - qta);
 			record.setQta(box.getQuantità());
 			record.update();

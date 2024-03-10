@@ -95,6 +95,67 @@ public class MovimenModel extends BaseModel {
 		return res;
 	}
 
+	// TODO: could have zona C/S report
+
+	/**
+	 * Restituisce le movimentazioni che interessano il box specificato, di
+	 * ordini in entrata o uscita.
+	 * 
+	 * @param boxAddr Indirizzo del Box d'interesse
+	 * @return Mappa dei modelli movimentazioni da/verso il box specificato
+	 */
+	public static TreeMap<MovimId, MovimenModel> getMovimsOnBox(
+			String boxAddr) {
+		if (boxAddr == null || !Box.validateAddress(boxAddr))
+			throw new IllegalArgumentException("Indirizzo Box non valido!");
+
+		TreeMap<MovimId, MovimenModel> res = new TreeMap<>();
+		for (Map.Entry<MovimId, MovimenModel> entry : instances.entrySet()) {
+			MovimId pk = entry.getKey();
+			MovimenModel mm = entry.getValue();
+
+			// Seleziono solo movimentazioni su box cercato
+			Movimentazione m = mm.getMovim();
+			Box box = m.getBox();
+			if (box.getIndirizzo().equals(boxAddr)) {
+
+				// Se il prodotto non corrisponde c'è un problema di integrità
+				// dei dati...
+				if (!m.getProdotto().equals(box.getProd()))
+					throw new InternalError("Errore di integrità: i prodotti "
+							+ "di movimentazione e box non corrispondono!");
+
+				res.put(pk, mm);
+			}
+		}
+		return res;
+	}
+
+	/**
+	 * Calcola la quantità di prodotto riservata per le movimentazioni già
+	 * generate riguardanti il box specificato.
+	 * 
+	 * @param boxAddr Indirizzo del box d'interesse
+	 * @return Quantità di prodotto da considerare non disponibile.
+	 */
+	protected static int calcReservedQtOfBox(String boxAddr) {
+		int reserved = 0;
+		TreeMap<MovimId, MovimenModel> mmm = getMovimsOnBox(boxAddr);
+		for (Map.Entry<MovimId, MovimenModel> entry : mmm.entrySet()) {
+			MovimId pk = entry.getKey();
+			MovimenModel mm = entry.getValue();
+			Movimentazione m = mm.getMovim();
+
+			// Se si tratta di un ordine in uscita, se non è ancora stata
+			// prelevata la qta e se non è annullata, sommo la qta al tot
+			if (m.getOrdine().isOutgoing() && !m.isQtaPrelevata()
+					&& m.getStato() != StatoMovim.ANNULLATA)
+				reserved += m.getQuantità();
+		}
+
+		return reserved;
+	}
+
 	/**
 	 * Carica dal Db tutte le movimentazioni istanziandone i modelli e
 	 * salvandoli nella mappa dei singleton.
@@ -123,16 +184,20 @@ public class MovimenModel extends BaseModel {
 		TreeMap<Integer, OrderModel> omm = OrderModel.getAllOrderModels();
 		omm.forEach((id, om) -> System.out.println(om.getOrdine().toString()));
 
-		if (!MovimenModel.generatedMovimsOf(3)) {
+		if (!MovimenModel.generatedMovimsOfOrder(4)) {
 			TreeMap<MovimId, MovimenModel> orderMovimsOf = MovimenModel
-					.generateOrderMovimsOf(3);
+					.generateOrderMovimsOfOrder(4);
 			PrintUtils.printMovimsMap(orderMovimsOf);
 		} else {
-			PrintUtils.printMovimsMap(MovimenModel.getMovimsModelsOfOrder(3));
+			PrintUtils.printMovimsMap(MovimenModel.getMovimsModelsOfOrder(4));
 		}
 
 		System.out.println("\nMOVIMENTAZIONI:");
 		PrintUtils.printMovimsMap(MovimenModel.getAllMovimenModels());
+
+		System.out.println("\nBOX:");
+		TreeMap<String, BoxModel> bb = BoxModel.getAllBoxModels();
+		bb.forEach((addr, bm) -> System.out.println(bm.getBox().toString()));
 	}
 
 	/**
@@ -181,13 +246,13 @@ public class MovimenModel extends BaseModel {
 	}
 
 	/**
-	 * Restituisce true se è stata generata almeno una movimentazione per il
-	 * prodotto di ID specificato; false se altrimenti.
+	 * Restituisce true se è stata generata almeno una movimentazione per
+	 * l'ordine di ID specificato; false se altrimenti.
 	 * 
 	 * @param orderId ID ordine
 	 * @return true se ne esiste anche solo una
 	 */
-	protected static boolean generatedMovimsOf(int orderId) {
+	protected static boolean generatedMovimsOfOrder(int orderId) {
 		for (Map.Entry<MovimId, MovimenModel> entry : instances.entrySet()) {
 			MovimId pk = entry.getKey();
 			if (pk.getOrdineId() == orderId)
@@ -203,9 +268,9 @@ public class MovimenModel extends BaseModel {
 	 * @param orderId ID Ordine di cui generare le movimentazioni
 	 * @return Mappa delle movimentazioni generate
 	 */
-	protected static TreeMap<MovimId, MovimenModel> generateOrderMovimsOf(
+	protected static TreeMap<MovimId, MovimenModel> generateOrderMovimsOfOrder(
 			int orderId) {
-		if (generatedMovimsOf(orderId))
+		if (generatedMovimsOfOrder(orderId))
 			throw new IllegalArgumentException("Movimentazioni gia' generate");
 
 		TreeMap<MovimId, MovimenModel> gen = new TreeMap<MovimId, MovimenModel>();
@@ -221,36 +286,35 @@ public class MovimenModel extends BaseModel {
 			Prodotto p = entry.getKey();
 			Integer qta = entry.getValue();
 
+			// Controllo disponibilità prodotto
+			if (ProductModel.calcDispTotById(p.getId()) < qta)
+				throw new IllegalArgumentException(
+						"Disponibilità non sufficiente!");
+
 			// Movimentazione da generare per questo prodotto
 			MovimenModel mm = null;
+
+			// Contatore qta necessaria
+			int qtaCounter = qta;
 
 			// Trovo lista dei box contenenti il prodotto dell'iterazione
 			ArrayList<BoxModel> boxes = BoxModel.findBoxesWithProd(p);
 			for (BoxModel bm : boxes) {
 
-				// TODO check disponibilita' tenendo in considerazione le
-				// movimentazioni
-				// già generate
-
-				// Prendo il primo box con qta sufficiente
-				if (o.getTipo() == TipoOrdine.IN
-						|| bm.getBox().getQuantità() >= qta) {
+				int disptaBox = bm.calcDisponibilita();
+				if (o.getTipo() == TipoOrdine.IN || disptaBox > 0) {
+					int delta = disptaBox > qtaCounter ? qtaCounter : disptaBox;
 					Movimentazione m = new Movimentazione(
-							StatoMovim.NON_ASSEGNATA, qta, o, p, bm.getBox());
+							StatoMovim.NON_ASSEGNATA, delta, o, p, bm.getBox());
 					mm = new MovimenModel(m);
 					gen.put(mm.getKey(), mm);
+					qtaCounter -= delta;
+					if (qtaCounter == 0)
+						break;
 				}
-
-				// TODO qta spans over multi movim
 			}
-
-			// Se non ho trovato box con quantità desiderata
-			if (mm == null) {
-
-				// TODO gestire in modo adeguato la disponibilità
-				throw new IllegalArgumentException(
-						"La quantità richiesta non è disponibile!");
-			}
+			if (qtaCounter != 0)
+				throw new InternalError("Disponibilità sembrava OK ma nope...");
 		}
 
 		// Cambia stato ordine da IN_ATTESA a IN_SVOLGIMENTO
@@ -321,6 +385,23 @@ public class MovimenModel extends BaseModel {
 	}
 
 	/**
+	 * Se possibile, segna la movimentazione come annullata
+	 */
+	public void annulla() {
+
+		// Check stato
+		if (!movim.isAnnullabile())
+			throw new IllegalArgumentException(
+					"Non è possibile annullare la movimentazione!");
+
+		// Annulla
+		movim.setStato(StatoMovim.ANNULLATA);
+		record.setStato(StatoMovim.ANNULLATA.name());
+		record.store();
+		notifyChangeListeners(null);
+	}
+
+	/**
 	 * Restituisce la PK (ordineId, boxAddr) della movimentazione gestita
 	 * 
 	 * @return PK
@@ -349,12 +430,58 @@ public class MovimenModel extends BaseModel {
 		if (u == null || !u.isValid() || !u.isForkLifter())
 			throw new IllegalArgumentException("Utente non valido");
 
+		// Check movim
+		if (movim.getStato() != StatoMovim.NON_ASSEGNATA)
+			throw new IllegalStateException(
+					"La movimentazione è già stata presa in carico");
+
 		movim.setMagazziniere(u);
 		record.setMagazziniere(u.getMatricola());
 		movim.setStato(StatoMovim.PRESA_IN_CARICO);
 		record.setStato(StatoMovim.PRESA_IN_CARICO.name());
 		record.store();
 		notifyChangeListeners(null);
+	}
+
+	/**
+	 * Contrassegna la movimentazione come PRELEVATA e, se si tratta di un
+	 * ordine in uscita, aggiorna la quantità del box.
+	 */
+	public void markAsLoaded() {
+		// Check movim
+		if (movim.getStato() != StatoMovim.PRESA_IN_CARICO)
+			throw new IllegalStateException();
+
+		// Preleva da box (se ordine in uscita)
+		if (movim.getOrdine().isOutgoing())
+			BoxModel.getBoxModel(movim.getBox()).preleva(movim.getQuantità());
+
+		movim.setStato(StatoMovim.PRELEVATA);
+		record.setStato(StatoMovim.PRELEVATA.name());
+		record.store();
+		notifyChangeListeners(null);
+	}
+
+	/**
+	 * Contrassegna la movimentazione come COMPLETATA e, se si tratta di un
+	 * ordine in entrata, aggiorna la quantità del box.
+	 */
+	public void markAsCompleted() {
+		// Check movim
+		if (movim.getStato() != StatoMovim.PRELEVATA)
+			throw new IllegalStateException();
+
+		// Deposita in box (se ordine in entrata)
+		if (!movim.getOrdine().isOutgoing())
+			BoxModel.getBoxModel(movim.getBox())
+					.rifornisci(movim.getQuantità());
+
+		movim.setStato(StatoMovim.COMPLETATA);
+		record.setStato(StatoMovim.COMPLETATA.name());
+		record.store();
+		notifyChangeListeners(null);
+
+		// TODO: accountability; campo dataCompletamento?
 	}
 
 	/**
