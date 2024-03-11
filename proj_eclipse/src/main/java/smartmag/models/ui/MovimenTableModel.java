@@ -76,8 +76,10 @@ public class MovimenTableModel extends AbstractTableModel
 		Prodotto p = m.getProdotto();
 		return switch (columnIndex) {
 			case 0:
+				// Ordine
 				yield o.getId();
 			case 1:
+				// Orig -> Dest
 				String orig = !o.isOutgoing() ? Movimentazione.ZCS
 						: m.getBox().getIndirizzo();
 				String dest = o.isOutgoing() ? Movimentazione.ZCS
@@ -91,7 +93,7 @@ public class MovimenTableModel extends AbstractTableModel
 				yield m.getQuantità();
 			case 4:
 				// Stato
-				yield m.getStato().name();
+				yield m.getStato();
 			case 5:
 				// Magazziniere
 				Utente worker = m.getMagazziniere();
