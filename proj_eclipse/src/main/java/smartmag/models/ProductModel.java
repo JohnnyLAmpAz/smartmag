@@ -87,7 +87,7 @@ public class ProductModel extends BaseModel {
 		return prodotto.clone();
 	}
 
-	protected void setProdotto(Prodotto p) {
+	public void setProdotto(Prodotto p) {
 
 		if (p != null && p.isValid())
 			this.prodotto = p.clone();
@@ -122,6 +122,7 @@ public class ProductModel extends BaseModel {
 		if (isSavedInDb()) {
 			record.delete();// DELETE con UpdatableRecord
 			record = null;
+			instances.remove(prodotto.getId());
 			notifyChangeListeners(null);
 		}
 	}
@@ -132,6 +133,9 @@ public class ProductModel extends BaseModel {
 			throw new SQLIntegrityConstraintViolationException(
 					"Prodotto #" + p.getId() + " non esiste!");
 
+		if (p.getId() != this.prodotto.getId() && checkId(p.getId())) {
+			throw new IllegalArgumentException("id gia usato");
+		}
 		record = (ProdottoRecord) fetchProdById(p.getId());
 		copyProdottoIntoRecord(p, record);
 		record.store(); // UPDATE con UpdatableRecord
@@ -188,6 +192,7 @@ public class ProductModel extends BaseModel {
 	}
 
 	public static TreeMap<Integer, ProductModel> getAllProductModels() {
+		@SuppressWarnings("unchecked")
 		TreeMap<Integer, ProductModel> pm = (TreeMap<Integer, ProductModel>) instances
 				.clone();
 		return treeMapFilter(pm);
@@ -203,4 +208,27 @@ public class ProductModel extends BaseModel {
 		}
 		return filtrata;
 	}
+
+	public static Prodotto getProdById(int id) {
+		return instances.get(id).getProdotto();
+	}
+
+	public static void inizializza() {
+		instances = new TreeMap<Integer, ProductModel>();
+		Map<Integer, Record> res = DSL.select().from(PRODOTTO)
+				.fetchMap(PRODOTTO.ID);
+		res.forEach((id, r) -> instances.put(id,
+				new ProductModel((ProdottoRecord) r)));
+	}
+
+	public static boolean checkId(int id) {
+
+		inizializza();
+		return instances.containsKey(id);
+	}
+
+	public static Prodotto getProdottoFromId(int id) {
+		return instances.get(id).getProdotto();
+	}
+
 }

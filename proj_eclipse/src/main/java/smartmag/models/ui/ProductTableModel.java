@@ -23,8 +23,9 @@ public class ProductTableModel extends AbstractTableModel
 		ProductModel.addChangeListener(this);
 	}
 
-	private void refreshFromModel() {
+	public void refreshFromModel() {
 		prodotti = ProductModel.getAllProductModels();
+		fireTableDataChanged();
 	}
 
 	@Override
