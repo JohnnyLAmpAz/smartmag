@@ -72,7 +72,7 @@ public class BoxModel extends BaseModel {
 	 * 
 	 * @return
 	 */
-	protected Box getBox() {
+	public Box getBox() {
 		return box.clone();
 	}
 
@@ -136,7 +136,7 @@ public class BoxModel extends BaseModel {
 	 * 
 	 * @param p nuovo prodotto da assegnare al box
 	 */
-	private void cambiaProdotto(Prodotto p) {
+	public void cambiaProdotto(Prodotto p) {
 
 		if (box != null && box.isValid() && box.getQuantità() == 0) {
 			if (p != null && p.isValid()
@@ -169,7 +169,7 @@ public class BoxModel extends BaseModel {
 	 * 
 	 * @param quantita numero di unita di prodotto aggiunte
 	 */
-	protected void rifornisci(int quantita) {
+	public void rifornisci(int quantita) {
 
 		int qi = this.box.getQuantità();
 		this.box.setQuantità(qi + quantita);
@@ -202,7 +202,7 @@ public class BoxModel extends BaseModel {
 	 * 
 	 * @param qta
 	 */
-	private void setQuantita(int qta) {
+	public void setQuantita(int qta) {
 		this.box.setQuantità(qta);
 		record.setQta(box.getQuantità());
 		record.update();
@@ -263,7 +263,7 @@ public class BoxModel extends BaseModel {
 		int IDprodotto = r.getProdotto();
 		int qta = r.getQta();
 		ProdottoRecord pr = (ProdottoRecord) DSL.select().from(PRODOTTO)
-				.where(PRODOTTO.ID.eq(IDprodotto));
+				.where(PRODOTTO.ID.eq(IDprodotto)).fetchOne();
 		Prodotto p = ProductModel.prodottoFromRecord(pr);
 		return new Box(indirizzo, qta, p);
 	}
@@ -302,6 +302,22 @@ public class BoxModel extends BaseModel {
 			}
 		}
 		return filtrata;
+	}
+
+	public static void inizializza() {
+		instances = new TreeMap<String, BoxModel>();
+		Map<String, Record> res = DSL.select().from(BOX).fetchMap(BOX.ID);
+		res.forEach((id, r) -> instances.put(id, new BoxModel((BoxRecord) r)));
+	}
+
+	public static boolean esistenzaBoxModel(String indirizzo) {
+		inizializza();
+		return instances.containsKey(indirizzo);
+	}
+
+	public static BoxModel getBoxModelFromIndirizzo(String indirizzo) {
+		inizializza();
+		return instances.get(indirizzo);
 	}
 
 }
