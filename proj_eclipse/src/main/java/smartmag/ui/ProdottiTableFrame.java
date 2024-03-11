@@ -23,6 +23,7 @@ import smartmag.data.Prodotto;
 import smartmag.models.BoxModel;
 import smartmag.models.ProductModel;
 import smartmag.models.ui.ProductTableModel;
+import smartmag.ui.utils.BasicWindow;
 
 public class ProdottiTableFrame extends BasicWindow {
 
@@ -271,5 +272,4 @@ public class ProdottiTableFrame extends BasicWindow {
 		}
 		sorter.setRowFilter(rf);
 	}
-
 }

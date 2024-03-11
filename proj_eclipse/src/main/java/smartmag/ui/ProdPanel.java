@@ -28,7 +28,7 @@ public class ProdPanel extends JPanel {
 	 */
 	static {
 		integerFmt = NumberFormat.getIntegerInstance();
-		integerFmt.setGroupingUsed(false);
+		integerFmt.setGroupingUsed(false); // Disabilito i separatori migliaia
 
 		floatFmt = new DecimalFormat("#0.0##");
 		floatFmt.setMinimumFractionDigits(1);
@@ -79,6 +79,7 @@ public class ProdPanel extends JPanel {
 		setLayout(new MigLayout("wrap 2", "[][100px:100px,grow]",
 				"[][][grow][][]"));
 
+		// ID
 		JLabel lblId = new JLabel("ID");
 		add(lblId, "alignx trailing");
 
@@ -90,6 +91,7 @@ public class ProdPanel extends JPanel {
 		lblId.setLabelFor(ftfId);
 		add(ftfId, "growx");
 
+		// Nome
 		JLabel lblNome = new JLabel("Nome");
 		add(lblNome, "alignx trailing");
 
@@ -100,6 +102,8 @@ public class ProdPanel extends JPanel {
 		lblNome.setLabelFor(tfNome);
 		add(tfNome, "growx");
 
+		// Descrizione
+		// TODO: fix layout
 		JLabel lblDescr = new JLabel("Descrizione");
 		add(lblDescr, "alignx trailing,aligny top");
 
@@ -113,6 +117,7 @@ public class ProdPanel extends JPanel {
 		lblDescr.setLabelFor(editorDescr);
 		add(editorDescr, "grow");
 
+		// Peso
 		JLabel lblPeso = new JLabel("Peso [kg]");
 		add(lblPeso, "alignx trailing");
 
@@ -124,6 +129,7 @@ public class ProdPanel extends JPanel {
 		lblPeso.setLabelFor(ftfPeso);
 		add(ftfPeso, "growx");
 
+		// Soglia
 		JLabel lblSoglia = new JLabel("Soglia");
 		add(lblSoglia, "alignx trailing");
 

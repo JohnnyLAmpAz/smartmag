@@ -19,6 +19,7 @@ import javax.swing.table.TableRowSorter;
 import smartmag.data.Box;
 import smartmag.models.BoxModel;
 import smartmag.models.ui.BoxTableModel;
+import smartmag.ui.utils.BasicWindow;
 
 public class BoxTableFrame extends BasicWindow {
 

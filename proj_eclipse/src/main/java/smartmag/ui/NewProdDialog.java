@@ -22,7 +22,7 @@ public class NewProdDialog extends JDialog {
 
 	public static Prodotto showNewProdDialog(JFrame parent, int initId) {
 		NewProdDialog d = new NewProdDialog(parent, initId);
-		d.setVisible(true);
+		d.setVisible(true); // Essendo modale la chiamata è bloccante
 		return d.result;
 	}
 
@@ -101,5 +101,4 @@ public class NewProdDialog extends JDialog {
 		btnsPanel.add(btnAdd);
 		contentPane.add(btnsPanel, "growx");
 	}
-
 }

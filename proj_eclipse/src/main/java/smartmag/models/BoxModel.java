@@ -102,7 +102,7 @@ public class BoxModel extends BaseModel {
 	 * @throws SQLIntegrityConstraintViolationException se il record é giá
 	 *                                                  presente nel db
 	 */
-	public void create() throws SQLIntegrityConstraintViolationException {
+	private void create() throws SQLIntegrityConstraintViolationException {
 		if (isSavedInDb()) {
 			throw new SQLIntegrityConstraintViolationException(
 					"il box#" + box.getIndirizzo() + " esiste giá");
@@ -160,7 +160,6 @@ public class BoxModel extends BaseModel {
 		if (isSavedInDb()) {
 			record.delete();
 			record = null;
-			instances.remove(box.getIndirizzo());
 			notifyChangeListeners(null);
 		}
 	}

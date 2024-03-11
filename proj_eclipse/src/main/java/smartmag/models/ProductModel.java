@@ -4,6 +4,7 @@ import static ingsw_proj_magazzino.db.generated.Tables.PRODOTTO;
 import static org.jooq.impl.DSL.max;
 
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -67,7 +68,7 @@ public class ProductModel extends BaseModel {
 	 * @throws SQLIntegrityConstraintViolationException se il record é gia
 	 *                                                  presntenel db
 	 */
-	public ProductModel createProdotto(Prodotto p)
+	public static ProductModel createProdotto(Prodotto p)
 			throws SQLIntegrityConstraintViolationException {
 		ProductModel pm = getProductModelOf(p);
 		if (pm.isSavedInDb()) {
@@ -268,6 +269,18 @@ public class ProductModel extends BaseModel {
 		return max + 1;
 	}
 
+	public static ArrayList<Prodotto> getAllProducts() {
+		TreeMap<Integer, ProductModel> tm = getAllProductModels();
+		ArrayList<Prodotto> prod = new ArrayList<Prodotto>();
+
+		for (Map.Entry<Integer, ProductModel> entry : tm.entrySet()) {
+			Prodotto p = entry.getValue().getProdotto();
+			if (p != null)
+				prod.add(entry.getValue().getProdotto());
+		}
+		return prod;
+	}
+
 	/**
 	 * restituisce un clone filtrato della treemap istances in cui sono presenti
 	 * solo i modelli con record non nullo
@@ -335,5 +348,4 @@ public class ProductModel extends BaseModel {
 	public static Prodotto getProdottoFromId(int id) {
 		return instances.get(id).getProdotto();
 	}
-
 }
