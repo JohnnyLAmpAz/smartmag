@@ -29,11 +29,12 @@ public class EditProdDialog extends JDialog {
 	}
 
 	/**
-	 * Create the dialog.
+	 * Costruttore finestra di dialogo per modificare un prodotto
+	 * 
 	 */
 	public EditProdDialog(JFrame parent, ProdPanel panel) {
 
-		super(parent, "Modifica Prodotto", true); // true per modalità modale
+		super(parent, "Modifica Prodotto", true);
 		setMinimumSize(new Dimension(250, 300));
 		setLocationRelativeTo(parent);
 
@@ -51,7 +52,7 @@ public class EditProdDialog extends JDialog {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				setVisible(false); // Chiudi il dialog (restituisce null)
+				setVisible(false);
 			}
 		});
 
@@ -63,13 +64,10 @@ public class EditProdDialog extends JDialog {
 				Prodotto p = panel.getProdotto();
 
 				if (p.isValid()) {
-
-					// Se i dati sono validi esci e restituisci il prodotto
 					result = p;
 					setVisible(false);
 				} else {
 
-					// Altrimenti mostra errore
 					JOptionPane.showMessageDialog(EditProdDialog.this,
 							"Inserire dei dati validi!", "Errore",
 							JOptionPane.ERROR_MESSAGE);

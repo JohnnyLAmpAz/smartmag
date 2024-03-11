@@ -16,6 +16,9 @@ public class ProductTableModel extends AbstractTableModel
 	private String[] columnNames;
 	private TreeMap<Integer, ProductModel> prodotti;
 
+	/**
+	 * costruttore
+	 */
 	public ProductTableModel() {
 		refreshFromModel();
 		this.columnNames = new String[] { "Id", "Nome", "Descrizione", "Peso",
@@ -23,6 +26,9 @@ public class ProductTableModel extends AbstractTableModel
 		ProductModel.addChangeListener(this);
 	}
 
+	/**
+	 * aggiorna la lista di prodotti
+	 */
 	public void refreshFromModel() {
 		prodotti = ProductModel.getAllProductModels();
 		fireTableDataChanged();

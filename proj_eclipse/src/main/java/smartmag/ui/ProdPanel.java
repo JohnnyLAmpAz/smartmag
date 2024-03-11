@@ -18,14 +18,17 @@ public class ProdPanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
-	// TODO: oggetto Prodotto da syncare
-
 	private static final NumberFormat integerFmt;
 	protected static final NumberFormat floatFmt;
 	private static final NonNegNumVerifier numVerifier;
+
+	/**
+	 * genera i vari formati per i dati che saranno presenti nel pannello con i
+	 * relativi verifier
+	 */
 	static {
 		integerFmt = NumberFormat.getIntegerInstance();
-		integerFmt.setGroupingUsed(false); // Disabilito i separatori migliaia
+		integerFmt.setGroupingUsed(false);
 
 		floatFmt = new DecimalFormat("#0.0##");
 		floatFmt.setMinimumFractionDigits(1);
@@ -48,17 +51,34 @@ public class ProdPanel extends JPanel {
 		this(initId, "", "", 0f, 0, true);
 	}
 
+	/**
+	 * costruttore che crea pannello passando il prodotto
+	 * 
+	 * @param p
+	 * @param editable
+	 */
 	public ProdPanel(Prodotto p, boolean editable) {
 		this(p.getId(), p.getNome(), p.getDescr(), p.getPeso(), p.getSoglia(),
 				editable);
 	}
 
+	/**
+	 * costruttore privatot che crea il pannello per visualizzare i dati di un
+	 * prodotto
+	 * 
+	 * @param id       identificativo del prodotto
+	 * @param nome     nome del prodotto
+	 * @param descr    descrizione del prodotto
+	 * @param peso     peso del prodotto
+	 * @param soglia   soglia del prodotto
+	 * @param editable parametro che determina se i dati sono modificabili
+	 *                 oppure no
+	 */
 	private ProdPanel(int id, String nome, String descr, float peso, int soglia,
 			boolean editable) {
 		setLayout(new MigLayout("wrap 2", "[][100px:100px,grow]",
 				"[][][grow][][]"));
 
-		// ID
 		JLabel lblId = new JLabel("ID");
 		add(lblId, "alignx trailing");
 
@@ -70,7 +90,6 @@ public class ProdPanel extends JPanel {
 		lblId.setLabelFor(ftfId);
 		add(ftfId, "growx");
 
-		// Nome
 		JLabel lblNome = new JLabel("Nome");
 		add(lblNome, "alignx trailing");
 
@@ -81,8 +100,6 @@ public class ProdPanel extends JPanel {
 		lblNome.setLabelFor(tfNome);
 		add(tfNome, "growx");
 
-		// Descrizione
-		// TODO: fix layout
 		JLabel lblDescr = new JLabel("Descrizione");
 		add(lblDescr, "alignx trailing,aligny top");
 
@@ -96,7 +113,6 @@ public class ProdPanel extends JPanel {
 		lblDescr.setLabelFor(editorDescr);
 		add(editorDescr, "grow");
 
-		// Peso
 		JLabel lblPeso = new JLabel("Peso [kg]");
 		add(lblPeso, "alignx trailing");
 
@@ -108,7 +124,6 @@ public class ProdPanel extends JPanel {
 		lblPeso.setLabelFor(ftfPeso);
 		add(ftfPeso, "growx");
 
-		// Soglia
 		JLabel lblSoglia = new JLabel("Soglia");
 		add(lblSoglia, "alignx trailing");
 
@@ -148,9 +163,6 @@ public class ProdPanel extends JPanel {
 			return f.floatValue();
 		return -1;
 	}
-
-	// TODO: ChangeEvent (uno solo) per tutti i campi così poi da valutare
-	// validità
 
 	public Prodotto getProdotto() {
 		return new Prodotto(getId(), getNome(), getDescr(), getPeso(),

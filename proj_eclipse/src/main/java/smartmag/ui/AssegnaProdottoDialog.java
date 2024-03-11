@@ -29,6 +29,12 @@ public class AssegnaProdottoDialog extends JDialog {
 	private JTextField indirizzoBox;
 	private BoxModel boxModel;
 
+	/**
+	 * costruttore finestra di dialogo per assegnare un prodotto ad un box
+	 * 
+	 * @param parent
+	 * @param p
+	 */
 	public AssegnaProdottoDialog(Frame parent, Prodotto p) {
 		super(parent, "assegna prodotto: " + p.getId() + " ad un box", true);
 		NumberFormat format = NumberFormat.getIntegerInstance();
@@ -58,7 +64,7 @@ public class AssegnaProdottoDialog extends JDialog {
 					JOptionPane.showMessageDialog(AssegnaProdottoDialog.this,
 							"L'indirizzo deve rispettare il formato specificato, esempio: A-1-1.",
 							"Errore", JOptionPane.ERROR_MESSAGE);
-					return; // Esci senza eseguire ulteriori azioni
+					return;
 				}
 				Box b = new Box(idBox, quantita, p);
 				if (BoxModel.esistenzaBoxModel(idBox)) {

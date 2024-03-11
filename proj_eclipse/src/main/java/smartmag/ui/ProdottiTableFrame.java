@@ -33,6 +33,9 @@ public class ProdottiTableFrame extends BasicWindow {
 	private TableRowSorter<ProductTableModel> sorter;
 	private JTextField tfFilter;
 
+	/**
+	 * creazione frame per visualizzazione prodotti e operazioni su di essi
+	 */
 	public ProdottiTableFrame() {
 		super("Lista Prodotti", 300, 350, true);
 
@@ -159,7 +162,7 @@ public class ProdottiTableFrame extends BasicWindow {
 		});
 		btnsPanel.add(btnNewProd);
 
-		// posiziona(da finire)
+		// posiziona
 
 		JButton btnAddProd = new JButton("Posiziona/Colloca");
 		btnAddProd.addActionListener(new ActionListener() {

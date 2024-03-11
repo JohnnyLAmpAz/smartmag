@@ -22,7 +22,7 @@ public class NewProdDialog extends JDialog {
 
 	public static Prodotto showNewProdDialog(JFrame parent, int initId) {
 		NewProdDialog d = new NewProdDialog(parent, initId);
-		d.setVisible(true); // Essendo modale la chiamata è bloccante
+		d.setVisible(true);
 		return d.result;
 	}
 
@@ -43,6 +43,12 @@ public class NewProdDialog extends JDialog {
 		this(parent, new ProdPanel(p, true));
 	}
 
+	/**
+	 * crea la finestra di dialogo per creazione di un nuovo prodotto
+	 * 
+	 * @param parent
+	 * @param prodPanel
+	 */
 	private NewProdDialog(JFrame parent, ProdPanel prodPanel) {
 		super(parent, "Nuovo Prodotto", true); // true per modalità modale
 		setMinimumSize(new Dimension(250, 300));
@@ -96,5 +102,4 @@ public class NewProdDialog extends JDialog {
 		contentPane.add(btnsPanel, "growx");
 	}
 
-	// TODO: check ID on change?
 }
