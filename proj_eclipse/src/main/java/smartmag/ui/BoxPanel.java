@@ -15,7 +15,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
-import javax.swing.text.MaskFormatter;
 
 import net.miginfocom.swing.MigLayout;
 import smartmag.data.Box;
@@ -29,6 +28,12 @@ public class BoxPanel extends JPanel {
 	protected static final NumberFormat indirizzoFmt;
 	private static final NonNegNumVerifier numVerifier;
 	private static final FormatVerifier formatVerifier;
+
+	/**
+	 * 
+	 * genera i vari formati per i dati che saranno presenti nel pannello con i
+	 * relativi verifier
+	 */
 
 	static {
 
@@ -52,11 +57,27 @@ public class BoxPanel extends JPanel {
 		this("", -1, 0, true, true);
 	}
 
+	/**
+	 * costruttore che crea pannello passando il box
+	 * 
+	 * @param b         box di cui visualizzare i dati
+	 * @param editableq modificabilitá della quantitá
+	 * @param editablep modificabilitá del prodotto
+	 */
 	public BoxPanel(Box b, boolean editableq, boolean editablep) {
 		this(b.getIndirizzo(), b.getProd().getId(), b.getQuantità(), editableq,
 				editablep);
 	}
 
+	/**
+	 * costruttore che crea il pannello per visualizzare i dati di un box
+	 * 
+	 * @param indirizzo  indirizzo del box
+	 * @param idProdotto id del prodotto contenuto nel box
+	 * @param qta        quantita di prodotto nel box
+	 * @param editableq  modificabilitá della quantitá
+	 * @param editablep  modificabilitá del prodotto
+	 */
 	public BoxPanel(String indirizzo, int idProdotto, int qta,
 			boolean editableq, boolean editablep) {
 		setLayout(new MigLayout("wrap 2", "[][100px:100px,grow]",
@@ -131,18 +152,6 @@ public class BoxPanel extends JPanel {
 				ProductModel.getProdottoFromId(getIdProdotto()));
 	}
 
-	private static MaskFormatter createStringFormat() {
-
-		try {
-			MaskFormatter formatter = new MaskFormatter(
-					"^[A-Z]+(-([1-9]\\d*|0)){2}$");
-			return formatter;
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	}
 }
 
 class NonNegNumVerifier extends InputVerifier {
@@ -161,11 +170,6 @@ class NonNegNumVerifier extends InputVerifier {
 }
 
 class FormatVerifier extends InputVerifier {
-	/*
-	 * @Override public boolean shouldYieldFocus(JComponent input) { boolean
-	 * valid = verify(input); if (valid) { return true; } else {
-	 * Toolkit.getDefaultToolkit().beep(); return false; } }
-	 */
 
 	@Override
 	public boolean verify(JComponent input) {

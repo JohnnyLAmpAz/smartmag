@@ -29,6 +29,9 @@ public class BoxTableFrame extends BasicWindow {
 	private TableRowSorter<BoxTableModel> sorter;
 	private JTextField tfFilter;
 
+	/**
+	 * creazione frame per la gestione dei box
+	 */
 	public BoxTableFrame() {
 		super("Lista Box", 300, 350, true);
 
@@ -115,38 +118,6 @@ public class BoxTableFrame extends BasicWindow {
 		});
 		btnsPanel.add(btnOpen);
 
-		// New btn
-		/*
-		 * JButton btnNewProd = new JButton("Nuovo Prodotto");
-		 * btnNewProd.addActionListener(new ActionListener() { public void
-		 * actionPerformed(ActionEvent e) {
-		 * 
-		 * // Apri un nuovo NewProdDialog Prodotto newProd =
-		 * NewProdDialog.showNewProdDialog( ProdottiTableFrame.this,
-		 * ProductModel.getNextAvailableId()); if (newProd != null) { try {
-		 * prodModel = ProductModel.getProductModelOf(newProd);
-		 * prodModel.create(); } catch (IntegrityConstraintViolationException |
-		 * SQLIntegrityConstraintViolationException | IllegalArgumentException
-		 * e1) { int id = newProd.getId(); Prodotto fetchProd =
-		 * ProductModel.getProdById(id); if (fetchProd != null) {
-		 * JOptionPane.showMessageDialog( ProdottiTableFrame.this,
-		 * "L'ID %d è già in uso dal prodotto: " + fetchProd.toString(),
-		 * "ID prodotto già utilizzato", JOptionPane.ERROR_MESSAGE); } else {
-		 * JOptionPane.showMessageDialog( ProdottiTableFrame.this,
-		 * e1.toString(), "Errore integrità DB", JOptionPane.ERROR_MESSAGE); } }
-		 * } } }); btnsPanel.add(btnNewProd);
-		 */
-
-		/*
-		 * JButton btnAddProd = new JButton("Posiziona/Colloca");
-		 * btnAddProd.addActionListener(new ActionListener() {
-		 * 
-		 * @Override public void actionPerformed(ActionEvent e) { prodModel =
-		 * ProductModel.getProductModelOf(
-		 * tableModel.getProductModelAt(table.getSelectedRow()) .getProdotto());
-		 * } });
-		 */
-
 		JButton btnEditProd = new JButton("Modifica");
 		btnEditProd.addActionListener(new ActionListener() {
 
@@ -164,30 +135,12 @@ public class BoxTableFrame extends BasicWindow {
 		});
 		btnsPanel.add(btnEditProd);
 
-		/*
-		 * // Delete btn JButton btnCanc = new JButton("Elimina");
-		 * btnCanc.addActionListener(new ActionListener() { public void
-		 * actionPerformed(ActionEvent e) {
-		 * 
-		 * // Prodotto selezionato ProductModel pm = tableModel
-		 * .getProductModelAt(table.getSelectedRow()); Prodotto p =
-		 * pm.getProdotto();
-		 * 
-		 * // Non fare nulla se non selezionato if (p == null) return;
-		 * 
-		 * String msg = "Vuoi davvero eliminare il prodotto #%d-%s ?"
-		 * .formatted(p.getId(), p.getNome()); int res =
-		 * JOptionPane.showConfirmDialog(ProdottiTableFrame.this, msg); if (res
-		 * == JOptionPane.YES_OPTION) {
-		 * 
-		 * // Elimina prodotto pm.deleteProdotto(); } } });
-		 * btnsPanel.add(btnCanc);
-		 * 
-		 * this.pack(); this.setLocationRelativeTo(null);
-		 */
-
 	}
 
+	/**
+	 * metodo che permette di filtrare attraverso i diversi parametri i vari box
+	 * nella tabella
+	 */
 	private void newFilter() {
 		RowFilter<? super BoxTableModel, ? super Integer> rf = null;
 		// If current expression doesn't parse, don't update.

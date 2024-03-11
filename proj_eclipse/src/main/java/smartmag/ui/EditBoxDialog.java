@@ -29,7 +29,7 @@ public class EditBoxDialog extends JDialog {
 	}
 
 	/**
-	 * Create the dialog.
+	 * Crea finestra di dialogo per modificare un box
 	 */
 	public EditBoxDialog(JFrame parent, BoxPanel panel) {
 

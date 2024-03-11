@@ -15,12 +15,18 @@ public class BoxTableModel extends AbstractTableModel
 	private String[] columnNames;
 	private TreeMap<String, BoxModel> box;
 
+	/**
+	 * costruttore
+	 */
 	public BoxTableModel() {
 		refreshFromModel();
 		this.columnNames = new String[] { "Id", "IDProdotto", "Quantitá" };
 		BoxModel.addChangeListener(this);
 	}
 
+	/**
+	 * aggiorna la lista di box
+	 */
 	public void refreshFromModel() {
 		box = BoxModel.getAllBoxModels();
 		fireTableDataChanged();
@@ -52,6 +58,13 @@ public class BoxTableModel extends AbstractTableModel
 		};
 	}
 
+	/**
+	 * Restituisce l'istanza del modello Box di indice (riga) specificato. Utile
+	 * per ricavare il box selezionato.
+	 * 
+	 * @param index indice posizione box
+	 * @return modello box
+	 */
 	public BoxModel getBoxModelAt(int rowIndex) {
 		BoxModel bm = null;
 		int i = 0;

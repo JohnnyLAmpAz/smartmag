@@ -19,6 +19,7 @@ public class BoxModel extends BaseModel {
 	/**
 	 * mappa per implementare unicitá delle istanze dei modelli di ogni box
 	 */
+
 	private static TreeMap<String, BoxModel> instances;
 	static {
 		instances = new TreeMap<String, BoxModel>();
@@ -285,6 +286,12 @@ public class BoxModel extends BaseModel {
 
 	}
 
+	/**
+	 * restituisce un clone della mappa instances in cui sono contenuti solo i
+	 * modelli con record diverso da null
+	 * 
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public static TreeMap<String, BoxModel> getAllBoxModels() {
 
@@ -304,17 +311,33 @@ public class BoxModel extends BaseModel {
 		return filtrata;
 	}
 
+	/**
+	 * crea la treemap instances inserendo il modello di tutti i box presenti
+	 * nel db
+	 */
 	public static void inizializza() {
 		instances = new TreeMap<String, BoxModel>();
 		Map<String, Record> res = DSL.select().from(BOX).fetchMap(BOX.ID);
 		res.forEach((id, r) -> instances.put(id, new BoxModel((BoxRecord) r)));
 	}
 
+	/**
+	 * controlla se il modello di un box esiste partendo dal suo indirizzo
+	 * 
+	 * @param indirizzo
+	 * @return true se esiste, false se non esiste
+	 */
 	public static boolean esistenzaBoxModel(String indirizzo) {
 		inizializza();
 		return instances.containsKey(indirizzo);
 	}
 
+	/**
+	 * restituisce il modello di un box partendo dal suo indirizzo
+	 * 
+	 * @param indirizzo
+	 * @return
+	 */
 	public static BoxModel getBoxModelFromIndirizzo(String indirizzo) {
 		inizializza();
 		return instances.get(indirizzo);
