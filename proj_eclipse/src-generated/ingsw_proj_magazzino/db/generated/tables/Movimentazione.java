@@ -57,14 +57,14 @@ public class Movimentazione extends TableImpl<MovimentazioneRecord> {
     public final TableField<MovimentazioneRecord, Integer> ORDINE = createField(DSL.name("ordine"), SQLDataType.INTEGER, this, "");
 
     /**
-     * The column <code>Movimentazione.prod</code>.
-     */
-    public final TableField<MovimentazioneRecord, Integer> PROD = createField(DSL.name("prod"), SQLDataType.INTEGER, this, "");
-
-    /**
      * The column <code>Movimentazione.box</code>.
      */
     public final TableField<MovimentazioneRecord, String> BOX = createField(DSL.name("box"), SQLDataType.CLOB, this, "");
+
+    /**
+     * The column <code>Movimentazione.prod</code>.
+     */
+    public final TableField<MovimentazioneRecord, Integer> PROD = createField(DSL.name("prod"), SQLDataType.INTEGER.nullable(false), this, "");
 
     /**
      * The column <code>Movimentazione.qta</code>.
@@ -126,12 +126,12 @@ public class Movimentazione extends TableImpl<MovimentazioneRecord> {
 
     @Override
     public List<ForeignKey<MovimentazioneRecord, ?>> getReferences() {
-        return Arrays.asList(Keys.MOVIMENTAZIONE__FK_MOVIMENTAZIONE_PK_ORDINE, Keys.MOVIMENTAZIONE__FK_MOVIMENTAZIONE_PK_PRODOTTO, Keys.MOVIMENTAZIONE__FK_MOVIMENTAZIONE_PK_BOX, Keys.MOVIMENTAZIONE__FK_MOVIMENTAZIONE_PK_UTENTE);
+        return Arrays.asList(Keys.MOVIMENTAZIONE__FK_MOVIMENTAZIONE_PK_ORDINE, Keys.MOVIMENTAZIONE__FK_MOVIMENTAZIONE_PK_BOX, Keys.MOVIMENTAZIONE__FK_MOVIMENTAZIONE_PK_PRODOTTO, Keys.MOVIMENTAZIONE__FK_MOVIMENTAZIONE_PK_UTENTE);
     }
 
     private transient Ordine _ordine;
-    private transient Prodotto _prodotto;
     private transient Box _box;
+    private transient Prodotto _prodotto;
     private transient Utente _utente;
 
     /**
@@ -145,16 +145,6 @@ public class Movimentazione extends TableImpl<MovimentazioneRecord> {
     }
 
     /**
-     * Get the implicit join path to the <code>Prodotto</code> table.
-     */
-    public Prodotto prodotto() {
-        if (_prodotto == null)
-            _prodotto = new Prodotto(this, Keys.MOVIMENTAZIONE__FK_MOVIMENTAZIONE_PK_PRODOTTO);
-
-        return _prodotto;
-    }
-
-    /**
      * Get the implicit join path to the <code>Box</code> table.
      */
     public Box box() {
@@ -162,6 +152,16 @@ public class Movimentazione extends TableImpl<MovimentazioneRecord> {
             _box = new Box(this, Keys.MOVIMENTAZIONE__FK_MOVIMENTAZIONE_PK_BOX);
 
         return _box;
+    }
+
+    /**
+     * Get the implicit join path to the <code>Prodotto</code> table.
+     */
+    public Prodotto prodotto() {
+        if (_prodotto == null)
+            _prodotto = new Prodotto(this, Keys.MOVIMENTAZIONE__FK_MOVIMENTAZIONE_PK_PRODOTTO);
+
+        return _prodotto;
     }
 
     /**
@@ -218,14 +218,14 @@ public class Movimentazione extends TableImpl<MovimentazioneRecord> {
     // -------------------------------------------------------------------------
 
     @Override
-    public Row6<Integer, Integer, String, Integer, String, String> fieldsRow() {
+    public Row6<Integer, String, Integer, Integer, String, String> fieldsRow() {
         return (Row6) super.fieldsRow();
     }
 
     /**
      * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
      */
-    public <U> SelectField<U> mapping(Function6<? super Integer, ? super Integer, ? super String, ? super Integer, ? super String, ? super String, ? extends U> from) {
+    public <U> SelectField<U> mapping(Function6<? super Integer, ? super String, ? super Integer, ? super Integer, ? super String, ? super String, ? extends U> from) {
         return convertFrom(Records.mapping(from));
     }
 
@@ -233,7 +233,7 @@ public class Movimentazione extends TableImpl<MovimentazioneRecord> {
      * Convenience mapping calling {@link SelectField#convertFrom(Class,
      * Function)}.
      */
-    public <U> SelectField<U> mapping(Class<U> toType, Function6<? super Integer, ? super Integer, ? super String, ? super Integer, ? super String, ? super String, ? extends U> from) {
+    public <U> SelectField<U> mapping(Class<U> toType, Function6<? super Integer, ? super String, ? super Integer, ? super Integer, ? super String, ? super String, ? extends U> from) {
         return convertFrom(toType, Records.mapping(from));
     }
 }

@@ -86,6 +86,9 @@ public class Db {
 			// Eseguili
 			stmt.executeBatch();
 
+			System.out.println("SQL Script %s executed successfully"
+					.formatted(sqlScriptPath));
+
 			stmt.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block (DB)
@@ -99,5 +102,14 @@ public class Db {
 
 	public DSLContext getDslContext() {
 		return dslContext;
+	}
+
+	/**
+	 * Esegue lo script SQL DDL
+	 * 
+	 * @throws IOException
+	 */
+	public static void main(String[] args) throws IOException {
+		getInstance();
 	}
 }
