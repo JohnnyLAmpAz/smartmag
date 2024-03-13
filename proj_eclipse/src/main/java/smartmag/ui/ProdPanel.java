@@ -3,10 +3,7 @@ package smartmag.ui;
 import java.beans.PropertyChangeListener;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.text.ParseException;
 
-import javax.swing.InputVerifier;
-import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -21,11 +18,14 @@ public class ProdPanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
-	// TODO: oggetto Prodotto da syncare
-
 	private static final NumberFormat integerFmt;
 	protected static final NumberFormat floatFmt;
 	private static final NonNegNumVerifier numVerifier;
+
+	/**
+	 * genera i vari formati per i dati che saranno presenti nel pannello con i
+	 * relativi verifier
+	 */
 	static {
 		integerFmt = NumberFormat.getIntegerInstance();
 		integerFmt.setGroupingUsed(false); // Disabilito i separatori migliaia
@@ -51,11 +51,29 @@ public class ProdPanel extends JPanel {
 		this(initId, "", "", 0f, 0, true);
 	}
 
+	/**
+	 * costruttore che crea pannello passando il prodotto
+	 * 
+	 * @param p
+	 * @param editable
+	 */
 	public ProdPanel(Prodotto p, boolean editable) {
 		this(p.getId(), p.getNome(), p.getDescr(), p.getPeso(), p.getSoglia(),
 				editable);
 	}
 
+	/**
+	 * costruttore privatot che crea il pannello per visualizzare i dati di un
+	 * prodotto
+	 * 
+	 * @param id       identificativo del prodotto
+	 * @param nome     nome del prodotto
+	 * @param descr    descrizione del prodotto
+	 * @param peso     peso del prodotto
+	 * @param soglia   soglia del prodotto
+	 * @param editable parametro che determina se i dati sono modificabili
+	 *                 oppure no
+	 */
 	private ProdPanel(int id, String nome, String descr, float peso, int soglia,
 			boolean editable) {
 		setLayout(new MigLayout("wrap 2", "[][100px:100px,grow]",
@@ -152,9 +170,6 @@ public class ProdPanel extends JPanel {
 		return -1;
 	}
 
-	// TODO: ChangeEvent (uno solo) per tutti i campi così poi da valutare
-	// validità
-
 	public Prodotto getProdotto() {
 		return new Prodotto(getId(), getNome(), getDescr(), getPeso(),
 				getSoglia());
@@ -165,19 +180,5 @@ public class ProdPanel extends JPanel {
 		if (val instanceof Number i)
 			return i.intValue();
 		return -1;
-	}
-}
-
-class NonNegNumVerifier extends InputVerifier {
-	@Override
-	public boolean verify(JComponent input) {
-		float n;
-		try {
-			n = ProdPanel.floatFmt.parse(((JTextField) input).getText())
-					.floatValue();
-		} catch (ParseException e) {
-			return false;
-		}
-		return n >= 0f;
 	}
 }

@@ -3,6 +3,7 @@ package smartmag.ui;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLIntegrityConstraintViolationException;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -19,28 +20,30 @@ import javax.swing.table.TableRowSorter;
 import org.jooq.exception.IntegrityConstraintViolationException;
 
 import smartmag.data.Prodotto;
-import smartmag.models.ProdModel;
+import smartmag.models.BoxModel;
+import smartmag.models.ProductModel;
+import smartmag.models.ui.ProductTableModel;
 import smartmag.ui.utils.BasicWindow;
 
 public class ProdottiTableFrame extends BasicWindow {
 
 	private static final long serialVersionUID = 1L;
-	private ProdModel prodModel;
-	private ProdTableModel tableModel;
+	private ProductModel prodModel;
+	private ProductTableModel tableModel = new ProductTableModel();
 	private JTable table;
-	private TableRowSorter<ProdTableModel> sorter;
+	private TableRowSorter<ProductTableModel> sorter;
 	private JTextField tfFilter;
 
+	/**
+	 * creazione frame per visualizzazione prodotti e operazioni su di essi
+	 */
 	public ProdottiTableFrame() {
 		super("Lista Prodotti", 300, 350, true);
 
-		this.setLayout(new BorderLayout());
-
-		prodModel = new ProdModel();
-		tableModel = new ProdTableModel(prodModel);
+		getContentPane().setLayout(new BorderLayout());
 
 		table = new JTable(tableModel);
-		sorter = new TableRowSorter<ProdTableModel>(tableModel);
+		sorter = new TableRowSorter<ProductTableModel>(tableModel);
 		table.setRowSorter(sorter);
 
 		// Cerca
@@ -78,53 +81,47 @@ public class ProdottiTableFrame extends BasicWindow {
 		getContentPane().add(btnsPanel, BorderLayout.SOUTH);
 
 		// Refresh btn
-		JButton btnRefresh = new JButton("Refresh");
-		btnRefresh.setToolTipText("Refreshes all data from DB");
+		JButton btnRefresh = new JButton("Aggiorna");
+		btnRefresh.setToolTipText("Aggiorna tutti i dati dal DB");
 		btnRefresh.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				tableModel.refreshData();
+				ProductModel.inizializza();
+				tableModel.stateChanged(null);
+				BoxModel.inizializza();
 			}
 		});
 		btnsPanel.add(btnRefresh);
 
-		// Open btn
-		JButton btnOpen = new JButton("Open info (fetch from DB)");
+		// Info btn
+		JButton btnOpen = new JButton("Info");
 		btnOpen.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
 				// Prodotto selezionato
-				Prodotto p = getSelectedProd();
+				try {
+					Prodotto p = tableModel
+							.getProductModelAt(table.getSelectedRow())
+							.getProdotto();
 
-				// Non fare nulla se non selezionato
-				if (p == null)
-					return; // TODO: improve
-
-				// Fetch prod dal db
-				p = prodModel.getProdottoById(p.getId());
-
-				// Se non esiste, aggiorna e basta
-				if (p == null) {
-					tableModel.refreshData();
-					return;
+					BasicWindow w = new BasicWindow("Prodotto " + p.getId(),
+							250, 300, true);
+					w.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+					w.setLocationRelativeTo(ProdottiTableFrame.this);
+					ProdPanel prodPanel = new ProdPanel(p, false);
+					prodPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+					w.setContentPane(prodPanel);
+					w.setVisible(true);
+				} catch (IndexOutOfBoundsException e3) {
+					JOptionPane.showMessageDialog(ProdottiTableFrame.this,
+							"nessun prodotto selezionato",
+							"Errore selezione prodotto",
+							JOptionPane.ERROR_MESSAGE);
 				}
 
-				// Stampa info
-				// TODO: apri frame con ProdPanel e btns per modifica/del
-//				JOptionPane.showMessageDialog(ProdottiTableFrame.this,
-//						p.toString());
-				BasicWindow w = new BasicWindow("Prodotto " + p.getId(), 250,
-						300, true);
-				w.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-				w.setLocationRelativeTo(ProdottiTableFrame.this);
-				ProdPanel prodPanel = new ProdPanel(p, false); // TODO: improve
-																// editable
-				prodPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-				w.setContentPane(prodPanel);
-				w.setVisible(true);
 			}
 		});
 		btnsPanel.add(btnOpen);
@@ -137,20 +134,21 @@ public class ProdottiTableFrame extends BasicWindow {
 				// Apri un nuovo NewProdDialog
 				Prodotto newProd = NewProdDialog.showNewProdDialog(
 						ProdottiTableFrame.this,
-						prodModel.getNextAvailableId());
+						ProductModel.getNextAvailableId());
 				if (newProd != null) {
 					try {
-						prodModel.createProdotto(newProd);
-						tableModel.addProd(newProd);
-					} catch (IntegrityConstraintViolationException e1) {
+						prodModel = ProductModel.getProductModelOf(newProd);
+						prodModel.create();
+					} catch (IntegrityConstraintViolationException
+							| SQLIntegrityConstraintViolationException
+							| IllegalArgumentException e1) {
 						int id = newProd.getId();
-						Prodotto fetchProd = prodModel.getProdottoById(id);
+						Prodotto fetchProd = ProductModel.getProdById(id);
 						if (fetchProd != null) {
 							JOptionPane.showMessageDialog(
 									ProdottiTableFrame.this,
-									"L'ID %d è già in uso dal prodotto:\n%s"
-											.formatted(id,
-													fetchProd.toString()),
+									"L'ID %d è già in uso dal prodotto: "
+											+ fetchProd.toString(),
 									"ID prodotto già utilizzato",
 									JOptionPane.ERROR_MESSAGE);
 						} else {
@@ -165,17 +163,85 @@ public class ProdottiTableFrame extends BasicWindow {
 		});
 		btnsPanel.add(btnNewProd);
 
+		// posiziona
+
+		JButton btnAddProd = new JButton("Posiziona/Colloca");
+		btnAddProd.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					prodModel = ProductModel.getProductModelOf(
+
+							tableModel.getProductModelAt(table.getSelectedRow())
+									.getProdotto());
+					AssegnaProdottoDialog dialog = new AssegnaProdottoDialog(
+							ProdottiTableFrame.this, prodModel.getProdotto());
+					dialog.setVisible(true);
+				} catch (IndexOutOfBoundsException e4) {
+					JOptionPane.showMessageDialog(ProdottiTableFrame.this,
+							"nessun prodotto selezionato",
+							"Errore selezione prodotto",
+							JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
+		btnsPanel.add(btnAddProd);
+
+		// modifica
+
+		JButton btnEditProd = new JButton("Modifica");
+		btnEditProd.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				prodModel = ProductModel.getProductModelOf(
+						tableModel.getProductModelAt(table.getSelectedRow())
+								.getProdotto());
+				Prodotto editProd = EditProdDialog.showEditProdDialog(
+						ProdottiTableFrame.this,
+						tableModel.getProductModelAt(table.getSelectedRow())
+								.getProdotto());
+				if (editProd != null) {
+					try {
+						prodModel.updateProdotto(editProd);
+						prodModel.setProdotto(editProd);
+					} catch (IntegrityConstraintViolationException
+							| SQLIntegrityConstraintViolationException
+							| IllegalArgumentException e1) {
+						{
+							int id = editProd.getId();
+							if (ProductModel.checkId(id)) {
+								JOptionPane.showMessageDialog(
+										ProdottiTableFrame.this,
+										"L'ID %d è già in uso ");
+							} else {
+								JOptionPane.showMessageDialog(
+										ProdottiTableFrame.this, e1.toString(),
+										"Errore integrità DB",
+										JOptionPane.ERROR_MESSAGE);
+							}
+						}
+
+					}
+				}
+			}
+		});
+		btnsPanel.add(btnEditProd);
+
 		// Delete btn
 		JButton btnCanc = new JButton("Elimina");
 		btnCanc.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
 				// Prodotto selezionato
-				Prodotto p = getSelectedProd();
+				ProductModel pm = tableModel
+						.getProductModelAt(table.getSelectedRow());
+				Prodotto p = pm.getProdotto();
 
 				// Non fare nulla se non selezionato
 				if (p == null)
-					return; // TODO: improve
+					return;
 
 				String msg = "Vuoi davvero eliminare il prodotto #%d-%s ?"
 						.formatted(p.getId(), p.getNome());
@@ -184,7 +250,7 @@ public class ProdottiTableFrame extends BasicWindow {
 				if (res == JOptionPane.YES_OPTION) {
 
 					// Elimina prodotto
-					tableModel.deleteProdotto(p);
+					pm.deleteProdotto();
 				}
 			}
 		});
@@ -195,15 +261,8 @@ public class ProdottiTableFrame extends BasicWindow {
 
 	}
 
-	private Prodotto getSelectedProd() {
-		int index = table.getSelectedRow();
-		if (index < 0)
-			return null;
-		return tableModel.getProdAt(table.convertRowIndexToModel(index));
-	}
-
 	private void newFilter() {
-		RowFilter<ProdTableModel, Object> rf = null;
+		RowFilter<ProductTableModel, Object> rf = null;
 		// If current expression doesn't parse, don't update.
 		try {
 			// Filtra per ID, Nome e Descrizione

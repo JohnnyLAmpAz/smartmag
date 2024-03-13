@@ -161,7 +161,7 @@ public class OrderDialog extends JDialog {
 		}
 
 		Vector<Prodotto> vectorProdotti = new Vector<>(
-				ProductModel.getAllProduct());
+				ProductModel.getAllProducts());
 
 		comboProdotti = new JComboBox<Prodotto>(
 				vectorProdotti);

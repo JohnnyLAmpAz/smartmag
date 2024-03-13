@@ -551,7 +551,7 @@ public class OrderModel extends BaseModel {
 		ProductModel.createProdotto(p1);
 		ProductModel.createProdotto(p2);
 		ProductModel.createProdotto(p3);
-		ArrayList<Prodotto> prods = ProductModel.getAllProduct();
+		ArrayList<Prodotto> prods = ProductModel.getAllProducts();
 		System.out.println(prods);
 
 		Ordine o = new Ordine(getNextAvailableOrderId(), TipoOrdine.OUT,
