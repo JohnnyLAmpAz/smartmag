@@ -48,6 +48,10 @@ public class ProductOrderTableModel extends AbstractTableModel
 		refreshData();
 	}
 
+	public ProductOrderTableModel(HashMap<Prodotto, Integer> prodotti) {
+		listaSpesa = prodotti;
+	}
+
 	/**
 	 * Aggiorna la lista della spesa attingendo dal modello
 	 */
@@ -89,14 +93,14 @@ public class ProductOrderTableModel extends AbstractTableModel
 		// Restituisco il campo richiesto
 		// | ID prodotto | Nome prodotto | Quantità |
 		switch (columnIndex) {
-			case 0:
-				return prod.getId();
-			case 1:
-				return prod.getNome();
-			case 2:
-				return qta;
-			default:
-				throw new IllegalArgumentException();
+		case 0:
+			return prod.getId();
+		case 1:
+			return prod.getNome();
+		case 2:
+			return qta;
+		default:
+			throw new IllegalArgumentException();
 		}
 	}
 

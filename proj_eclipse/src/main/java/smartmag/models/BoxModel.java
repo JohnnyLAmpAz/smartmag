@@ -20,11 +20,10 @@ public class BoxModel extends BaseModel {
 	/**
 	 * mappa per implementare unicitá delle istanze dei modelli di ogni box
 	 */
+
 	private static TreeMap<String, BoxModel> instances;
 	static {
-		instances = new TreeMap<String, BoxModel>();
-		Map<String, Record> res = DSL.select().from(BOX).fetchMap(BOX.ID);
-		res.forEach((id, r) -> instances.put(id, new BoxModel((BoxRecord) r)));
+		refreshDataFromDb();
 	}
 
 	private Box box;
@@ -129,7 +128,7 @@ public class BoxModel extends BaseModel {
 	 * aggiorna i dati del record e del box del modello usando quelli presenti
 	 * nel db
 	 */
-	private void refreshFromDb() {
+	public void refreshFromDb() {
 		this.record = fetchBoxByIndirizzo(box.getIndirizzo());
 		if (this.record != null) {
 			Box b = boxFromRecord(this.record);
@@ -147,7 +146,7 @@ public class BoxModel extends BaseModel {
 	 * 
 	 * @param p nuovo prodotto da assegnare al box
 	 */
-	private void cambiaProdotto(Prodotto p) {
+	public void cambiaProdotto(Prodotto p) {
 
 		if (box != null && box.isValid() && box.getQuantità() == 0) {
 			if (p != null && p.isValid()
@@ -212,7 +211,7 @@ public class BoxModel extends BaseModel {
 	 * 
 	 * @param qta
 	 */
-	private void setQuantita(int qta) {
+	public void setQuantita(int qta) {
 		this.box.setQuantità(qta);
 		record.setQta(box.getQuantità());
 		record.update();
@@ -308,6 +307,12 @@ public class BoxModel extends BaseModel {
 
 	}
 
+	/**
+	 * restituisce un clone della mappa instances in cui sono contenuti solo i
+	 * modelli con record diverso da null
+	 * 
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public static TreeMap<String, BoxModel> getAllBoxModels() {
 
@@ -344,5 +349,36 @@ public class BoxModel extends BaseModel {
 				ls.add(bm);
 		}
 		return ls;
+	}
+
+	/**
+	 * crea la treemap instances inserendo il modello di tutti i box presenti
+	 * nel db
+	 */
+	public static void refreshDataFromDb() {
+		instances = new TreeMap<String, BoxModel>();
+		Map<String, Record> res = DSL.select().from(BOX).fetchMap(BOX.ID);
+		res.forEach((id, r) -> instances.put(id, new BoxModel((BoxRecord) r)));
+		notifyChangeListeners(null);
+	}
+
+	/**
+	 * controlla se il modello di un box esiste partendo dal suo indirizzo
+	 * 
+	 * @param indirizzo
+	 * @return true se esiste, false se non esiste
+	 */
+	public static boolean esistenzaBoxModel(String indirizzo) {
+		return instances.containsKey(indirizzo);
+	}
+
+	/**
+	 * restituisce il modello di un box partendo dal suo indirizzo
+	 * 
+	 * @param indirizzo
+	 * @return
+	 */
+	public static BoxModel getBoxModelFromIndirizzo(String indirizzo) {
+		return instances.get(indirizzo);
 	}
 }
