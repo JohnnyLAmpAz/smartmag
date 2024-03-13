@@ -170,7 +170,7 @@ public class BoxModel extends BaseModel {
 	 * 
 	 * @param quantita numero di unita di prodotto aggiunte
 	 */
-	public void rifornisci(int quantita) {
+	protected void rifornisci(int quantita) {
 
 		int qi = this.box.getQuantità();
 		this.box.setQuantità(qi + quantita);
@@ -328,7 +328,6 @@ public class BoxModel extends BaseModel {
 	 * @return true se esiste, false se non esiste
 	 */
 	public static boolean esistenzaBoxModel(String indirizzo) {
-		inizializza();
 		return instances.containsKey(indirizzo);
 	}
 
@@ -339,7 +338,6 @@ public class BoxModel extends BaseModel {
 	 * @return
 	 */
 	public static BoxModel getBoxModelFromIndirizzo(String indirizzo) {
-		inizializza();
 		return instances.get(indirizzo);
 	}
 

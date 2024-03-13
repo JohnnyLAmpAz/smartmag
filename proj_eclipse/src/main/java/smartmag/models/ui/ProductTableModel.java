@@ -29,9 +29,8 @@ public class ProductTableModel extends AbstractTableModel
 	/**
 	 * aggiorna la lista di prodotti
 	 */
-	public void refreshFromModel() {
+	private void refreshFromModel() {
 		prodotti = ProductModel.getAllProductModels();
-		fireTableDataChanged();
 	}
 
 	@Override

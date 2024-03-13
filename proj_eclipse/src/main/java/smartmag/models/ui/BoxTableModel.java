@@ -27,9 +27,8 @@ public class BoxTableModel extends AbstractTableModel
 	/**
 	 * aggiorna la lista di box
 	 */
-	public void refreshFromModel() {
+	private void refreshFromModel() {
 		box = BoxModel.getAllBoxModels();
-		fireTableDataChanged();
 	}
 
 	@Override
@@ -86,6 +85,11 @@ public class BoxTableModel extends AbstractTableModel
 	public void stateChanged(ChangeEvent e) {
 		refreshFromModel();
 		fireTableDataChanged();
+	}
+
+	public String getColumnName(int column) {
+		return columnNames[column];
+
 	}
 
 }
