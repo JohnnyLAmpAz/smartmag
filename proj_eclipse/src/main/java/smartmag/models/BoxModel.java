@@ -4,6 +4,7 @@ import static ingsw_proj_magazzino.db.generated.Tables.BOX;
 import static ingsw_proj_magazzino.db.generated.Tables.PRODOTTO;
 
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -22,9 +23,7 @@ public class BoxModel extends BaseModel {
 
 	private static TreeMap<String, BoxModel> instances;
 	static {
-		instances = new TreeMap<String, BoxModel>();
-		Map<String, Record> res = DSL.select().from(BOX).fetchMap(BOX.ID);
-		res.forEach((id, r) -> instances.put(id, new BoxModel((BoxRecord) r)));
+		refreshDataFromDb();
 	}
 
 	private Box box;
@@ -78,6 +77,16 @@ public class BoxModel extends BaseModel {
 	}
 
 	/**
+	 * Calcola la disponibilità tramite quantità effettiva e quantità riservata.
+	 * 
+	 * @return Quantità non riservata da movimentazioni non effettuate.
+	 */
+	public int calcDisponibilita() {
+		int reservedQta = MovimenModel.calcReservedQtOfBox(box.getIndirizzo());
+		return box.getQuantità() - reservedQta;
+	}
+
+	/**
 	 * restituisce il record
 	 * 
 	 * @return
@@ -119,7 +128,7 @@ public class BoxModel extends BaseModel {
 	 * aggiorna i dati del record e del box del modello usando quelli presenti
 	 * nel db
 	 */
-	private void refreshFromDb() {
+	public void refreshFromDb() {
 		this.record = fetchBoxByIndirizzo(box.getIndirizzo());
 		if (this.record != null) {
 			Box b = boxFromRecord(this.record);
@@ -185,7 +194,7 @@ public class BoxModel extends BaseModel {
 	 * @param qta numero di unita di prodotto da prelevare
 	 */
 	protected void preleva(int qta) {
-		if (box.getQuantità() > qta) {
+		if (box.getQuantità() >= qta) {
 			box.setQuantità(this.box.getQuantità() - qta);
 			record.setQta(box.getQuantità());
 			record.update();
@@ -210,6 +219,19 @@ public class BoxModel extends BaseModel {
 	}
 
 	// metodi statici
+
+	/**
+	 * Recupera il modello del box corrispondente all'indirizzo specificato. Se
+	 * non esiste restituisce null.
+	 * 
+	 * @param boxAddr
+	 * @return modello trovato o null
+	 */
+	public static BoxModel getBoxModelByAddr(String boxAddr) {
+		if (!instances.containsKey(boxAddr))
+			return null;
+		return instances.get(boxAddr);
+	}
 
 	/**
 	 * restituisce il modello del box passato come parametro e lo salva
@@ -262,7 +284,7 @@ public class BoxModel extends BaseModel {
 		String indirizzo = r.getId();
 		int IDprodotto = r.getProdotto();
 		int qta = r.getQta();
-		ProdottoRecord pr = (ProdottoRecord) DSL.select().from(PRODOTTO)
+		ProdottoRecord pr = DSL.selectFrom(PRODOTTO)
 				.where(PRODOTTO.ID.eq(IDprodotto)).fetchOne();
 		Prodotto p = ProductModel.prodottoFromRecord(pr);
 		return new Box(indirizzo, qta, p);
@@ -311,13 +333,33 @@ public class BoxModel extends BaseModel {
 	}
 
 	/**
+	 * Restituisce una lista di modelli di box contenenti il prodotto cercato.
+	 * 
+	 * @param p Prodotto cercato
+	 * @return Lista di BoxModel
+	 */
+	protected static ArrayList<BoxModel> findBoxesWithProd(Prodotto p) {
+		ArrayList<BoxModel> ls = new ArrayList<BoxModel>();
+		for (Map.Entry<String, BoxModel> entry : instances.entrySet()) {
+			BoxModel bm = entry.getValue();
+
+			// Se il box contiene una quantità positiva del prodotto cercato, lo
+			// seleziono
+			if (bm.box.getQuantità() > 0 && bm.box.getProd().equals(p))
+				ls.add(bm);
+		}
+		return ls;
+	}
+
+	/**
 	 * crea la treemap instances inserendo il modello di tutti i box presenti
 	 * nel db
 	 */
-	public static void inizializza() {
+	public static void refreshDataFromDb() {
 		instances = new TreeMap<String, BoxModel>();
 		Map<String, Record> res = DSL.select().from(BOX).fetchMap(BOX.ID);
 		res.forEach((id, r) -> instances.put(id, new BoxModel((BoxRecord) r)));
+		notifyChangeListeners(null);
 	}
 
 	/**
@@ -339,5 +381,4 @@ public class BoxModel extends BaseModel {
 	public static BoxModel getBoxModelFromIndirizzo(String indirizzo) {
 		return instances.get(indirizzo);
 	}
-
 }

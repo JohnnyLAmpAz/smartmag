@@ -150,9 +150,14 @@ public class OrderModel extends BaseModel {
 		updateOrdine(o);
 	}
 
-	// TODO Dopo avere il modello di movimentazione controlla le disponibilità
-	// e permetti di cambiare lo stato dell'ordine
-	public void setStatoInSvolgimento() {
+	/**
+	 * Imposta lo stato dell'ordine
+	 */
+	protected void setStato(StatoOrdine s) {
+		ordine.setStato(s);
+		orderRecord.setStato(s.name());
+		orderRecord.store();
+		notifyChangeListeners(null);
 	}
 
 	/**
@@ -287,6 +292,23 @@ public class OrderModel extends BaseModel {
 	}
 
 	/**
+	 * Verifica se vi è la disponibilità per tutti gli elementi della "lista
+	 * della spesa".
+	 * 
+	 * @return true se ci sono abbastanza prodotti, false se altrimenti
+	 */
+	public boolean isPreparabile() {
+		for (Map.Entry<Prodotto, Integer> entry : ordine.getProdotti()
+				.entrySet()) {
+			Prodotto p = entry.getKey();
+			Integer qta = entry.getValue();
+			if (ProductModel.calcDispTotById(p.getId()) < qta)
+				return false;
+		}
+		return true;
+	}
+
+	/**
 	 * Verifica che il record relativo a quel prodottoOrdine esista per farlo ha
 	 * bisogno dell'id ordine e dell' id prodotto
 	 * 
@@ -306,6 +328,19 @@ public class OrderModel extends BaseModel {
 	}
 
 	// Static methods for order ======
+	/**
+	 * Restituisce il modello dell'ordine con ID specificato. Se non è stato mai
+	 * creato, restituisce null.
+	 * 
+	 * @param orderId ID dell'ordine di cui si vuole ottenere il modello
+	 * @return modello dell'ordine
+	 */
+	public static OrderModel getOrderModelById(int orderId) {
+		if (!instances.containsKey(orderId))
+			return null;
+		return instances.get(orderId);
+	}
+
 	/**
 	 * Restituisce il modello dell'ordine che è stato passato al metodo
 	 * 
@@ -360,8 +395,7 @@ public class OrderModel extends BaseModel {
 		if (or.getDataco() == null)
 			dataCompletamento = null;
 		else
-			dataCompletamento = LocalDate.parse(or.getDataco(),
-					formatter);
+			dataCompletamento = LocalDate.parse(or.getDataco(), formatter);
 
 		HashMap<Prodotto, Integer> listaProdotti = fetchListaProdottiFromDb(
 				or.getId());
@@ -510,7 +544,6 @@ public class OrderModel extends BaseModel {
 	 */
 	@SuppressWarnings("unchecked")
 	public static TreeMap<Integer, OrderModel> getAllOrderModels() {
-
 		TreeMap<Integer, OrderModel> tm = (TreeMap<Integer, OrderModel>) instances
 				.clone();
 		return treeMapFilter(tm);

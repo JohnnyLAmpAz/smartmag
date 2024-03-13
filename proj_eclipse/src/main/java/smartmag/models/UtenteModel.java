@@ -142,21 +142,15 @@ public class UtenteModel extends BaseModel {
 	 * specifico. Se non è mai stato creato il suo modello e se non è presente
 	 * nel DB allora ritorna null.
 	 * 
-	 * @param matr Utente
-	 * @return Modello
+	 * @param matr matricola dell'utente d'interesse
+	 * @return Modello trovato o null
 	 */
 	public static UtenteModel getUtenteModelOf(String matr) {
 
 		if (matr != null && !matr.isBlank()) {
-			if (!instances.containsKey(matr)) {
-				UtenteRecord r = fetchUtenteRecordByMatr(matr);
-				if (r == null)
-					return null;
-				UtenteModel um = new UtenteModel(r);
-				return um;
-			} else {
-				return instances.get(matr);
-			}
+			if (!instances.containsKey(matr))
+				return null;
+			return instances.get(matr);
 		} else
 			throw new IllegalArgumentException("Matricola non valida!");
 	}

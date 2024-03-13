@@ -83,7 +83,7 @@ public class BoxTableFrame extends BasicWindow {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				BoxModel.inizializza();
+				BoxModel.refreshDataFromDb();
 				tableModel.stateChanged(null);
 			}
 		});

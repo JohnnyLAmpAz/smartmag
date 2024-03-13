@@ -2,11 +2,26 @@ package smartmag.data;
 
 import java.util.Objects;
 
+import smartmag.models.BoxModel;
+
 public class Box {
 
 	private String indirizzo;
 	private Prodotto prodotto;
 	private int quantita;
+
+	/**
+	 * Indica se la stringa passata è indirizzo di box valido o meno.
+	 * 
+	 * @param addr Indirizzo da valutare
+	 * @return true se valido, false se altrimenti.
+	 */
+	public static boolean validateAddress(String addr) {
+
+		// Regular expression pattern per l'indirizzo
+		String regexInd = "^[A-Z]+(-([1-9]\\d*|0)){2}$";
+		return addr.matches(regexInd);
+	}
 
 	public Box(String indirizzo, int quantità, Prodotto prodotto) {
 		this.indirizzo = indirizzo;
@@ -59,13 +74,15 @@ public class Box {
 
 	@Override
 	public String toString() {
+		int disponQta = BoxModel.getBoxModel(this).calcDisponibilita();
 		return "Box [indirizzo=" + indirizzo + ", prodotto=" + prodotto
-				+ ", quantità=" + quantita + "]";
+				+ ", quantità=" + quantita + ", disponibilità=" + disponQta
+				+ "]";
 	}
 
 	public Boolean isValid() {
-		String regexInd = "^[A-Z]+(-([1-9]\\d*|0)){2}$";
-		if (indirizzo != null && indirizzo.matches(regexInd) && quantita >= 0) {
+
+		if (indirizzo != null && validateAddress(indirizzo) && quantita >= 0) {
 			if (prodotto != null && prodotto.isValid())
 				return true;
 			if (prodotto == null && quantita == 0)

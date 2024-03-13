@@ -20,7 +20,7 @@ public class ProductModel extends BaseModel {
 	 */
 	private static TreeMap<Integer, ProductModel> instances;
 	static {
-		inizializza();
+		refreshDataFromDb();
 	}
 
 	private Prodotto prodotto;
@@ -191,7 +191,45 @@ public class ProductModel extends BaseModel {
 		notifyChangeListeners(null);
 	}
 
+	/**
+	 * Calcola la disponibilità (garantita) totale su tutti i box che contengono
+	 * il prodotto.
+	 * 
+	 * @return disponibilità totale
+	 */
+	public int calcDispTot() {
+		int tot = 0;
+		ArrayList<BoxModel> ls = BoxModel.findBoxesWithProd(prodotto);
+		for (BoxModel bm : ls)
+			tot += bm.getBox().getQuantità();
+		return tot;
+	}
+
 	// Metodi statici
+
+	/**
+	 * Calcola la disponibilità (garantita) totale su tutti i box che contengono
+	 * il prodotto di ID specificato.
+	 * 
+	 * @param prodId ID del prodotto
+	 * @return disponibilità totale
+	 */
+	public static int calcDispTotById(int prodId) {
+		return getProductModelById(prodId).calcDispTot();
+	}
+
+	/**
+	 * Recupera il ProductModel in base all'ID prodotto. Se non è mai stato
+	 * creato restituisce null.
+	 * 
+	 * @param prodId ID del prodotto
+	 * @return modello trovato o null
+	 */
+	public static ProductModel getProductModelById(int prodId) {
+		if (!instances.containsKey(prodId))
+			return null;
+		return instances.get(prodId);
+	}
 
 	/**
 	 * restituisce il modello del prodotto passato come parametro
@@ -319,12 +357,13 @@ public class ProductModel extends BaseModel {
 	 * crea la treemap instances inserendo il mofello di tutti i prodotti
 	 * presenti nel db
 	 */
-	public static void inizializza() {
+	public static void refreshDataFromDb() {
 		instances = new TreeMap<Integer, ProductModel>();
 		Map<Integer, Record> res = DSL.select().from(PRODOTTO)
 				.fetchMap(PRODOTTO.ID);
 		res.forEach((id, r) -> instances.put(id,
 				new ProductModel((ProdottoRecord) r)));
+		notifyChangeListeners(null);
 	}
 
 	/**
@@ -335,7 +374,7 @@ public class ProductModel extends BaseModel {
 	 */
 	public static boolean checkId(int id) {
 
-		inizializza();
+		refreshDataFromDb();
 		return instances.containsKey(id);
 	}
 

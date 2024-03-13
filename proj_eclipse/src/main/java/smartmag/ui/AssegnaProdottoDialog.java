@@ -41,7 +41,7 @@ public class AssegnaProdottoDialog extends JDialog {
 		NumberFormatter formatter = new NumberFormatter(format);
 		formatter.setValueClass(Integer.class);
 		formatter.setMinimum(0);
-		BoxModel.inizializza();
+		BoxModel.refreshDataFromDb();
 
 		qta = new JFormattedTextField(formatter);
 		qta.setColumns(10);
