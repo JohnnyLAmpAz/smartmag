@@ -84,7 +84,7 @@ public class BoxTableFrame extends BasicWindow {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				BoxModel.inizializza();
-				tableModel.refreshFromModel();
+				tableModel.stateChanged(null);
 			}
 		});
 		btnsPanel.add(btnRefresh);

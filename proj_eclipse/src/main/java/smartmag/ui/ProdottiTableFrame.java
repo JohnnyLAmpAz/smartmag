@@ -88,7 +88,7 @@ public class ProdottiTableFrame extends BasicWindow {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ProductModel.inizializza();
-				tableModel.refreshFromModel();
+				tableModel.stateChanged(null);
 				BoxModel.inizializza();
 			}
 		});
