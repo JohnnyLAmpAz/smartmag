@@ -6,9 +6,9 @@ import static org.jooq.impl.DSL.max;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -31,6 +31,7 @@ public class OrderModel extends BaseModel {
 
 	// quando viene generato istances la aggiorna prendendo i modelli dal DB
 	static {
+		instances = new TreeMap<Integer, OrderModel>();
 		Map<Integer, Record> res = DSL.select().from(ORDINE)
 				.fetchMap(ORDINE.ID);
 		res.forEach((id, r) -> {
@@ -60,10 +61,13 @@ public class OrderModel extends BaseModel {
 		this.orderRecord = fetchOrderRecordById(order.getId());
 		// la prima volta che si crea il modello, poichè la lista dei prodotti è
 		// vuota, la prende dal db e la aggiorna anche nell'oggetto ordine
-		this.ordine.setProdotti(getListaProdottiFromDb(order.getId()));
+		// this.ordine.setProdotti(fetchListaProdottiFromDb(order.getId()));
 		// aggiorno la lista dei prodottiOrdiniRecord
 		this.listaProdottiOrdiniRecord = fetchProductOrderRecordListByOrder(
 				order);
+		if (listaProdottiOrdiniRecord == null)
+			listaProdottiOrdiniRecord = new ArrayList<>();
+
 		if (!instances.containsKey(order.getId()))
 			instances.put(order.getId(), this); // carico OrderModel in hashmap
 	}
@@ -91,7 +95,8 @@ public class OrderModel extends BaseModel {
 		or.store(); // INSERT
 		this.orderRecord = or;
 
-		// TODO: event
+		// evento per notificare il cambiamento
+		notifyChangeListeners(null);
 	}
 
 	/**
@@ -105,16 +110,20 @@ public class OrderModel extends BaseModel {
 		if (!orderIsSavedInDb())
 			throw new SQLIntegrityConstraintViolationException(
 					"Ordine #" + o.getId() + " non esiste!");
-
+		// TODO check values
 		orderRecord = (OrdineRecord) fetchOrderRecordById(o.getId());
 		copyOrdineIntoRecord(o, orderRecord);
 		orderRecord.store(); // UPDATE con UpdatableRecord
+		this.ordine = o;
+		updateProdottoOrdineRecord();
+		// evento per notificare il cambiamento
+		notifyChangeListeners(null);
 	}
 
 	public void inserisciProdotto(Prodotto p, int q)
 			throws SQLIntegrityConstraintViolationException {
 
-		getListaProdottiFromDb(this.ordine.getId());
+		fetchListaProdottiFromDb(this.ordine.getId());
 
 		if (p.isValid() && q > 0) {
 			createProdottoOrdineRecord(p, q);
@@ -141,17 +150,31 @@ public class OrderModel extends BaseModel {
 		updateOrdine(o);
 	}
 
-	// TODO Dopo avere il modello di movimentazione controlla le disponibilità
-	// e permetti di cambiare lo stato dell'ordine
-	public void setStatoInSvolgimento() {
+	/**
+	 * Imposta lo stato dell'ordine
+	 */
+	protected void setStato(StatoOrdine s) {
+		ordine.setStato(s);
+		orderRecord.setStato(s.name());
+		orderRecord.store();
+		notifyChangeListeners(null);
 	}
 
 	/**
-	 * cancella il record dell'ordine nel modello
+	 * cancella il record dell'ordine nel modello poichè nel DB è stato messo
+	 * DELETE ON CASCADE, cancella anche i record id prodotti ordini
 	 */
+	@SuppressWarnings("unlikely-arg-type")
 	public void deleteOrdine() throws ParseException {
 		if (orderIsSavedInDb()) {
+			for (ProdottiordiniRecord por : listaProdottiOrdiniRecord) {
+				if (por != null)
+					por.delete();
+			}
 			orderRecord.delete(); // DELETE con UpdatableRecord
+			orderRecord = null;
+			listaProdottiOrdiniRecord.clear();
+			notifyChangeListeners(null); // evento per notificare il cambiamento
 		}
 	}
 
@@ -205,6 +228,30 @@ public class OrderModel extends BaseModel {
 			por.store();
 			this.listaProdottiOrdiniRecord.add(por);
 		}
+		notifyChangeListeners(null); // evento per notificare il cambiamento
+	}
+
+	private void updateProdottoOrdineRecord()
+			throws SQLIntegrityConstraintViolationException {
+		listaProdottiOrdiniRecord = new ArrayList<ProdottiordiniRecord>();
+
+		HashMap<Prodotto, Integer> prodotti = ordine.getProdotti();
+
+		for (Map.Entry<Prodotto, Integer> entry : prodotti.entrySet()) {
+
+			Prodotto p = entry.getKey();
+			ProdottiordiniRecord por = fetchProductOrderRecordById(
+					ordine.getId(), p.getId());
+			int qta = entry.getValue();
+
+			if (por == null)
+				por = DSL.newRecord(PRODOTTIORDINI);
+
+			copyProdOrderIntoRecord(this.ordine, p, qta, por);
+			por.store();
+			this.listaProdottiOrdiniRecord.add(por);
+		}
+		notifyChangeListeners(null); // evento per notificare il cambiamento
 	}
 
 	/**
@@ -219,6 +266,7 @@ public class OrderModel extends BaseModel {
 		copyProdOrderIntoRecord(this.ordine, p, qta, por);
 		por.store();
 		this.listaProdottiOrdiniRecord.add(por);
+		notifyChangeListeners(null); // evento per notificare il cambiamento
 	}
 
 	/**
@@ -240,21 +288,24 @@ public class OrderModel extends BaseModel {
 		this.listaProdottiOrdiniRecord.set(index, por);
 		copyProdOrderIntoRecord(this.ordine, p, qta, por);
 		por.store(); // UPDATE con UpdatableRecord
+		notifyChangeListeners(null); // evento per notificare il cambiamento
 	}
 
 	/**
-	 * Cancella il record ProdottoOrdine relativo al prodotto dell'ordine
-	 * passato al metodo
+	 * Verifica se vi è la disponibilità per tutti gli elementi della "lista
+	 * della spesa".
 	 * 
-	 * @param o ordine
-	 * @param p prodotto
+	 * @return true se ci sono abbastanza prodotti, false se altrimenti
 	 */
-	public void deleteProdottoOrdine(Prodotto p) throws ParseException {
-		if (!productOrderIsSavedInDb(p.getId())) {
-			ProdottiordiniRecord por = (ProdottiordiniRecord) fetchProductOrderRecordById(
-					this.ordine.getId(), p.getId());
-			por.delete();
+	public boolean isPreparabile() {
+		for (Map.Entry<Prodotto, Integer> entry : ordine.getProdotti()
+				.entrySet()) {
+			Prodotto p = entry.getKey();
+			Integer qta = entry.getValue();
+			if (ProductModel.calcDispTotById(p.getId()) < qta)
+				return false;
 		}
+		return true;
 	}
 
 	/**
@@ -267,13 +318,29 @@ public class OrderModel extends BaseModel {
 	 */
 	public boolean productOrderIsSavedInDb(int idP) {
 		for (ProdottiordiniRecord por : listaProdottiOrdiniRecord) {
+			if (por == null)
+				return false;
 			if (this.ordine.getId() == por.getProd() && idP == por.getProd())
 				return true;
+			// TODO aggiornare dati
 		}
 		return false;
 	}
 
 	// Static methods for order ======
+	/**
+	 * Restituisce il modello dell'ordine con ID specificato. Se non è stato mai
+	 * creato, restituisce null.
+	 * 
+	 * @param orderId ID dell'ordine di cui si vuole ottenere il modello
+	 * @return modello dell'ordine
+	 */
+	public static OrderModel getOrderModelById(int orderId) {
+		if (!instances.containsKey(orderId))
+			return null;
+		return instances.get(orderId);
+	}
+
 	/**
 	 * Restituisce il modello dell'ordine che è stato passato al metodo
 	 * 
@@ -285,7 +352,6 @@ public class OrderModel extends BaseModel {
 		if (o != null && o.isValid()) {
 			if (!instances.containsKey(o.getId())) {
 				OrderModel om = new OrderModel(o);
-				instances.put(o.getId(), om);
 				return om;
 			} else {
 				return instances.get(o.getId());
@@ -321,11 +387,17 @@ public class OrderModel extends BaseModel {
 
 		TipoOrdine tipo = TipoOrdine.valueOf(or.getTipo());
 		StatoOrdine stato = StatoOrdine.valueOf(or.getStato());
-		Date dataEmissione = new SimpleDateFormat("dd/MM/yyy")
-				.parse(or.getDataem());
-		Date dataCompletamento = new SimpleDateFormat("dd/MM/yyy")
-				.parse(or.getDataco());
-		HashMap<Prodotto, Integer> listaProdotti = getListaProdottiFromDb(
+
+		DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
+		LocalDate dataEmissione = LocalDate.parse(or.getDataem(), formatter);
+		LocalDate dataCompletamento;
+
+		if (or.getDataco() == null)
+			dataCompletamento = null;
+		else
+			dataCompletamento = LocalDate.parse(or.getDataco(), formatter);
+
+		HashMap<Prodotto, Integer> listaProdotti = fetchListaProdottiFromDb(
 				or.getId());
 		Ordine ord = new Ordine(id, tipo, stato, dataEmissione,
 				dataCompletamento);
@@ -343,8 +415,20 @@ public class OrderModel extends BaseModel {
 	private static void copyOrdineIntoRecord(Ordine o, OrdineRecord r) {
 		r.setTipo(o.getTipo().name());
 		r.setStato(o.getStato().name());
-		r.setDataem(o.getDataEmissione().toString());
-		r.setDataco(o.getDataCompletamento().toString());
+
+		LocalDate emDate = o.getDataEmissione();
+		LocalDate coDate = o.getDataCompletamento();
+
+		DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
+
+		String formattedDateEm = emDate.format(formatter);
+		String formattedDateCo = null;
+
+		if (coDate != null)
+			formattedDateCo = coDate.format(formatter);
+
+		r.setDataem(formattedDateEm);
+		r.setDataco(formattedDateCo);
 	}
 
 	/**
@@ -352,7 +436,7 @@ public class OrderModel extends BaseModel {
 	 * 
 	 * @return
 	 */
-	private static int getNextAvailableOrderId() {
+	public static int getNextAvailableOrderId() {
 		Integer max = DSL.select(max(ORDINE.ID)).from(ORDINE).fetchOne()
 				.value1();
 		if (max == null)
@@ -381,9 +465,9 @@ public class OrderModel extends BaseModel {
 	 * Cerca nel DB e restituisce la lista di tutti i prodotti relativi
 	 * all'ordine del quale si è passato l'id al metodo
 	 */
-	private static HashMap<Prodotto, Integer> getListaProdottiFromDb(int id) {
+	private static HashMap<Prodotto, Integer> fetchListaProdottiFromDb(int id) {
 		Result<Record> result = DSL.select().from(PRODOTTIORDINI)
-				.where(ORDINE.ID.eq(id)).fetch();
+				.where(PRODOTTIORDINI.ORDINE.eq(id)).fetch();
 		HashMap<Prodotto, Integer> prodotti = new HashMap<>();
 		ProdottoRecord pr;
 		Prodotto p;
@@ -449,6 +533,7 @@ public class OrderModel extends BaseModel {
 		OrderModel om = getOrderModelOf(o);
 		om.createOrdineRecord();
 		om.createProdottoOrdineRecord();
+		notifyChangeListeners(null); // evento per notificare il cambiamento
 		return om;
 	}
 
@@ -458,8 +543,61 @@ public class OrderModel extends BaseModel {
 	 * 
 	 */
 	@SuppressWarnings("unchecked")
-	public static TreeMap<Integer, OrderModel> fetchAllOrderModels() {
-		return (TreeMap<Integer, OrderModel>) instances.clone();
+	public static TreeMap<Integer, OrderModel> getAllOrderModels() {
+		TreeMap<Integer, OrderModel> tm = (TreeMap<Integer, OrderModel>) instances
+				.clone();
+		return treeMapFilter(tm);
+	}
+
+	private static TreeMap<Integer, OrderModel> treeMapFilter(
+			TreeMap<Integer, OrderModel> om) {
+		TreeMap<Integer, OrderModel> filtrata = new TreeMap<Integer, OrderModel>();
+		for (Map.Entry<Integer, OrderModel> entry : om.entrySet()) {
+			if (entry.getValue().orderRecord != null) {
+				filtrata.put(entry.getKey(), entry.getValue());
+			}
+		}
+		return filtrata;
+	}
+
+	public static void main(String[] args)
+			throws SQLIntegrityConstraintViolationException, ParseException {
+		LocalDate dem = LocalDate.parse("2024-03-05");
+		LocalDate dco = LocalDate.of(2024, 04, 04);
+		Prodotto p = new Prodotto(ProductModel.getNextAvailableId(), "scala2",
+				"marcia", 10, 2);
+		Prodotto p1 = new Prodotto(ProductModel.getNextAvailableId() + 1,
+				"scala3", "marcia", 10, 2);
+		Prodotto p2 = new Prodotto(ProductModel.getNextAvailableId() + 2,
+				"scala4", "marcia", 10, 2);
+		Prodotto p3 = new Prodotto(ProductModel.getNextAvailableId() + 3,
+				"scala5", "marcia", 10, 2);
+		HashMap<Prodotto, Integer> prodotti = new HashMap<>();
+		prodotti.put(p, p.getId());
+		prodotti.put(p1, p1.getId());
+		prodotti.put(p2, p2.getId());
+		prodotti.put(p3, p3.getId());
+		System.out.println(dem);
+		System.out.println(dco);
+
+		ProductModel.createProdotto(p);
+		ProductModel.createProdotto(p1);
+		ProductModel.createProdotto(p2);
+		ProductModel.createProdotto(p3);
+		ArrayList<Prodotto> prods = ProductModel.getAllProducts();
+		System.out.println(prods);
+
+		Ordine o = new Ordine(getNextAvailableOrderId(), TipoOrdine.OUT,
+				StatoOrdine.IN_ATTESA, dem,
+				dco);
+		o.setProdotti(prodotti);
+		System.out.println(o.isValid());
+		System.out.println(dco + "    " + dem);
+		create(o);
+		OrderModel om = new OrderModel(o);
+		getAllOrderModels();
+		instances.forEach(
+				(id, om1) -> System.out.println(om1.getOrdine().getId()));
 	}
 
 }

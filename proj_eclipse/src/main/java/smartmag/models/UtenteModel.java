@@ -29,11 +29,18 @@ public class UtenteModel extends BaseModel {
 				new UtenteModel((UtenteRecord) r)));
 	}
 
+	/**
+	 * Utente gestito
+	 */
 	private Utente utente;
+
+	/**
+	 * Record del DB. Se null vuol dire che non è salvato a DB.
+	 */
 	private UtenteRecord record;
 
 	private UtenteModel(Utente u) {
-		this(u, fetchUtenteByMatr(u.getMatricola()));
+		this(u, fetchUtenteRecordByMatr(u.getMatricola()));
 	}
 
 	private UtenteModel(UtenteRecord r) {
@@ -50,7 +57,7 @@ public class UtenteModel extends BaseModel {
 		} else if (ur == null) {
 			if (u == null || !u.isValid())
 				throw new IllegalArgumentException("Utente nullo!");
-			ur = fetchUtenteByMatr(u.getMatricola());
+			ur = fetchUtenteRecordByMatr(u.getMatricola());
 		}
 
 		if (instances.containsKey(u.getMatricola()))
@@ -61,6 +68,9 @@ public class UtenteModel extends BaseModel {
 		instances.put(u.getMatricola(), this);
 	}
 
+	/**
+	 * Verifica se il record dell'utente è presente o meno
+	 */
 	public boolean isSavedInDb() {
 		refreshFromDb();
 		return record != null;
@@ -76,12 +86,18 @@ public class UtenteModel extends BaseModel {
 		this.record = r;
 	}
 
+	/**
+	 * Elimina il record nel DB e dalla lista delle istanze modello
+	 */
 	public void delete() {
 		record.delete();
+		record = null;
+		instances.remove(utente.getMatricola());
+		notifyChangeListeners(null);
 	}
 
 	/**
-	 * Restituisce una copia dell'oggetto Utente legato al record
+	 * Restituisce una copia dell'oggetto Utente legato al modello
 	 * 
 	 * @return copia dell'Utente
 	 */
@@ -93,12 +109,12 @@ public class UtenteModel extends BaseModel {
 	 * Refreshes content of Utente from DB
 	 */
 	private void refreshFromDb() {
-		this.record = fetchUtenteByMatr(utente.getMatricola());
+		this.record = fetchUtenteRecordByMatr(utente.getMatricola());
 		if (this.record != null) {
 			this.utente = utenteFromRecord(this.record);
 		}
 
-		// TODO: event
+		notifyChangeListeners(null);
 	}
 
 	// Metodi statici
@@ -109,7 +125,7 @@ public class UtenteModel extends BaseModel {
 	 * @param matr matricola utente
 	 * @return record
 	 */
-	private static UtenteRecord fetchUtenteByMatr(String matr) {
+	private static UtenteRecord fetchUtenteRecordByMatr(String matr) {
 		UtenteRecord r = (UtenteRecord) DSL.select().from(UTENTE)
 				.where(UTENTE.MATRICOLA.eq(matr)).fetchOne(); // SELECT
 		return r;
@@ -117,23 +133,18 @@ public class UtenteModel extends BaseModel {
 
 	/**
 	 * Ritorna l'unica istanza (singleton) del modello relativo ad un utente
-	 * specifico
+	 * specifico. Se non è mai stato creato il suo modello e se non è presente
+	 * nel DB allora ritorna null.
 	 * 
-	 * @param matr Utente
-	 * @return Modello
+	 * @param matr matricola dell'utente d'interesse
+	 * @return Modello trovato o null
 	 */
 	public static UtenteModel getUtenteModelOf(String matr) {
 
 		if (matr != null && !matr.isBlank()) {
-			if (!instances.containsKey(matr)) {
-				UtenteRecord r = fetchUtenteByMatr(matr);
-				if (r == null)
-					return null;
-				UtenteModel um = new UtenteModel(r);
-				return um;
-			} else {
-				return instances.get(matr);
-			}
+			if (!instances.containsKey(matr))
+				return null;
+			return instances.get(matr);
 		} else
 			throw new IllegalArgumentException("Matricola non valida!");
 	}
@@ -150,6 +161,14 @@ public class UtenteModel extends BaseModel {
 		r.setRuolo(u.getTipo().getRecordValue());
 	}
 
+	/**
+	 * Crea un modello di un oggetto utente e lo salva nel DB, a patto che non
+	 * sia già stato creato in precedenza.
+	 * 
+	 * @param u Utente da salvare
+	 * @return modello dell'utente appena creato
+	 * @throws IllegalArgumentException se è già presente nel DB
+	 */
 	public static UtenteModel createUtente(Utente u)
 			throws IllegalArgumentException {
 		UtenteModel m = getUtenteModelOf(u.getMatricola());
@@ -158,9 +177,18 @@ public class UtenteModel extends BaseModel {
 		if (m.isSavedInDb())
 			throw new IllegalArgumentException("Utente già registrato");
 		m.create();
+		notifyChangeListeners(null);
 		return m;
 	}
 
+	/**
+	 * Date le credenziali matricola e password, questo metodo restituisce
+	 * l'utente se autenticato correttamente, altrimenti null.
+	 * 
+	 * @param matricola dell'utente
+	 * @param password  dell'utente
+	 * @return Utente | null
+	 */
 	public static Utente login(String matricola, String password) {
 		UtenteModel um = getUtenteModelOf(matricola);
 		if (um == null)
@@ -174,14 +202,18 @@ public class UtenteModel extends BaseModel {
 	}
 
 	/**
-	 * Restituisce una TreeMap di tutti i modelli degli utenti come copia di
-	 * instances
+	 * Restituisce una TreeMap di tutti i modelli degli utenti salvati a DB
 	 */
-	@SuppressWarnings("unchecked")
 	public static TreeMap<String, UtenteModel> getAllUserModels() {
-		return (TreeMap<String, UtenteModel>) instances.clone();
+		TreeMap<String, UtenteModel> m = new TreeMap<>();
+		instances.forEach((matr, um) -> {
+			if (um.record != null)
+				m.put(matr, um);
+		});
+		return m;
 	}
 
+	// TODO: to UnitTest
 	public static void main(String[] args) {
 
 		BaseModel.setDifferentDbPath("db/test.sqlite");
@@ -199,6 +231,5 @@ public class UtenteModel extends BaseModel {
 		m = UtenteModel.createUtente(new Utente("l.verdi", "Luigi", "Verdi",
 				"1234", TipoUtente.RESPONSABILE));
 		System.out.println(m == UtenteModel.getUtenteModelOf("l.verdi"));
-
 	}
 }

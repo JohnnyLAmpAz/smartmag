@@ -4,8 +4,11 @@ import static ingsw_proj_magazzino.db.generated.Tables.BOX;
 import static ingsw_proj_magazzino.db.generated.Tables.PRODOTTO;
 
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
+
+import org.jooq.Record;
 
 import ingsw_proj_magazzino.db.generated.tables.records.BoxRecord;
 import ingsw_proj_magazzino.db.generated.tables.records.ProdottoRecord;
@@ -17,12 +20,10 @@ public class BoxModel extends BaseModel {
 	/**
 	 * mappa per implementare unicitá delle istanze dei modelli di ogni box
 	 */
+
 	private static TreeMap<String, BoxModel> instances;
 	static {
-		instances = new TreeMap<String, BoxModel>();
-		Map<String, org.jooq.Record> res = DSL.select().from(BOX)
-				.fetchMap(BOX.ID);
-		res.forEach((id, r) -> instances.put(id, new BoxModel((BoxRecord) r)));
+		refreshDataFromDb();
 	}
 
 	private Box box;
@@ -45,6 +46,7 @@ public class BoxModel extends BaseModel {
 		this.box = b;
 		this.record = br;
 		instances.put(b.getIndirizzo(), this);
+		notifyChangeListeners(null);
 	}
 
 	private BoxModel(Box b) {
@@ -70,8 +72,18 @@ public class BoxModel extends BaseModel {
 	 * 
 	 * @return
 	 */
-	protected Box getBox() {
-		return box;
+	public Box getBox() {
+		return box.clone();
+	}
+
+	/**
+	 * Calcola la disponibilità tramite quantità effettiva e quantità riservata.
+	 * 
+	 * @return Quantità non riservata da movimentazioni non effettuate.
+	 */
+	public int calcDisponibilita() {
+		int reservedQta = MovimenModel.calcReservedQtOfBox(box.getIndirizzo());
+		return box.getQuantità() - reservedQta;
 	}
 
 	/**
@@ -83,6 +95,15 @@ public class BoxModel extends BaseModel {
 		return record;
 	}
 
+	public static BoxModel createBox(Box b)
+			throws SQLIntegrityConstraintViolationException {
+		BoxModel bm = getBoxModel(b);
+		if (bm.isSavedInDb())
+			throw new IllegalArgumentException("box già presente");
+		bm.create();
+		return bm;
+	}
+
 	/**
 	 * permette di creare il record del box nel database, solo se non é giá
 	 * presente
@@ -90,7 +111,7 @@ public class BoxModel extends BaseModel {
 	 * @throws SQLIntegrityConstraintViolationException se il record é giá
 	 *                                                  presente nel db
 	 */
-	public void createBox() throws SQLIntegrityConstraintViolationException {
+	private void create() throws SQLIntegrityConstraintViolationException {
 		if (isSavedInDb()) {
 			throw new SQLIntegrityConstraintViolationException(
 					"il box#" + box.getIndirizzo() + " esiste giá");
@@ -100,22 +121,22 @@ public class BoxModel extends BaseModel {
 		copyBoxIntoRecord(box, r);
 		r.store();
 		this.record = r;
+		notifyChangeListeners(null);
 	}
 
 	/**
 	 * aggiorna i dati del record e del box del modello usando quelli presenti
 	 * nel db
 	 */
-	private void refreshFromDb() {
+	public void refreshFromDb() {
 		this.record = fetchBoxByIndirizzo(box.getIndirizzo());
 		if (this.record != null) {
 			Box b = boxFromRecord(this.record);
 			this.box.setIndirizzo(b.getIndirizzo());
 			this.box.setQuantità(b.getQuantità());
 			this.box.setProd(b.getProd());
+			notifyChangeListeners(null);
 		}
-
-		// TODO: event
 	}
 
 	/**
@@ -125,12 +146,15 @@ public class BoxModel extends BaseModel {
 	 * 
 	 * @param p nuovo prodotto da assegnare al box
 	 */
-	private void cambiaProdotto(Prodotto p) {
+	public void cambiaProdotto(Prodotto p) {
 
 		if (box != null && box.isValid() && box.getQuantità() == 0) {
 			if (p != null && p.isValid()
 					&& ProductModel.fetchProdById(p.getId()) != null) {
 				box.setProd(p);
+				record.setProdotto(p.getId());
+				record.update();
+				notifyChangeListeners(null);
 			} else
 				throw new IllegalArgumentException("prodotto non valido");
 		} else
@@ -144,6 +168,8 @@ public class BoxModel extends BaseModel {
 	protected void deleteRecord() {
 		if (isSavedInDb()) {
 			record.delete();
+			record = null;
+			notifyChangeListeners(null);
 		}
 	}
 
@@ -158,6 +184,7 @@ public class BoxModel extends BaseModel {
 		this.box.setQuantità(qi + quantita);
 		record.setQta(box.getQuantità());
 		record.update();
+		notifyChangeListeners(null);
 	}
 
 	/**
@@ -167,14 +194,16 @@ public class BoxModel extends BaseModel {
 	 * @param qta numero di unita di prodotto da prelevare
 	 */
 	protected void preleva(int qta) {
-		if (box.getQuantità() > qta) {
+		if (box.getQuantità() >= qta) {
 			box.setQuantità(this.box.getQuantità() - qta);
 			record.setQta(box.getQuantità());
 			record.update();
+			notifyChangeListeners(null);
 		} else {
 			throw new IllegalArgumentException(
 					"qta richiesta maggiore di quella disponibile");
 		}
+
 	}
 
 	/**
@@ -182,13 +211,27 @@ public class BoxModel extends BaseModel {
 	 * 
 	 * @param qta
 	 */
-	private void setQuantita(int qta) {
+	public void setQuantita(int qta) {
 		this.box.setQuantità(qta);
 		record.setQta(box.getQuantità());
 		record.update();
+		notifyChangeListeners(null);
 	}
 
 	// metodi statici
+
+	/**
+	 * Recupera il modello del box corrispondente all'indirizzo specificato. Se
+	 * non esiste restituisce null.
+	 * 
+	 * @param boxAddr
+	 * @return modello trovato o null
+	 */
+	public static BoxModel getBoxModelByAddr(String boxAddr) {
+		if (!instances.containsKey(boxAddr))
+			return null;
+		return instances.get(boxAddr);
+	}
 
 	/**
 	 * restituisce il modello del box passato come parametro e lo salva
@@ -241,8 +284,8 @@ public class BoxModel extends BaseModel {
 		String indirizzo = r.getId();
 		int IDprodotto = r.getProdotto();
 		int qta = r.getQta();
-		ProdottoRecord pr = (ProdottoRecord) DSL.select().from(PRODOTTO)
-				.where(PRODOTTO.ID.eq(IDprodotto));
+		ProdottoRecord pr = DSL.selectFrom(PRODOTTO)
+				.where(PRODOTTO.ID.eq(IDprodotto)).fetchOne();
 		Prodotto p = ProductModel.prodottoFromRecord(pr);
 		return new Box(indirizzo, qta, p);
 	}
@@ -264,8 +307,78 @@ public class BoxModel extends BaseModel {
 
 	}
 
+	/**
+	 * restituisce un clone della mappa instances in cui sono contenuti solo i
+	 * modelli con record diverso da null
+	 * 
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
 	public static TreeMap<String, BoxModel> getAllBoxModels() {
-		return (TreeMap<String, BoxModel>) instances.clone();
+
+		TreeMap<String, BoxModel> bm = (TreeMap<String, BoxModel>) instances
+				.clone();
+		return treeMapFilter(bm);
 	}
 
+	private static TreeMap<String, BoxModel> treeMapFilter(
+			TreeMap<String, BoxModel> m) {
+		TreeMap<String, BoxModel> filtrata = new TreeMap<String, BoxModel>();
+		for (Map.Entry<String, BoxModel> entry : m.entrySet()) {
+			if (entry.getValue().record != null) {
+				filtrata.put(entry.getKey(), entry.getValue());
+			}
+		}
+		return filtrata;
+	}
+
+	/**
+	 * Restituisce una lista di modelli di box contenenti il prodotto cercato.
+	 * 
+	 * @param p Prodotto cercato
+	 * @return Lista di BoxModel
+	 */
+	protected static ArrayList<BoxModel> findBoxesWithProd(Prodotto p) {
+		ArrayList<BoxModel> ls = new ArrayList<BoxModel>();
+		for (Map.Entry<String, BoxModel> entry : instances.entrySet()) {
+			BoxModel bm = entry.getValue();
+
+			// Se il box contiene una quantità positiva del prodotto cercato, lo
+			// seleziono
+			if (bm.box.getQuantità() > 0 && bm.box.getProd().equals(p))
+				ls.add(bm);
+		}
+		return ls;
+	}
+
+	/**
+	 * crea la treemap instances inserendo il modello di tutti i box presenti
+	 * nel db
+	 */
+	public static void refreshDataFromDb() {
+		instances = new TreeMap<String, BoxModel>();
+		Map<String, Record> res = DSL.select().from(BOX).fetchMap(BOX.ID);
+		res.forEach((id, r) -> instances.put(id, new BoxModel((BoxRecord) r)));
+		notifyChangeListeners(null);
+	}
+
+	/**
+	 * controlla se il modello di un box esiste partendo dal suo indirizzo
+	 * 
+	 * @param indirizzo
+	 * @return true se esiste, false se non esiste
+	 */
+	public static boolean esistenzaBoxModel(String indirizzo) {
+		return instances.containsKey(indirizzo);
+	}
+
+	/**
+	 * restituisce il modello di un box partendo dal suo indirizzo
+	 * 
+	 * @param indirizzo
+	 * @return
+	 */
+	public static BoxModel getBoxModelFromIndirizzo(String indirizzo) {
+		return instances.get(indirizzo);
+	}
 }

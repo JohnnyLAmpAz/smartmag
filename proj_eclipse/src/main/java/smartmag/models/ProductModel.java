@@ -4,60 +4,88 @@ import static ingsw_proj_magazzino.db.generated.Tables.PRODOTTO;
 import static org.jooq.impl.DSL.max;
 
 import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.jooq.Record;
 
 import ingsw_proj_magazzino.db.generated.tables.records.ProdottoRecord;
 import smartmag.data.Prodotto;
 
 public class ProductModel extends BaseModel {
 
-	private static HashMap<Integer, ProductModel> instances = new HashMap<Integer, ProductModel>();
+	/**
+	 * mappa per implementare unicitá delle istanze dei modelli di ogni prodotto
+	 */
+	private static TreeMap<Integer, ProductModel> instances;
+	static {
+		refreshDataFromDb();
+	}
 
 	private Prodotto prodotto;
 	private ProdottoRecord record;
 
-	public static ProductModel getProductModelOf(Prodotto p) {
-
-		if (p != null && p.isValid()) {
-			if (!instances.containsKey(p.getId())) {
-				ProductModel pm = new ProductModel(p);
-				instances.put(p.getId(), pm);
-				return pm;
-			} else {
-				return instances.get(p.getId());
+	private ProductModel(Prodotto p, ProdottoRecord r) {
+		if (p == null) {
+			if (r == null) {
+				throw new IllegalArgumentException("ProductRecord nullo");
 			}
-		} else
-			throw new IllegalArgumentException("Prodotto non valido!");
-	}
+			p = prodottoFromRecord(r);
+		}
+		if (r == null) {
+			if (p == null || !p.isValid()) {
+				throw new IllegalArgumentException("prodotto nullo");
+			}
+			r = fetchProdById(p.getId());
+		}
 
-	public boolean isSavedInDb() {
-		refreshFromDb();
-		return record != null;
+		if (instances.containsKey(p.getId())) {
+			throw new IllegalArgumentException("modello giá creato");
+		}
+		this.prodotto = p;
+		this.record = r;
+		instances.put(p.getId(), this);
+
 	}
 
 	private ProductModel(Prodotto p) {
-		this.prodotto = p;
-		this.record = fetchProdById(p.getId());
+		this(p, fetchProdById(p.getId()));
+
 	}
 
-	protected Prodotto getProdotto() {
-		return prodotto;
+	private ProductModel(ProdottoRecord r) {
+		this(prodottoFromRecord(r), r);
+
 	}
 
-	protected void setProdotto(Prodotto p) {
-
-		if (p != null && p.isValid())
-			this.prodotto = p;
-		else
-			throw new IllegalArgumentException("Prodotto non valido!");
-	}
-
-	public ProdottoRecord getRecord() {
-		return record;
-	}
-
-	public void createProdotto()
+	/**
+	 * ottiene il modello di un prodotto e ne genera il record sfruttando il
+	 * metodo create()
+	 * 
+	 * @param p
+	 * @return
+	 * @throws SQLIntegrityConstraintViolationException se il record é gia
+	 *                                                  presntenel db
+	 */
+	public static ProductModel createProdotto(Prodotto p)
 			throws SQLIntegrityConstraintViolationException {
+		ProductModel pm = getProductModelOf(p);
+		if (pm.isSavedInDb()) {
+			throw new IllegalArgumentException("prodotto già presente");
+		}
+		pm.create();
+		return pm;
+	}
+
+	/**
+	 * permette di creare il record del prodotto nel database, solo se non é giá
+	 * presente
+	 * 
+	 * @throws SQLIntegrityConstraintViolationException se il record é giá
+	 *                                                  presente nel db
+	 */
+	public void create() throws SQLIntegrityConstraintViolationException {
 
 		if (isSavedInDb())
 			throw new SQLIntegrityConstraintViolationException(
@@ -68,11 +96,52 @@ public class ProductModel extends BaseModel {
 		copyProdottoIntoRecord(prodotto, r);
 		r.store(); // INSERT
 		this.record = r;
-
-		// TODO: event
+		notifyChangeListeners(null);
 	}
 
-	// Refresh (from DB) record and Prodotto obj
+	/**
+	 * restituisce una copia dell'oggetto Box rappresentato dal modello
+	 * 
+	 * @return
+	 */
+	public Prodotto getProdotto() {
+		return prodotto.clone();
+	}
+
+	/**
+	 * permette di impostare il prodotto del modello
+	 * 
+	 * @param p
+	 */
+	public void setProdotto(Prodotto p) {
+
+		if (p != null && p.isValid())
+			this.prodotto = p.clone();
+		else
+			throw new IllegalArgumentException("Prodotto non valido!");
+	}
+
+	/**
+	 * controlla che ci sia un record del prodotto nel db
+	 * 
+	 * @return true se é presente, false se non lo é
+	 */
+	public boolean isSavedInDb() {
+		refreshFromDb();
+		return record != null;
+	}
+
+	/**
+	 * permette di ottenre il record del modello
+	 * 
+	 */
+	protected ProdottoRecord getRecord() {
+		return record;
+	}
+
+	/**
+	 * aggiorna il modello usando i dati presenti nel db
+	 */
 	private void refreshFromDb() {
 		this.record = fetchProdById(prodotto.getId());
 		if (this.record != null) {
@@ -83,34 +152,122 @@ public class ProductModel extends BaseModel {
 			this.prodotto.setSoglia(p.getSoglia());
 		}
 
-		// TODO: event
+		notifyChangeListeners(null);
 	}
 
+	/**
+	 * elimina il record dal db senza peró cancellare il modello (il cui record
+	 * viene settato a null)
+	 */
 	public void deleteProdotto() {
 		if (isSavedInDb()) {
-			record.delete(); // DELETE con UpdatableRecord
+			record.delete();
+			record = null;
+			instances.remove(prodotto.getId());
+			notifyChangeListeners(null);
 		}
 	}
 
+	/**
+	 * aggiorna il prodotto esistente sia nel db che nel modello usando i valori
+	 * del parametro passato
+	 * 
+	 * @param p prodotto con i dati aggiornati
+	 * @throws SQLIntegrityConstraintViolationException se il prodotto non
+	 *                                                  esiste nel db
+	 */
 	public void updateProdotto(Prodotto p)
 			throws SQLIntegrityConstraintViolationException {
 		if (!isSavedInDb())
 			throw new SQLIntegrityConstraintViolationException(
 					"Prodotto #" + p.getId() + " non esiste!");
 
+		if (p.getId() != this.prodotto.getId() && checkId(p.getId())) {
+			throw new IllegalArgumentException("id gia usato");
+		}
 		record = (ProdottoRecord) fetchProdById(p.getId());
 		copyProdottoIntoRecord(p, record);
 		record.store(); // UPDATE con UpdatableRecord
+		notifyChangeListeners(null);
+	}
+
+	/**
+	 * Calcola la disponibilità (garantita) totale su tutti i box che contengono
+	 * il prodotto.
+	 * 
+	 * @return disponibilità totale
+	 */
+	public int calcDispTot() {
+		int tot = 0;
+		ArrayList<BoxModel> ls = BoxModel.findBoxesWithProd(prodotto);
+		for (BoxModel bm : ls)
+			tot += bm.getBox().getQuantità();
+		return tot;
 	}
 
 	// Metodi statici
 
+	/**
+	 * Calcola la disponibilità (garantita) totale su tutti i box che contengono
+	 * il prodotto di ID specificato.
+	 * 
+	 * @param prodId ID del prodotto
+	 * @return disponibilità totale
+	 */
+	public static int calcDispTotById(int prodId) {
+		return getProductModelById(prodId).calcDispTot();
+	}
+
+	/**
+	 * Recupera il ProductModel in base all'ID prodotto. Se non è mai stato
+	 * creato restituisce null.
+	 * 
+	 * @param prodId ID del prodotto
+	 * @return modello trovato o null
+	 */
+	public static ProductModel getProductModelById(int prodId) {
+		if (!instances.containsKey(prodId))
+			return null;
+		return instances.get(prodId);
+	}
+
+	/**
+	 * restituisce il modello del prodotto passato come parametro
+	 * 
+	 * @param p prodotto del quale si vuole ottenre il modello
+	 * @return
+	 */
+	public static ProductModel getProductModelOf(Prodotto p) {
+
+		if (p != null && p.isValid()) {
+			if (!instances.containsKey(p.getId())) {
+				ProductModel pm = new ProductModel(p);
+				return pm;
+			} else {
+				return instances.get(p.getId());
+			}
+		} else
+			throw new IllegalArgumentException("Prodotto non valido!");
+	}
+
+	/**
+	 * ricerca del record nel db a partire da id prodotto
+	 * 
+	 * @param id id del prodotto da cercare nel db
+	 * @return
+	 */
 	static ProdottoRecord fetchProdById(int id) {
 		ProdottoRecord r = (ProdottoRecord) DSL.select().from(PRODOTTO)
 				.where(PRODOTTO.ID.eq(id)).fetchOne(); // SELECT
 		return r;
 	}
 
+	/**
+	 * restituisce un oggetto prodotto a partire dai dati presenti nel db
+	 * 
+	 * @param r record del prodotto da generare
+	 * @return
+	 */
 	static Prodotto prodottoFromRecord(ProdottoRecord r) {
 		if (r == null)
 			return null;
@@ -124,6 +281,12 @@ public class ProductModel extends BaseModel {
 		return new Prodotto(id, nome, descr, peso, soglia);
 	}
 
+	/**
+	 * copia prodotto nel record del modello
+	 * 
+	 * @param p prodotto da copiare
+	 * @param r record nelquale copiare i dati del prodotto
+	 */
 	private static void copyProdottoIntoRecord(Prodotto p, ProdottoRecord r) {
 		r.setNome(p.getNome());
 		r.setDescrizione(p.getDescr());
@@ -131,11 +294,97 @@ public class ProductModel extends BaseModel {
 		r.setSoglia(p.getSoglia());
 	}
 
+	/**
+	 * restituisce il prossimo id disponibile per un prodotto
+	 * 
+	 * @return
+	 */
 	public static int getNextAvailableId() {
 		Integer max = DSL.select(max(PRODOTTO.ID)).from(PRODOTTO).fetchOne()
 				.value1();
 		if (max == null)
 			return 0;
 		return max + 1;
+	}
+
+	public static ArrayList<Prodotto> getAllProducts() {
+		TreeMap<Integer, ProductModel> tm = getAllProductModels();
+		ArrayList<Prodotto> prod = new ArrayList<Prodotto>();
+
+		for (Map.Entry<Integer, ProductModel> entry : tm.entrySet()) {
+			Prodotto p = entry.getValue().getProdotto();
+			if (p != null)
+				prod.add(entry.getValue().getProdotto());
+		}
+		return prod;
+	}
+
+	/**
+	 * restituisce un clone filtrato della treemap istances in cui sono presenti
+	 * solo i modelli con record non nullo
+	 * 
+	 * @return
+	 */
+	public static TreeMap<Integer, ProductModel> getAllProductModels() {
+		@SuppressWarnings("unchecked")
+		TreeMap<Integer, ProductModel> pm = (TreeMap<Integer, ProductModel>) instances
+				.clone();
+		return treeMapFilter(pm);
+	}
+
+	private static TreeMap<Integer, ProductModel> treeMapFilter(
+			TreeMap<Integer, ProductModel> m) {
+		TreeMap<Integer, ProductModel> filtrata = new TreeMap<Integer, ProductModel>();
+		for (Map.Entry<Integer, ProductModel> entry : m.entrySet()) {
+			if (entry.getValue().record != null) {
+				filtrata.put(entry.getKey(), entry.getValue());
+			}
+		}
+		return filtrata;
+	}
+
+	/**
+	 * restituisceun prodotto a partire dal suo id
+	 * 
+	 * @param id identificativo del prodotto
+	 * @return
+	 */
+	public static Prodotto getProdById(int id) {
+		return instances.get(id).getProdotto();
+	}
+
+	/**
+	 * crea la treemap instances inserendo il mofello di tutti i prodotti
+	 * presenti nel db
+	 */
+	public static void refreshDataFromDb() {
+		instances = new TreeMap<Integer, ProductModel>();
+		Map<Integer, Record> res = DSL.select().from(PRODOTTO)
+				.fetchMap(PRODOTTO.ID);
+		res.forEach((id, r) -> instances.put(id,
+				new ProductModel((ProdottoRecord) r)));
+		notifyChangeListeners(null);
+	}
+
+	/**
+	 * controlla se un prodotto é presente nel db usando il suo id
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public static boolean checkId(int id) {
+
+		refreshDataFromDb();
+		return instances.containsKey(id);
+	}
+
+	/**
+	 * restituisce un prodotto dalla mappa instances usando il suo id
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public static Prodotto getProdottoFromId(int id) {
+		return instances.get(id).getProdotto();
 	}
 }

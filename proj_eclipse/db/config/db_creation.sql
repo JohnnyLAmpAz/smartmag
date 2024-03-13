@@ -19,8 +19,8 @@ CREATE TABLE "Ordine" (
 	"id"	INTEGER,
 	"tipo"	TEXT NOT NULL CHECK("tipo" IN ("IN", "OUT")),
 	"stato"	TEXT NOT NULL CHECK("stato" IN ("IN_ATTESA", "IN_SVOLGIMENTO", "COMPLETATO")),
-	"dataEm"	TEXT NOT NULL DEFAULT '1970-01-01' CHECK(dataEm LIKE '____-__-__'),
-	"dataCo"	TEXT CHECK(dataCo IS NULL OR dataCo LIKE '____-__-__'),
+	"dataEm"	TEXT NOT NULL DEFAULT '1970-01-01',
+	"dataCo"	TEXT,
 	PRIMARY KEY("id")
 );
 
@@ -44,8 +44,8 @@ CREATE TABLE "Utente" (
 
 CREATE TABLE "Movimentazione" (
 	"ordine"	INTEGER,
-	"prod"	INTEGER,
 	"box"	TEXT,
+	"prod"	INTEGER NOT NULL,
 	"qta"	INTEGER NOT NULL CHECK("qta" > 0),
 	"stato"	TEXT NOT NULL DEFAULT NON_ASSEGNATA CHECK("stato" IN ("NON_ASSEGNATA", "PRESA_IN_CARICO", "PRELEVATA", "COMPLETATA", "ANNULLATA")),
 	"magazziniere"	TEXT COLLATE BINARY,
