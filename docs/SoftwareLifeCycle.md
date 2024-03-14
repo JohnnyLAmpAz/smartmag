@@ -1,6 +1,14 @@
 # Software life cycle
 
-Per il processo di sviluppo, abbiamo scelto di utilizzare RAD (Rapid Application Develpment) caratterizzato da:
+Come modello di sviluppo, è stato scelto di utilizzare RAD (Rapid Application Develpment)
+
+<img width="448" alt="RAD" src="https://github.com/JohnnyLAmpAz/smartmag/assets/145765934/6c621d39-bd0d-4269-b9f4-c0e50bf7b31c">
+
+caratterizzato da:
+
+- _Protoyping:_  
+  Lo sviluppo del progetto è basato sulla realizzazione di prototipi. In particolare è stata usata la prototipazione evolutiva, ovvero che dopo
+  aver completato il prototipo, quest'ultimo non viene buttato, ma viene utilizzato come base per realizzare la versione definitiva del software.
 
 - _Utilizzo della tecnica del time boxing:_  
   Lo sviluppo del progetto è stato suddiviso in diverse attività. A ciascuna di queste è stato dedicato un tempo di realizzazione determinato in base alla complessità del lavoro da svolgere:  
@@ -43,7 +51,3 @@ Per il processo di sviluppo, abbiamo scelto di utilizzare RAD (Rapid Application
 - _Continuos improvement:_  
   Anche durante l'avanzamento del lavoro si sono sempre accettati cambiamenti dei requisiti: spesso è difficile conoscerli a priori e con precisione.
   Grazie ad un software ben strutturato, queste variazioni, non hanno generato dei grossi problemi.
-
-- _Protoyping:_
-  Lo sviluppo del progetto è basato sulla realizzazione di prototipi. In particolare è stata usata la prototipazione incrementale, ovvero che dopo   
-  aver completato il prototipo, quest'ultimo non viene buttato, ma viene utilizzato come base per realizzarne uno nuovo.
