@@ -44,6 +44,6 @@ Per il processo di sviluppo, abbiamo scelto di utilizzare RAD (Rapid Application
   Anche durante l'avanzamento del lavoro si sono sempre accettati cambiamenti dei requisiti: spesso è difficile conoscerli a priori e con precisione.
   Grazie ad un software ben strutturato, queste variazioni, non hanno generato dei grossi problemi.
 
--_Protoyping:_
+- _Protoyping:_
   Lo sviluppo del progetto è basato sulla realizzazione di prototipi. In particolare è stata usata la prototipazione incrementale, ovvero che dopo   
   aver completato il prototipo, quest'ultimo non viene buttato, ma viene utilizzato come base per realizzarne uno nuovo.
