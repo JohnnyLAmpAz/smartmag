@@ -56,3 +56,5 @@ CREATE TABLE "Movimentazione" (
 	FOREIGN KEY("ordine") REFERENCES "Ordine"("id") ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+-- Default manager user admin:admin
+INSERT INTO Utente VALUES ("admin", "admin", "admin", "admin", "MANAGER");
