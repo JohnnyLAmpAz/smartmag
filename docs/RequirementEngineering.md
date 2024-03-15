@@ -1,33 +1,48 @@
 # Requirement engineering
 
-Per la fase di 
+## Elicitazione dei requisiti
 
-### Specifica dei requisiti
+Per quanto riguarda questa fase, è stato fondamentale confrontarsi con persone che hanno lavorato nel settore della logistica.  
+Per riuscire ad ottenere tutte le informazioni necessarie alla realizzazione del sistema, sono state usate le seguenti tecniche di elicitazione dei requisti:
 
-#### Cosa dovrebbero fare gli attori del sistema?
-
-- _Magazziniere:_
-
-  movimenta i prodotti da una locazione all’altra, preleva il prodotto, verificare la disponibilità e la locazione del prodotto mediante il suo codice,
-  deve avere la possibilità di modificare le quantità di prodotti a magazzino.
-  Per i _magazzinieri qualificati:_ Accettazione (o meno) e controllo dei rifornimenti. 
-
-- _Responsabile ordini:_
+- __Intervistare/chiedere:__
   
-  Genera gli ordini di prelievo e deposito prodotti nel magazzino, ha modo di ottenere la lista dei prodotti con rimanenze sottosoglia. Statistiche magazzino.
+- __Analisi delle attività:__
   
-- _Manager magazzino:_
-
-  Gestione del personale: ruoli, utenti, statistiche lavorative sul personale.
-  Ha accesso alle informazioni di accounting (storico). Gestisce i prodotti (aggiunta di nuovi, rimozione, etc.) e li assegna ai box. 
-
-- _Sistema informativo:_
+  Sono state analizzate le varie attività che il personale di un magazzino deve svolgere nel corso della giornata lavorativa.  
+  Da questa analisi è stato possibile definire i seguenti "attori" e i corrispettivi compiti:
   
-  Se le rimanenze di prodotto scendono sotto una certa soglia il S.I. invia una notifica al responsabile acquisti e vendite se non già ordinato.
-  Accounting: storico degli spostamenti/modifiche prodotti. 
+  - _Magazziniere:_
+    
+    Movimenta i prodotti da una locazione all’altra, preleva il prodotto, verifica la disponibilità e la locazione del prodotto mediante il suo         codice. Deve inoltre avere la possibilità di modificare le quantità di prodotti a magazzino.
+    
+  - _magazzinieri qualificati:_
 
+    Oltre all'attività di magazziniere può anche accettazione (o meno) i rifornimenti.
+    
+  - _Responsabile ordini:_
+  
+    Genera gli ordini di prelievo e deposito prodotti nel magazzino. Ha modo di ottenere la lista dei prodotti con rimanenze sottosoglia.    
+    Inoltre ha la possibilità di visionare le statistiche riguardanti il magazzino.
+    
+  - _Manager magazzino:_
 
+    Gestione del personale: ruoli, utenti, statistiche lavorative sul personale.
+    Ha accesso alle informazioni di accounting (storico). Gestisce i prodotti (aggiunta di nuovi, rimozione, etc.) e li assegna ai box. 
 
+  - _Sistema informativo:_
+  
+    Se le rimanenze di prodotto scendono sotto una certa soglia, invia una notifica al responsabile ordini se non ha già provveduto al riordino.
+    Gestisce l'accounting: storico degli spostamenti/modifiche prodotti. 
+
+- __Analisi degli scenari:__
+  
+  E' stato molto utile farsi raccontare da lavoratori nel settore della logistica alcune delle possibili situazioni che si sono presentate nel        corso di una giornata lavorativa. ( esempio che va nel box e non trova le quantità giuste)
+
+- __Derivazione da sistema esistente:__
+  
+  Poichè i requisiti emersi, spesso derivano da funzionalità messe a disposizione da altri software di gestione di magazzino.
+  Questo perchè ci si basa sull'esperienza di persone che hanno già usufruito di sistemi simili a quello che si vuole sviluppare in questo progetto.
 
 #### Requisiti funzionali elicitati con metodo dell'intervista e con tecnica degli scenari:
 
@@ -81,5 +96,5 @@ Quando il magazziniere prende in carico la movimentazione, aggiorna il suo stato
 Una volta posizionato il carico nell’opportuna destinazione, il magazziniere aggiorna lo stato della movimentazione in “conclusa”
 e la movimentazione non verrà più visualizzata nella lista delle movimentazioni da effettuare. 
 
-### MoSCoW
+## MoSCoW
 
