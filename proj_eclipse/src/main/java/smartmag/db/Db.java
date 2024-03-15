@@ -19,6 +19,7 @@ public class Db {
 	public static final String DB_URL_FISTPART = "jdbc:sqlite:";
 	public static final SQLDialect SQL_DIALECT = SQLDialect.SQLITE;
 	public static final String SQL_DDL_DB_FILE = "db/config/db_creation.sql";
+	public static final String SQL_CLEAR_DB_FILE = "db/config/drop_tables.sql";
 
 	private static Db db;
 
@@ -34,22 +35,24 @@ public class Db {
 		try {
 			conn = DriverManager.getConnection(DB_URL_FISTPART + dbPath);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.exit(1);
 		}
 
-		dslContext = DSL.using(conn, SQL_DIALECT);
-		dslContext.fetch("SELECT 1"); // Force connection to load
+		this.dslContext = DSL.using(conn, SQL_DIALECT);
+		this.dslContext.selectZero(); // Force connection to load
 	}
 
 	public static Db getInstance() throws IOException {
+		if (db != null)
+			return db;
 		return getInstance(DB_FILE_DEFAULT_PATH);
 	}
 
 	public static Db getInstance(String dbPath) throws IOException {
 
 		// Singleton (nuova istanza se null o percorso diverso)
-		if (db == null || dbPath != db.dbPath) {
+		if (db == null || !db.dbPath.equals(dbPath)) {
 
 			boolean created = !(new File(dbPath).exists());
 			db = new Db(dbPath);
@@ -62,17 +65,52 @@ public class Db {
 	}
 
 	/**
+	 * Cancella il file del db per intero.
+	 * 
+	 * @throws IOException
+	 * @throws SQLException
+	 */
+	public static void deleteDbFile() throws IOException, SQLException {
+
+		// TODO FIX: problema flush su file di jooq?
+		try {
+			if (db != null && db.conn != null && !db.conn.isClosed())
+				db.conn.close();
+			File f = FileUtils.getFile(db.dbPath);
+			if (f.exists())
+				FileUtils.delete(f);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.err.println(e.getMessage());
+			System.exit(1);
+		}
+		db = null;
+	}
+
+	/**
+	 * Svuota il database dal suo contenuto.
+	 * 
+	 * @throws IOException
+	 */
+	public void clearRecords() throws IOException {
+
+		// Cancella tabelle per intero
+		executeSqlScript(SQL_CLEAR_DB_FILE);
+
+		// Ricrea tabelle
+		executeSqlScript(SQL_DDL_DB_FILE);
+	}
+
+	/**
 	 * Si connette al database (se esiste, altrimenti lo crea ex-novo) ed esegue
 	 * i comandi SQL contenuti nel file al percorso specificato.
 	 * 
 	 * @param sqlScriptPath percorso del file contenente i comandi SQL
 	 * @throws IOException se si verifica un errore nella lettura del file
 	 */
-	public void executeSqlScript(String sqlScriptPath) throws IOException {
+	private void executeSqlScript(String sqlScriptPath) throws IOException {
 
-		try {
-
-			Statement stmt = conn.createStatement();
+		try (Statement stmt = conn.createStatement()) {
 
 			// Leggi i comandi SQL
 			File sqlFile = FileUtils.getFile(sqlScriptPath);
@@ -90,22 +128,30 @@ public class Db {
 			// Eseguili
 			stmt.executeBatch();
 
-			System.out.println("SQL Script %s executed successfully"
-					.formatted(sqlScriptPath));
+			System.out
+					.println("SQL Script %s executed successfully on db file %s"
+							.formatted(sqlScriptPath, dbPath));
 
-			stmt.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block (DB)
 			e.printStackTrace();
 		}
 	}
 
-	public Connection getConn() {
-		return conn;
-	}
-
+	/**
+	 * Restituisce il DSL context di jOOQ per interfacciarsi al DB.
+	 * 
+	 * @return DSL
+	 */
 	public DSLContext getDslContext() {
 		return dslContext;
+	}
+
+	/**
+	 * @return percorso del db
+	 */
+	public String getPath() {
+		return dbPath;
 	}
 
 	/**

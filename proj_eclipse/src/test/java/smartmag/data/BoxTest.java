@@ -50,9 +50,4 @@ class BoxTest {
 			assertTrue(b.isValid());
 	}
 
-	@Test
-	void testToString() {
-
-	}
-
 }
