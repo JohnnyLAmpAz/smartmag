@@ -530,6 +530,8 @@ public class OrderModel extends BaseModel {
 	public static OrderModel create(Ordine o)
 			throws SQLIntegrityConstraintViolationException, ParseException {
 
+		if (!o.isValid())
+			throw new IllegalArgumentException("Ordine non valido");
 		OrderModel om = getOrderModelOf(o);
 		om.createOrdineRecord();
 		om.createProdottoOrdineRecord();
@@ -588,8 +590,7 @@ public class OrderModel extends BaseModel {
 		System.out.println(prods);
 
 		Ordine o = new Ordine(getNextAvailableOrderId(), TipoOrdine.OUT,
-				StatoOrdine.IN_ATTESA, dem,
-				dco);
+				StatoOrdine.IN_ATTESA, dem, dco);
 		o.setProdotti(prodotti);
 		System.out.println(o.isValid());
 		System.out.println(dco + "    " + dem);

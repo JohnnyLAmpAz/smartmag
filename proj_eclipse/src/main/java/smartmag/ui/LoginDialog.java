@@ -40,7 +40,6 @@ public class LoginDialog extends JDialog implements ActionListener {
 	private LoginDialog(Frame parent) {
 
 		super(parent, "Login", true); // true per modalità modale
-		setLocationRelativeTo(parent);
 
 		// Set Icon
 		ImageIcon logo = new ImageIcon("img/icon.png");
@@ -97,6 +96,7 @@ public class LoginDialog extends JDialog implements ActionListener {
 		}
 		pack();
 		setResizable(false);
+		setLocationRelativeTo(parent);
 	}
 
 	/**

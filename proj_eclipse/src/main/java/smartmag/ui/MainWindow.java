@@ -22,7 +22,7 @@ import smartmag.ui.utils.BasicWindow;
 
 /**
  * Finestra principale ed entry point dell'applicazione. Gestisce le varie view
- * mostrate all'utente partendo dal login..
+ * mostrate all'utente partendo dal login.
  */
 public class MainWindow extends BasicWindow {
 
@@ -38,7 +38,7 @@ public class MainWindow extends BasicWindow {
 	private JTabbedPane tabbedPane;
 
 	private MainWindow() {
-		super("SmartMag", 450, 300, true);
+		super("SmartMag", 650, 500, true);
 
 		utente = null;
 
@@ -83,14 +83,54 @@ public class MainWindow extends BasicWindow {
 		// Svuota interfaccia
 		tabbedPane.removeAll();
 
+		// Costruisco interfaccia a seconda del ruolo utente
 		switch (utente.getTipo()) {
+
+			// MANAGER
 			case TipoUtente.MANAGER: {
+
+				// Gestione Prodotti
+				ProdottiTableFrame ptf = new ProdottiTableFrame();
+				tabbedPane.addTab("Gestione Prodotti", null,
+						ptf.getContentPane(), null);
+
+				// Gestione Utenti
 				UsersMngmtPanel usersMngmtPanel = new UsersMngmtPanel();
-				tabbedPane.addTab("Users Management", null, usersMngmtPanel,
+				tabbedPane.addTab("Gestione Utenti", null, usersMngmtPanel,
 						null);
+				break;
 			}
-			default:
+
+			// RESPONSABILE
+			case TipoUtente.RESPONSABILE: {
+
+				// Gestione Ordini
+				TabellaOrdini to = new TabellaOrdini();
+				JPanel ordersMngmtPanel = to.getContentPane();
+				tabbedPane.addTab("Gestione Ordini", null, ordersMngmtPanel,
+						null);
+				break;
+			}
+
+			// MAGAZZINIERE QUALIFICATO
+			case TipoUtente.QUALIFICATO: {
+
 				// TODO
+
+				// NO break così aggiunge anche parte di MAGAZZINIERE base!
+			}
+
+			// MAGAZZINIERE
+			case TipoUtente.MAGAZZINIERE: {
+
+				// Gestione Ordini
+				tabbedPane.addTab("Movimentazioni", null,
+						new MovimenMngmtPanel(), null);
+				break;
+			}
+
+			default:
+				throw new InternalError("Utente non valido");
 		}
 
 		// TODO others panes
@@ -132,6 +172,10 @@ public class MainWindow extends BasicWindow {
 	 * Avvia applicazione SmartMag, partendo dal login utente.
 	 */
 	public static void main(String[] args) {
+
+		// Disabilita print logo e consigli di jOOQ
+		System.setProperty("org.jooq.no-logo", "true");
+		System.setProperty("org.jooq.no-tips", "true");
 
 		// Load db
 		try {

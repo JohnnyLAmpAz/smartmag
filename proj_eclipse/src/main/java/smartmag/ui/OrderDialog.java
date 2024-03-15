@@ -1,6 +1,5 @@
 package smartmag.ui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -19,6 +18,7 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -80,10 +80,10 @@ public class OrderDialog extends JDialog {
 		this.modelloTabProductOrder = new ProductOrderTableModel(prodotti);
 
 		setBounds(100, 100, 496, 658);
-		getContentPane().setLayout(new BorderLayout());
-		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-		getContentPane().add(contentPanel, BorderLayout.CENTER);
+		setResizable(false);
+		setContentPane(contentPanel);
 		contentPanel.setLayout(null);
+		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 
 		campoID = new JTextField();
 		campoID.setBounds(154, 11, 319, 33);
@@ -163,8 +163,7 @@ public class OrderDialog extends JDialog {
 		Vector<Prodotto> vectorProdotti = new Vector<>(
 				ProductModel.getAllProducts());
 
-		comboProdotti = new JComboBox<Prodotto>(
-				vectorProdotti);
+		comboProdotti = new JComboBox<Prodotto>(vectorProdotti);
 
 		comboProdotti.setRenderer(new ListCellRenderer<Prodotto>() {
 
@@ -172,8 +171,10 @@ public class OrderDialog extends JDialog {
 			public Component getListCellRendererComponent(
 					JList<? extends Prodotto> list, Prodotto value, int index,
 					boolean isSelected, boolean cellHasFocus) {
-				return new JLabel(
-						"ID: " + value.getId() + " " + value.getNome());
+				String s = "";
+				if (value != null)
+					s = "ID: " + value.getId() + " " + value.getNome();
+				return new JLabel(s);
 			}
 		});
 		comboProdotti.addItemListener(
@@ -266,9 +267,18 @@ public class OrderDialog extends JDialog {
 				try {
 					if (orderModel != null)
 						orderModel.updateOrdine(o);
-					else
-						OrderModel.create(o);
-					dispose(); // chiude il JDialog una volta inserito l'ordine
+					else {
+						try {
+							OrderModel.create(o);
+							setVisible(false); // chiude il JDialog una volta
+												// inserito l'ordine
+						} catch (IllegalArgumentException e2) {
+							JOptionPane.showMessageDialog(OrderDialog.this,
+									"Inserire dati ordine validi!",
+									"Ordine non valido",
+									JOptionPane.ERROR_MESSAGE);
+						}
+					}
 				} catch (SQLIntegrityConstraintViolationException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -283,22 +293,21 @@ public class OrderDialog extends JDialog {
 		tableProdotti = new JTable(modelloTabProductOrder);
 		// TODO capire come mai non viene visualizzato in WindowBuilder
 		scrollPane.setViewportView(tableProdotti); // da commentare per la
-													// visualizzazione in
-													// WindowBuilder
+		// visualizzazione in
+		// WindowBuilder
 
 		btnInserisciProdott.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Prodotto prod = (Prodotto) comboProdotti.getSelectedItem();
-				prodotti.put(prod,
-						Integer.parseInt(campoQuantità.getText()));
+				prodotti.put(prod, Integer.parseInt(campoQuantità.getText()));
 				modelloTabProductOrder.fireTableDataChanged();
 			}
 		});
 
 		btnEliminaProdotto.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Prodotto prod = getProdAt(
-						tableProdotti.getSelectedRow(), prodotti);
+				Prodotto prod = getProdAt(tableProdotti.getSelectedRow(),
+						prodotti);
 				prodotti.remove(prod);
 				modelloTabProductOrder.fireTableDataChanged();
 			}

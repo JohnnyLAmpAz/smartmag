@@ -1,7 +1,9 @@
 package smartmag.ui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.ParseException;
@@ -51,18 +53,21 @@ public class TabellaOrdini extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
 		setContentPane(contentPane);
-		contentPane.setLayout(null);
+		contentPane.setLayout(new BorderLayout(0, 0));
 
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(10, 39, 797, 360);
 		contentPane.add(scrollPane);
 
 		tabellaOrdini = new JTable(modello);
 		scrollPane.setViewportView(tabellaOrdini);
 
+		JPanel btnPanel = new JPanel();
+		FlowLayout flowLayout = (FlowLayout) btnPanel.getLayout();
+		flowLayout.setHgap(25);
+		contentPane.add(btnPanel, BorderLayout.SOUTH);
+
 		JButton btnAggiungi = new JButton("Aggiungi");
-		btnAggiungi
-				.setBorder(BorderFactory.createLineBorder(Color.green));
+		btnAggiungi.setBorder(BorderFactory.createLineBorder(Color.green));
 		btnAggiungi.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Richiama il Jdialog per poter inserire l'ordine
@@ -72,15 +77,10 @@ public class TabellaOrdini extends JFrame {
 			}
 
 		});
-		btnAggiungi.setBounds(10, 448, 205, 51);
-		contentPane.add(btnAggiungi);
+		btnPanel.add(btnAggiungi);
 
 		JButton btnModifica = new JButton("Modifica");
-		btnModifica.setBounds(306, 448, 205, 51);
-		btnModifica
-				.setBorder(BorderFactory.createLineBorder(Color.cyan));
-		contentPane.add(btnModifica);
-
+		btnModifica.setBorder(BorderFactory.createLineBorder(Color.cyan));
 		// TODO il pulsante modifica può essere premuto solo se lordine
 		// selezionato è in attesa e non ha movimentazioni generate
 		btnModifica.addActionListener(new ActionListener() {
@@ -97,10 +97,10 @@ public class TabellaOrdini extends JFrame {
 					System.out.println("Ordine non in attesa!");
 			}
 		});
+		btnPanel.add(btnModifica);
 
 		JButton btnElimina = new JButton("Elimina");
-		btnElimina
-				.setBorder(BorderFactory.createLineBorder(Color.red));
+		btnElimina.setBorder(BorderFactory.createLineBorder(Color.red));
 		btnElimina.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				OrderModel om = OrderTableModel
@@ -114,7 +114,10 @@ public class TabellaOrdini extends JFrame {
 			}
 
 		});
-		btnElimina.setBounds(602, 448, 205, 51);
-		contentPane.add(btnElimina);
+		btnPanel.add(btnElimina);
+	}
+
+	public JPanel getContentPane() {
+		return contentPane;
 	}
 }
