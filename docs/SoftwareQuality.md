@@ -6,7 +6,7 @@ Per lo sviluppo del progetto sono stati seguiti alcuni dei fattori di qualità d
   In particolare soddisfa i requisiti con priorità più elevata (identificati mediante il processo di triage con la tecnica MoSCoW).
   Per quanto riguarda i requisiti meno rilevanti, invece, verranno poi implementati in una versione successiva del prototipo.
   
-- _Affidabilità:_ Garantita dai test che sono stati fatti sul codice, grazie ad essi infatti è stato possibile accertare che il programma svolgesse le funzione richieste 
+- _Affidabilità:_ Garantita dai test che sono stati fatti sul codice, grazie ad essi infatti è stato possibile accertare che il programma svolgesse le funzioni richieste 
   con un certo grado di precisione.
 
 - _Manutenibilità:_ E' stato ottenuto un certo livello di manutenibilità grazie all'utilizzo dei design patterns che hanno permesso di dare al software una struttura
@@ -15,8 +15,8 @@ Per lo sviluppo del progetto sono stati seguiti alcuni dei fattori di qualità d
   Quando si effettua la manutenzione di un software, è molto importante comprenderne il funzionamento.
   Per favorire ciò, è stato utilizzato Javadoc, in particolare per la descrizione delle funzioni svolte dai metodi presenti all'interno del software.
   
-- _Usabilità:_ Come scritto in precedenza per la manutenibilità, l'utilizzo di Javadoc, dell'architettura MVC e dei design patterns, ha reso il programma semplice da capire
-  e anche da utilizzare.
+- _Usabilità:_ L'interfaccia grafica che è stata sviluppata è intuitiva e semplice da utilizzare. Questa semplicità di utilizzo è favorita     
+  dalla presenza di pulsanti autoesplicativi e da una buona suddivisione in finestre contenenti funzionalità affini.
 
 - _Testabilità:_ Il software che è stato realizzato, pur utilizzando un DB (che potrebbe introdurre difficoltà nella realizzazione dei casi di test), è semplice da testare.
  Questa semplicità è stata ottenuta grazie alla realializzazione di metodi, che invocati al termine dei test, ripuliscono il DB da eventuali modifiche apportate.
@@ -28,6 +28,5 @@ Per lo sviluppo del progetto sono stati seguiti alcuni dei fattori di qualità d
 
  - _Riutilizzabilità:_ Il software è stato sviluppato sull'architettura MVC (Model View Controller), il che gli ha conferito un certo livello di modularità.
   Ciò permette al programma di poter essere riutilizzato in maniera semplice.
-  Questa caratteristica è stata riscontrata nella realizzazione dei vari modelli all'interno del progetto. Infatti per la generazione di un nuovo modello,
-  ne veniva riutilizzato uno già esistente modificato opportunamente. 
+  Questa caratteristica è stata riscontrata nella realizzazione dei vari modelli all'interno del progetto.
   
