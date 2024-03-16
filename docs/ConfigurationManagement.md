@@ -37,6 +37,8 @@ La gestione delle modifiche/aggiunte all'interno del programma è stata svolta s
   _Esempio:_
 
     <img width="451" alt="commW" src="https://github.com/JohnnyLAmpAz/smartmag/assets/145765934/777d56cd-f5d4-4637-8b42-4e7dcde8b7e7">
+    <img width="611" alt="image" src="https://github.com/JohnnyLAmpAz/smartmag/assets/145765934/934d571c-8507-4fc7-9951-fa5293dd2948">
+
 
 
 9. **Merge nel main dal branch**
