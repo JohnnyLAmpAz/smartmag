@@ -6,6 +6,13 @@ Per quanto riguarda questa fase, è stato fondamentale confrontarsi con persone 
 Per riuscire ad ottenere tutte le informazioni necessarie alla realizzazione del sistema, sono state usate le seguenti tecniche di elicitazione dei requisti:
 
 - __Intervistare/chiedere:__
+
+  Sono state organizzate delle riunioni, nelle quali, mediante la tecnica del brainstorming, è stato possibile identificare alcuni dei requisiti     
+  necessari allo sviluppo del sistema.  
+  La sessione di brainstorming è stata suddivisa in due fasi principali:
+  - La prima fase, il cui obiettivo principale è stato generare il maggior numero possibile di idee.
+  - La seconda fase, durante la quale l’obiettivo è stato selezionare, tra le idee generate, quelle più utili per la realizzazione del sistema   
+    finale.
   
 - __Analisi delle attività:__
   
@@ -36,65 +43,79 @@ Per riuscire ad ottenere tutte le informazioni necessarie alla realizzazione del
     Gestisce l'accounting: storico degli spostamenti/modifiche prodotti. 
 
 - __Analisi degli scenari:__
-  
-  E' stato molto utile farsi raccontare da lavoratori nel settore della logistica alcune delle possibili situazioni che si sono presentate nel        corso di una giornata lavorativa. ( esempio che va nel box e non trova le quantità giuste)
+ 
+  È stato molto utile ascoltare i racconti dei lavoratori nel settore della logistica riguardanti alcune delle situazioni che si sono presentate 
+  nel corso della loro esperienza lavorativa. Grazie a questa tecnica, infatti, è stato possibile elicitare quei requisiti che solo chi ha lavorato 
+  nel settore logistico è in grado di fornire.
 
 - __Derivazione da sistema esistente:__
   
-  Poichè i requisiti emersi, spesso derivano da funzionalità messe a disposizione da altri software di gestione di magazzino.
-  Questo perchè ci si basa sull'esperienza di persone che hanno già usufruito di sistemi simili a quello che si vuole sviluppare in questo progetto.
+  Poiché la fase di elicitazione dei requisiti si è basata in gran parte sull’esperienza dei lavoratori nel settore logistico, inevitabilmente   
+  alcune delle funzionalità implementate nel nostro progetto derivano da sistemi già esistenti.
 
-#### Requisiti funzionali elicitati con metodo dell'intervista e con tecnica degli scenari:
+## Specifica dei requisiti
 
-Il sistema deve gestire l’organizzazione del magazzino composta da varie corsie indicate da una lettera (o una coppia di lettere in caso di necessità), 
-ogni corsia contiene uno scaffale (facciata) di sinistra e uno scaffale di destra e a loro volta gli scaffali sono suddivisi in slot. 
-Gli slot degli scaffali di sinistra hanno indice dispari mentre gli slot degli scaffali di destra hanno indice pari.  
-Ogni slot a sua volta è diviso in piani identificati da un numero intero.  
+1. Il magazzino deve essere composto da:
+    - Corsie: identificate da una o più lettere.
+    - Scaffali: una corsia può contenere sia uno scaffale a sinistra che uno a destra.
+    - Slot: gli scaffali sono divisi in slot. Per gli scaffali a sinistra, il numero dello slot è dispari, mentre per quelli a destra, il numero   
+      dello slot è pari.
+    - Piani: uno slot è suddiviso in piani, ognuno dei quali è identificato da un numero intero
+    - Box: identifica la locazione di un prodotto ed è dato dall'insieme delle parti che costituiscono il magazzino elencate sopra.
 
-Per accedere al software è richiesto il log-in dei vari utenti, nel quale andrà inserito Id utente e password che vengono forniti dal manager di magazzino.
-Il manager, appunto, si occupa della gestione del personale inserendone i dati a gestionale quali: matricola, nome, cognome e ruolo.
-Inoltre, il manager, gestisce la lista di prodotti presenti nel magazzino.
-All’occorrenza, può aggiungere nuovi prodotti, ai quali viene assegnato un box nel quale stoccarli.
-Ogni box, infatti, potrà contenere una certa quantità di uno solo prodotto.
+   Ecco un esempio di come dovrà essere gestita una corsia all'inetrno di SmartMag:
 
-Il responsabile ordini gestisce la lista dei prodotti del magazzino (aggiunta e rimozione).
-Ha modo di creare un nuovo ordine, manualmente o tramite file, che rimarrà in attesa di approvazione. 
+    <img width="482" alt="Struttura magazzino" src="https://github.com/JohnnyLAmpAz/smartmag/assets/145765934/67260cbf-f99c-4a0e-a860-aaf650dff81f">
+    
+2. Per accedere al software è richiesto il log-in dell'utente, dove andranno inseriti Id e password.
+  
+3. Il manager, si dovrà occupare della gestione del personale.
+   1. Deve poter creare gli utenti di tutto il personale inserendo: matricola, nome, cognome, ruolo, password.
+   2. Deve poter accedere alla lista dei prodotti presenti a magazzino
+   3. Deve poter aggiungere o rimuovere prodotti nel magazzino
+   4. Deve poter assegnare un box ed una quantità a ciascun prodotto
+   5. Deve poter modificare le quantità dei prodotti
 
-Il sistema verifica la disponibilità dei prodotti richiesti in un ordine e in caso favorevole il responsabile può approvare
-l’ordine permettendo ai magazzinieri di processarlo.
-Se il responsabile non approva l’ordine, lo stato di quest’ultimo rimarrà “in attesa di rifornimenti scorte”.
+4. Il responsabile ordini si occupa della gestione degli ordini e dei prodotti presenti a magazzino.
+   1. Deve poter accedere alla lista dei prodotti presenti a magazzino
+   2. Deve poter accedere alla lista degli ordini
+   3. Deve poter aggiungere e rimuovere un ordine
+   4. L'inserimento di un ordine manualmente
+   5. L'inserimento di un ordine anche da file
+   6. Deve poter modificare un ordine se è in stato di attesa e non sono ancora state generate le relative movimentazioni
+   7. Può approvare o rifiutare le movimentazioni proposte dal sistema in seguito all'inserimento dell'ordine
 
-All’approvazione di un ordine da parte del responsabile, 
-il sistema genera in automatico una serie di richieste di movimentazione per ciascun prodotto coinvolto nell’ordine.
+5. Le movimentazioni devono essere generate dal sistema a seguito dell'approvazione da parte del responsabile ordini.
+   1. Per ogni prodotto presente nell'ordine deve essere generata una movimentazione.
+   2. La movimentazione deve specificare: l'ordine, il prodotto, l'origine, la estinazione, lo stato e il magazzniere che l'ha presa in carico.
 
-La lista di tutte le richiese di movimentazione legate ad un certo ordine, ciascuna delle quali specifica la quantità di prodotto, 
-la locazione d’origine e quella di destinazione,
-viene presentata ai magazzinieri i quali possono prenderle in carico e contrassegnarle come “in lavorazione”.
-Una volta effettuato uno spostamento il magazziniere lo segna come completato.
+ 6. Se il magazziniere dopo aver preso in carico una movimentazione, si accorge che le quantità richieste non sono presenti nel box:
+    1. Deve poter aggiornare la quantità di prodotto nel box
+    2. Il sistema verifica se è presente la quantità richiesta in altri box
+    3. Se la quantità richiesta è disponibile in un altro box, genera una nuova movimentazione
+    4. Se la quantità richiesta non è presente a magazzino, annulla la movimentazione e riporta lo stato dell'ordine in "attesa".
+    
+  7. Il responsabile ordini, a fronte di disponibilità limitate di certi prodotti, può effettuare richieste di acquisto, 
+     specificando le quantità di rifornimento per i vari prodotti coinvolti.
 
-Nel caso in cui uno spostamento relativo ad un ordine prevede lo spostamento di quantità non presente a magazzino, annulla la movimentazione, 
-aggiorna le quantità presenti nel box e dunque il sistema si chiede se la quantità cercata è disponibile altrove in altri box o meno.
-Se la quantità richiesta è disponibile in altri box allora genera automaticamente altre richieste di spostamento da essi, 
-altrimenti il sistema riporta l’ordine allo stato iniziale di “in attesa di rifornimenti scorte”.
-
-Il responsabile, a fronte di disponibilità limitate di certi prodotti, può effettuare richieste di acquisto, 
-specificando le quantità di rifornimento per i vari prodotti coinvolti.
-Anche queste richieste di rifornimento effettueranno vari passaggi di stato, sempre gestiti dal responsabile.
-
-Alla consegna dei rifornimenti, i magazzinieri qualificati verificano che quanto sia stato ordinato corrisponda al carico arrivato.
-In caso favorevole accettano la consegna, contrassegnando l'ordine di rifornimento come ricevuto, e procedono allo scarico delle merci.
-
-A fronte dell’accettazione della consegna di rifornimento, 
-il sistema informativo genera in automatico delle richieste di spostamento delle merci dalla zona di carico/scarico agli scaffali designati.
-Nel caso in cui un nuovo prodotto non sia stato ancora assegnato ad un box, il sistema ne sceglie uno in automatico.
-
-Nell’eventualità di rifiuto della consegna per non corrispondenza delle merci ricevute con quelle ordinate, 
-lo stato dell’ordine di rifornimento rimane in attesa di consegna.
-
-Movimentazione ordini in entrata: I magazzinieri controllano la lista di movimentazioni in entrata e ne prendono in carico una alla volta. 
-Quando il magazziniere prende in carico la movimentazione, aggiorna il suo stato da: “in attesa” a “in trasporto”.
-Una volta posizionato il carico nell’opportuna destinazione, il magazziniere aggiorna lo stato della movimentazione in “conclusa”
-e la movimentazione non verrà più visualizzata nella lista delle movimentazioni da effettuare. 
+  8. Alla consegna dei rifornimenti, il magazziniere qualificato verifica che quanto ordinato corrisponde al carico ricevuto.
+     1. Se i prodotti ricevuti corrispondono all'ordine, accetta la consegna e fà generare al sistema le movimentazioni.
+     2. Nel caso in cui sia arrivato prodotto non ancora assegnato ad un box, il sistema ne sceglie uno in automatico.
+     3. Se i prodotti ricevuti non corrispondono all'ordine, lo stato dell'ordine non cambia e rimane "in attesa".
+    
+  9. Quando un magazziniere prende in carico una movimentazione, lo stato di quest'ultima passa da "in attesa" a "presa in carico".
+     Una volta posizionato il carico nell'opportuna destinazione, lo stato della movimentazione viene aggiornato in "completata".
 
 ## MoSCoW
+
+| Must have                   | Should have      | Could have | Won't have |
+|-----------------------------|------------------|------------|------------|
+|    1                        |      3.5         |     8.2    |    4.5     |
+|    2                        |      4.6 - 4.7   |            |            |
+|    3.1 - 3.2 - 3.3 - 3.4    |      6.2 - 6.3   |            |            |
+|    4.1 - 4.2 - 4.3 - 4.4    |      8.1 - 8.2   |            |            |
+|    5.1 - 5.2                |                  |            |            |
+|    6.1 - 6.4                |                  |            |            |
+|    7                        |                  |            |            |
+|    9                        |                  |            |            |
 
