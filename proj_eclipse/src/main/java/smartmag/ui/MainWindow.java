@@ -3,6 +3,7 @@ package smartmag.ui;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 
 import javax.swing.JLabel;
@@ -11,6 +12,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
@@ -31,11 +33,12 @@ public class MainWindow extends BasicWindow {
 
 	private Utente utente;
 	private JPanel contentPane;
-	private JLabel lblWelcome;
 	private JMenuBar menuBar;
-	private JMenu mnFile;
-	private JMenuItem mntmLogout;
+	private JMenu mnSession;
 	private JTabbedPane tabbedPane;
+	private JPanel panel;
+	private JLabel lblWelcome;
+	private JLabel lblRole;
 
 	private MainWindow() {
 		super("SmartMag", 650, 500, true);
@@ -45,14 +48,15 @@ public class MainWindow extends BasicWindow {
 		menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 
-		mnFile = new JMenu("File");
-		menuBar.add(mnFile);
+		mnSession = new JMenu("Sessione");
+		menuBar.add(mnSession);
 
 		// Logout menu item
-		mntmLogout = new JMenuItem("Logout");
+		JMenuItem mntmLogout = new JMenuItem("Logout", KeyEvent.VK_O);
 
-		// Mappa l'azione al listener di App
-		mntmLogout.setActionCommand("logout");
+		// Set Ctrl+Q shortcut for logout
+		mntmLogout.setAccelerator(
+				KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.CTRL_MASK));
 		mntmLogout.addActionListener(new ActionListener() {
 
 			@Override
@@ -60,7 +64,18 @@ public class MainWindow extends BasicWindow {
 				showLogin();
 			}
 		});
-		mnFile.add(mntmLogout);
+		mnSession.add(mntmLogout);
+
+		// Quit menu item
+		JMenuItem mntmQuit = new JMenuItem("Quit", KeyEvent.VK_Q);
+		mntmQuit.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
+		mnSession.add(mntmQuit);
 
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -68,9 +83,18 @@ public class MainWindow extends BasicWindow {
 		contentPane.setLayout(new BorderLayout(0, 0));
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		contentPane.add(tabbedPane);
+
+		panel = new JPanel();
+		panel.setBorder(new EmptyBorder(2, 2, 2, 2));
+		contentPane.add(panel, BorderLayout.SOUTH);
+		panel.setLayout(new BorderLayout(0, 0));
+
 		lblWelcome = new JLabel("Benvenuto!");
 		lblWelcome.setHorizontalAlignment(SwingConstants.CENTER);
-		contentPane.add(lblWelcome, BorderLayout.SOUTH);
+		panel.add(lblWelcome, BorderLayout.WEST);
+
+		lblRole = new JLabel("Ruolo: ");
+		panel.add(lblRole, BorderLayout.EAST);
 	}
 
 	/**
@@ -94,10 +118,16 @@ public class MainWindow extends BasicWindow {
 				tabbedPane.addTab("Gestione Prodotti", null,
 						ptf.getContentPane(), null);
 
+				// Gestione Box
+				BoxTableFrame btf = new BoxTableFrame();
+				tabbedPane.addTab("Gestione Box", null, btf.getContentPane(),
+						null);
+
 				// Gestione Utenti
 				UsersMngmtPanel usersMngmtPanel = new UsersMngmtPanel();
 				tabbedPane.addTab("Gestione Utenti", null, usersMngmtPanel,
 						null);
+
 				break;
 			}
 
@@ -112,20 +142,19 @@ public class MainWindow extends BasicWindow {
 				break;
 			}
 
-			// MAGAZZINIERE QUALIFICATO
-			case TipoUtente.QUALIFICATO: {
-
-				// TODO
-
-				// NO break così aggiunge anche parte di MAGAZZINIERE base!
-			}
-
-			// MAGAZZINIERE
+			// MAGAZZINIERI
+			case TipoUtente.QUALIFICATO:
 			case TipoUtente.MAGAZZINIERE: {
 
 				// Gestione Ordini
 				tabbedPane.addTab("Movimentazioni", null,
 						new MovimenMngmtPanel(), null);
+
+				// UI specifica per MAGAZZINIERE QUALIFICATO
+				if (utente.getTipo() == TipoUtente.QUALIFICATO) {
+					// TODO
+				}
+
 				break;
 			}
 
@@ -133,9 +162,8 @@ public class MainWindow extends BasicWindow {
 				throw new InternalError("Utente non valido");
 		}
 
-		// TODO others panes
-
 		lblWelcome.setText("Benvenuto %s!".formatted(utente.getNome()));
+		lblRole.setText("Ruolo: " + utente.getTipo().name());
 	}
 
 	/**
