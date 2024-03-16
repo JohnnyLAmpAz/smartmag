@@ -25,7 +25,7 @@ Per riuscire ad ottenere tutte le informazioni necessarie alla realizzazione del
     
   - _magazzinieri qualificati:_
 
-    Oltre all'attività di magazziniere può anche accettazione (o meno) i rifornimenti.
+    Oltre all'attività di magazziniere può anche accettare o rifiutare i rifornimenti.
     
   - _Responsabile ordini:_
   
@@ -107,6 +107,8 @@ Per riuscire ad ottenere tutte le informazioni necessarie alla realizzazione del
      Una volta posizionato il carico nell'opportuna destinazione, lo stato della movimentazione viene aggiornato in "completata".
 
 ## MoSCoW
+
+I requisiti del progetto, sono stati inseriti all'interno della seguente tabella in base alla loro rilevanza applicando la tecnica MoSCoW:
 
 | Must have                   | Should have      | Could have | Won't have |
 |-----------------------------|------------------|------------|------------|
