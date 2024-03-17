@@ -185,6 +185,8 @@ public class OrderModel extends BaseModel {
 		orderRecord.setStato(stato.name());
 		ordine.setDataCompletamento(now);
 		orderRecord.setDataco(now.toString());
+		orderRecord.store();
+		notifyChangeListeners(null);
 	}
 
 	/**
