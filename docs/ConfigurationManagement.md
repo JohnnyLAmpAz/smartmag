@@ -36,7 +36,7 @@ La gestione delle modifiche/aggiunte all'interno del programma è stata svolta s
 7. **Approvazione o richiesta di ulteriori modifiche**  
   _Esempio:_
 
-      <img width="450" alt="Commenti" src="https://github.com/JohnnyLAmpAz/smartmag/assets/145765934/638f1cae-9870-4e55-9923-dab4211b6598">
+     <img width="450" alt="Commenti" src="https://github.com/JohnnyLAmpAz/smartmag/assets/145765934/638f1cae-9870-4e55-9923-dab4211b6598">
 
 9. **Merge nel main dal branch**
 

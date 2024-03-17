@@ -1,5 +1,7 @@
 # SmartMag
 
+<img width="262" alt="LogoSmartMag2_ok" src="https://github.com/JohnnyLAmpAz/smartmag/assets/145765934/f1f21798-d169-40d8-8f10-f29e5ab945e7">
+
 Repo del progetto per il corso di Ingegneria del Software.
 
 Si tratta di un sistema di gestione di un magazzino, che permette di svolgere una serie di attvità, tra cui:
