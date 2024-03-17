@@ -11,6 +11,7 @@ import java.text.ParseException;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -94,7 +95,9 @@ public class TabellaOrdini extends JFrame {
 					dialog.setModal(true);
 					dialog.setVisible(true);
 				} else
-					System.out.println("Ordine non in attesa!");
+					JOptionPane.showMessageDialog(TabellaOrdini.this,
+							"Ordine non in attesa!", "Errore",
+							JOptionPane.ERROR_MESSAGE);
 			}
 		});
 		btnPanel.add(btnModifica);

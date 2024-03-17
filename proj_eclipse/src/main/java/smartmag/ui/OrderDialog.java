@@ -39,19 +39,18 @@ public class OrderDialog extends JDialog {
 	private static final long serialVersionUID = 1L;
 
 	private final JPanel contentPanel = new JPanel();
-	private JTextField campoID;
 	private JTextField campoDataEm;
-	private JTextField campoDataCo;
-	private JComboBox<StatoOrdine> comboStato;
 	private JComboBox<TipoOrdine> comboTipo;
 	private JComboBox<Prodotto> comboProdotti;
 	private JTextField campoQuantità;
 	private JButton btnInserisciProdott;
 	private JButton btnEliminaProdotto;
 	private final HashMap<Prodotto, Integer> prodotti;
-	private OrderModel orderModel;
 	private ProductOrderTableModel modelloTabProductOrder;
 	private JTable tableProdotti;
+	private OrderModel orderModel;
+	private int orderId;
+	private StatoOrdine orderStatus;
 
 	/**
 	 * Launch the application.
@@ -79,85 +78,54 @@ public class OrderDialog extends JDialog {
 
 		this.modelloTabProductOrder = new ProductOrderTableModel(prodotti);
 
-		setBounds(100, 100, 496, 658);
+		setBounds(100, 100, 501, 570);
 		setResizable(false);
 		setContentPane(contentPanel);
 		contentPanel.setLayout(null);
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-
-		campoID = new JTextField();
-		campoID.setBounds(154, 11, 319, 33);
-		contentPanel.add(campoID);
-		campoID.setColumns(10);
-
-		JLabel lblNewLabel = new JLabel("ID ordine");
-		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		lblNewLabel.setBounds(10, 11, 84, 33);
-		contentPanel.add(lblNewLabel);
-		{
-			JLabel lblStato = new JLabel("Stato");
-			lblStato.setFont(new Font("Tahoma", Font.PLAIN, 15));
-			lblStato.setBounds(10, 55, 84, 33);
-			contentPanel.add(lblStato);
-		}
 		{
 			campoDataEm = new JTextField();
 			campoDataEm.setColumns(10);
-			campoDataEm.setBounds(154, 143, 319, 33);
+			campoDataEm.setBounds(154, 55, 319, 33);
 			campoDataEm.setText(LocalDate.now().toString());
 			contentPanel.add(campoDataEm);
 		}
 		{
 			JLabel lblDataEm = new JLabel("Data emissione");
 			lblDataEm.setFont(new Font("Tahoma", Font.PLAIN, 15));
-			lblDataEm.setBounds(10, 143, 151, 33);
+			lblDataEm.setBounds(10, 55, 151, 33);
 			contentPanel.add(lblDataEm);
 		}
 		{
 			JLabel lblTipo = new JLabel("Tipo");
 			lblTipo.setFont(new Font("Tahoma", Font.PLAIN, 15));
-			lblTipo.setBounds(10, 99, 84, 33);
+			lblTipo.setBounds(10, 11, 84, 33);
 			contentPanel.add(lblTipo);
 		}
-		{
-			JLabel lblDataCo = new JLabel("Data completamento");
-			lblDataCo.setFont(new Font("Tahoma", Font.PLAIN, 15));
-			lblDataCo.setBounds(10, 187, 151, 33);
-			contentPanel.add(lblDataCo);
-		}
-		{
-			campoDataCo = new JTextField();
-			campoDataCo.setColumns(10);
-			campoDataCo.setBounds(154, 187, 319, 33);
-			contentPanel.add(campoDataCo);
-		}
-
-		comboStato = new JComboBox<StatoOrdine>();
-		comboStato.setModel(
-				new DefaultComboBoxModel<StatoOrdine>(StatoOrdine.values()));
-		comboStato.setBounds(154, 55, 319, 33);
-		contentPanel.add(comboStato);
 
 		comboTipo = new JComboBox<TipoOrdine>();
 		comboTipo.setModel(
 				new DefaultComboBoxModel<TipoOrdine>(TipoOrdine.values()));
-		comboTipo.setBounds(154, 99, 319, 33);
+		comboTipo.setBounds(154, 11, 319, 33);
 		contentPanel.add(comboTipo);
-		if (om != null) {
-			campoID.setText(Integer.toString(om.getOrdine().getId()));
-			campoID.setEditable(false);
-			campoDataEm.setText(om.getOrdine().getDataEmissione().toString());
-			LocalDate dataCompletamento = om.getOrdine().getDataCompletamento();
-			if (dataCompletamento != null)
-				campoDataCo.setText(dataCompletamento.toString());
 
-			comboStato.setSelectedItem(om.getOrdine().getStato());
+		// Modifica ordine
+		if (om != null) {
+			orderId = om.getOrdine().getId();
+			orderStatus = om.getOrdine().getStato();
+			setTitle("Ordine #" + Integer.toString(orderId));
+			campoDataEm.setText(om.getOrdine().getDataEmissione().toString());
+
 			comboTipo.setSelectedItem(om.getOrdine().getTipo());
+			comboTipo.setEnabled(false);
+			campoDataEm.setEnabled(false);
 		}
+
+		// Nuovo ordine
 		if (om == null) {
-			campoID.setText(
-					Integer.toString(OrderModel.getNextAvailableOrderId()));
-			campoID.setEditable(false);
+			orderId = OrderModel.getNextAvailableOrderId();
+			orderStatus = StatoOrdine.IN_ATTESA;
+			setTitle("Nuovo Ordine #" + Integer.toString(orderId));
 		}
 
 		Vector<Prodotto> vectorProdotti = new Vector<>(
@@ -180,42 +148,42 @@ public class OrderDialog extends JDialog {
 		comboProdotti.addItemListener(
 				e -> System.out.println(comboProdotti.getSelectedItem()));
 
-		comboProdotti.setBounds(154, 414, 319, 33);
+		comboProdotti.setBounds(154, 326, 319, 33);
 		contentPanel.add(comboProdotti);
 
 		JLabel lblProdotti = new JLabel("Prodotti");
 		lblProdotti.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		lblProdotti.setBounds(10, 414, 84, 33);
+		lblProdotti.setBounds(10, 326, 84, 33);
 		contentPanel.add(lblProdotti);
 
 		JLabel lblQuantit = new JLabel("Quantità");
 		lblQuantit.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		lblQuantit.setBounds(10, 458, 84, 33);
+		lblQuantit.setBounds(10, 370, 84, 33);
 		contentPanel.add(lblQuantit);
 
 		campoQuantità = new JTextField();
 		campoQuantità.setColumns(10);
-		campoQuantità.setBounds(154, 458, 319, 33);
+		campoQuantità.setBounds(154, 370, 319, 33);
 		contentPanel.add(campoQuantità);
 
 		btnInserisciProdott = new JButton("Inserisci prodotto");
 		btnInserisciProdott.setBackground(new Color(255, 255, 255));
-		btnInserisciProdott.setBounds(154, 502, 151, 41);
+		btnInserisciProdott.setBounds(154, 414, 151, 41);
 		contentPanel.add(btnInserisciProdott);
 
 		modelloTabProductOrder = new ProductOrderTableModel(prodotti);
 
 		btnEliminaProdotto = new JButton("Elimina prodotto");
 		btnEliminaProdotto.setBackground(new Color(255, 255, 255));
-		btnEliminaProdotto.setBounds(322, 502, 151, 41);
+		btnEliminaProdotto.setBounds(322, 414, 151, 41);
 		contentPanel.add(btnEliminaProdotto);
 
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(10, 237, 463, 156);
+		scrollPane.setBounds(10, 99, 463, 206);
 		contentPanel.add(scrollPane);
 
 		JPanel panel = new JPanel();
-		panel.setBounds(0, 558, 492, 58);
+		panel.setBounds(0, 466, 485, 62);
 		contentPanel.add(panel);
 		panel.setLayout(null);
 
@@ -228,7 +196,7 @@ public class OrderDialog extends JDialog {
 
 		{
 			JButton exitButton = new JButton("Esci");
-			exitButton.setBounds(376, 11, 95, 42);
+			exitButton.setBounds(380, 11, 95, 42);
 			panel.add(exitButton);
 			exitButton.setActionCommand("exit");
 			exitButton.addActionListener(new ActionListener() {
@@ -240,29 +208,21 @@ public class OrderDialog extends JDialog {
 		}
 		btnInserisciOrdine.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String id1 = campoID.getText();
-				int id = Integer.parseInt(campoID.getText());
-				String co = campoDataCo.getText();
 				String em = campoDataEm.getText();
-				StatoOrdine stato = (StatoOrdine) comboStato.getSelectedItem();
 				TipoOrdine tipo = (TipoOrdine) comboTipo.getSelectedItem();
-				LocalDate ldco = null;
 				LocalDate ldem = null;
 
 				try {
 					ldem = LocalDate.parse(em);
-					if (co != null)
-						ldco = LocalDate.parse(co);
-					else
-						ldco = null;
 				} catch (Exception e1) {
 					// TODO
 				}
 
-				System.out.println("ID: " + id1 + "co" + co + "em" + em
-						+ "stato" + stato + "tipo" + tipo);
+				System.out.println("ID: " + orderId + "em" + em + "stato"
+						+ orderStatus + "tipo" + tipo);
 
-				Ordine o = new Ordine(id, tipo, stato, ldem, ldco, prodotti);
+				Ordine o = new Ordine(orderId, tipo, orderStatus, ldem, null,
+						prodotti);
 
 				try {
 					if (orderModel != null)
@@ -290,6 +250,7 @@ public class OrderDialog extends JDialog {
 
 		});
 
+//		tableProdotti = new JTable();
 		tableProdotti = new JTable(modelloTabProductOrder);
 		// TODO capire come mai non viene visualizzato in WindowBuilder
 		scrollPane.setViewportView(tableProdotti); // da commentare per la
