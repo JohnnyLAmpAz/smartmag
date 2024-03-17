@@ -106,20 +106,22 @@ Per riuscire ad ottenere tutte le informazioni necessarie alla realizzazione del
   9. Quando un magazziniere prende in carico una movimentazione, lo stato di quest'ultima passa da "in attesa" a "presa in carico".
      Quando un magazziniere preleva il prodotto dal box, lo stato della movimentazione passa da "presa in carico" a "prelevata".
      Una volta posizionato il carico nell'opportuna destinazione, lo stato della movimentazione viene aggiornato in "completata".
+     
+  10. Quando un prodotto nel box scende sotto la soglia impostata, il sistema invia un suggerimento di riordino al responsabile di magazzino. 
 
 ## MoSCoW - negoziazione dei requisiti
 
 I requisiti del progetto, sono stati inseriti all'interno della seguente tabella in base alla loro priorità applicando la tecnica MoSCoW:
 
-| Must have                   | Should have      | Could have | Won't have |
-|-----------------------------|------------------|------------|------------|
-|    1                        |      3.5         |     8.2    |    4.5     |
+| Must have                   | Should have      | Could have       | Won't have |
+|-----------------------------|------------------|------------------|------------|
+|    1                        |      3.5         |     8.2          |    4.5     |
 |    2                        |      4.6         |  6.2 - 6.3 - 6.4 |   4.7      |
-|    3.1 - 3.2 - 3.3 - 3.4    |      8.1 - 8.2   |            |    5.3     |
-|    4.1 - 4.2 - 4.3 - 4.4    |                  |            |            |
-|    5.1 - 5.2                |                  |            |            |
-|    6.1                      |                  |            |            |
-|    7                        |                  |            |            |
-|    9                        |                  |            |            |
+|    3.1 - 3.2 - 3.3 - 3.4    |      8.1 - 8.2   |                  |    5.3     |
+|    4.1 - 4.2 - 4.3 - 4.4    |                  |                  |     10     |
+|    5.1 - 5.2                |                  |                  |            |
+|    6.1                      |                  |                  |            |
+|    7                        |                  |                  |            |
+|    9                        |                  |                  |            |
 
 Durante la fase di negoziazione è stata decisa l'assegnazione dei requisiti nella tabella mostrata sopra.
