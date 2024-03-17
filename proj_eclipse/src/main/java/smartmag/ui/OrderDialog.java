@@ -45,6 +45,7 @@ public class OrderDialog extends JDialog {
 	private JTextField campoQuantità;
 	private JButton btnInserisciProdott;
 	private JButton btnEliminaProdotto;
+	private JButton btnInserisciOrdine;
 	private final HashMap<Prodotto, Integer> prodotti;
 	private ProductOrderTableModel modelloTabProductOrder;
 	private JTable tableProdotti;
@@ -109,25 +110,6 @@ public class OrderDialog extends JDialog {
 		comboTipo.setBounds(154, 11, 319, 33);
 		contentPanel.add(comboTipo);
 
-		// Modifica ordine
-		if (om != null) {
-			orderId = om.getOrdine().getId();
-			orderStatus = om.getOrdine().getStato();
-			setTitle("Ordine #" + Integer.toString(orderId));
-			campoDataEm.setText(om.getOrdine().getDataEmissione().toString());
-
-			comboTipo.setSelectedItem(om.getOrdine().getTipo());
-			comboTipo.setEnabled(false);
-			campoDataEm.setEnabled(false);
-		}
-
-		// Nuovo ordine
-		if (om == null) {
-			orderId = OrderModel.getNextAvailableOrderId();
-			orderStatus = StatoOrdine.IN_ATTESA;
-			setTitle("Nuovo Ordine #" + Integer.toString(orderId));
-		}
-
 		Vector<Prodotto> vectorProdotti = new Vector<>(
 				ProductModel.getAllProducts());
 
@@ -187,7 +169,7 @@ public class OrderDialog extends JDialog {
 		contentPanel.add(panel);
 		panel.setLayout(null);
 
-		JButton btnInserisciOrdine = new JButton("Inserisci ordine");
+		btnInserisciOrdine = new JButton("Inserisci ordine");
 		btnInserisciOrdine.setBackground(new Color(255, 255, 255));
 		btnInserisciOrdine.setBounds(10, 11, 262, 42);
 		btnInserisciOrdine
@@ -225,9 +207,10 @@ public class OrderDialog extends JDialog {
 						prodotti);
 
 				try {
-					if (orderModel != null)
+					if (orderModel != null) {
 						orderModel.updateOrdine(o);
-					else {
+						setVisible(false);
+					} else {
 						try {
 							OrderModel.create(o);
 							setVisible(false); // chiude il JDialog una volta
@@ -273,6 +256,27 @@ public class OrderDialog extends JDialog {
 				modelloTabProductOrder.fireTableDataChanged();
 			}
 		});
+
+		// Modifica ordine
+		if (om != null) {
+			orderId = om.getOrdine().getId();
+			orderStatus = om.getOrdine().getStato();
+			setTitle("Ordine #" + Integer.toString(orderId));
+			campoDataEm.setText(om.getOrdine().getDataEmissione().toString());
+
+			comboTipo.setSelectedItem(om.getOrdine().getTipo());
+			comboTipo.setEnabled(false);
+			campoDataEm.setEnabled(false);
+
+			btnInserisciOrdine.setText("Applica modifiche");
+		}
+
+		// Nuovo ordine
+		if (om == null) {
+			orderId = OrderModel.getNextAvailableOrderId();
+			orderStatus = StatoOrdine.IN_ATTESA;
+			setTitle("Nuovo Ordine #" + Integer.toString(orderId));
+		}
 
 	}
 

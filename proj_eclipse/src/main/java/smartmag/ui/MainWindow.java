@@ -34,7 +34,6 @@ public class MainWindow extends BasicWindow {
 	private Utente utente;
 	private JPanel contentPane;
 	private JMenuBar menuBar;
-	private JMenu mnSession;
 	private JTabbedPane tabbedPane;
 	private JPanel panel;
 	private JLabel lblWelcome;
@@ -48,7 +47,7 @@ public class MainWindow extends BasicWindow {
 		menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 
-		mnSession = new JMenu("Sessione");
+		JMenu mnSession = new JMenu("Sessione");
 		menuBar.add(mnSession);
 
 		// Logout menu item
@@ -76,6 +75,21 @@ public class MainWindow extends BasicWindow {
 			}
 		});
 		mnSession.add(mntmQuit);
+
+		// DEV menu
+		JMenu mnDev = new JMenu("DEV");
+		menuBar.add(mnDev);
+
+		// Clear DB menu item
+		JMenuItem mntmClearDb = new JMenuItem("CLEAR DB");
+		mntmClearDb.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO dopo merge di testing-db
+			}
+		});
+		mnDev.add(mntmClearDb);
 
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));

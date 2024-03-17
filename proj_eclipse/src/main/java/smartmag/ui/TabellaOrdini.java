@@ -82,8 +82,6 @@ public class TabellaOrdini extends JFrame {
 
 		JButton btnModifica = new JButton("Modifica");
 		btnModifica.setBorder(BorderFactory.createLineBorder(Color.cyan));
-		// TODO il pulsante modifica può essere premuto solo se lordine
-		// selezionato è in attesa e non ha movimentazioni generate
 		btnModifica.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Richiama il JDialog per poter modificare i valori dell'ordine
@@ -102,6 +100,43 @@ public class TabellaOrdini extends JFrame {
 		});
 		btnPanel.add(btnModifica);
 
+		// Approvazione ordine: passa da IN_ATTESA a IN_SVOLGIMENTO
+		JButton btnApprova = new JButton("Approva");
+		btnApprova.setBorder(BorderFactory.createLineBorder(Color.ORANGE));
+		btnApprova.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				OrderModel om = OrderTableModel
+						.getOrderModelAt(tabellaOrdini.getSelectedRow());
+				if (om == null) {
+					JOptionPane.showMessageDialog(TabellaOrdini.this,
+							"Nessun ordine selezionato!", "Errore",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				if (!om.getOrdine().getStato().equals(StatoOrdine.IN_ATTESA)) {
+					JOptionPane.showMessageDialog(TabellaOrdini.this,
+							"Ordine non in attesa!", "Errore",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+
+				// Se è preparabile lo approvo (passa stato e genera movims)
+				if (om.isPreparabile()) {
+					om.approva();
+					JOptionPane.showMessageDialog(TabellaOrdini.this,
+							"Ordine approvato e movimentazioni generate.",
+							"Ordine in lavorazione",
+							JOptionPane.INFORMATION_MESSAGE);
+				} else {
+					JOptionPane.showMessageDialog(TabellaOrdini.this,
+							"Ordine non preparabile!", "Errore",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+			}
+		});
+		btnPanel.add(btnApprova);
+
 		JButton btnElimina = new JButton("Elimina");
 		btnElimina.setBorder(BorderFactory.createLineBorder(Color.red));
 		btnElimina.addActionListener(new ActionListener() {
@@ -109,8 +144,19 @@ public class TabellaOrdini extends JFrame {
 				OrderModel om = OrderTableModel
 						.getOrderModelAt(tabellaOrdini.getSelectedRow());
 				try {
-					if (om != null)
+					if (om == null) {
+						JOptionPane.showMessageDialog(TabellaOrdini.this,
+								"Nessun ordine selezionato!", "Errore",
+								JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+
+					if (om.getOrdine().getStato().equals(StatoOrdine.IN_ATTESA))
 						om.deleteOrdine();
+					else
+						JOptionPane.showMessageDialog(TabellaOrdini.this,
+								"Ordine non in attesa!", "Errore",
+								JOptionPane.ERROR_MESSAGE);
 				} catch (ParseException e1) {
 					// TODO
 				}

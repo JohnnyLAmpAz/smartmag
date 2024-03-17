@@ -95,12 +95,15 @@ public class BoxModel extends BaseModel {
 		return record;
 	}
 
-	public static BoxModel createBox(Box b)
-			throws SQLIntegrityConstraintViolationException {
+	public static BoxModel createBox(Box b) {
 		BoxModel bm = getBoxModel(b);
 		if (bm.isSavedInDb())
 			throw new IllegalArgumentException("box già presente");
-		bm.create();
+		try {
+			bm.create();
+		} catch (SQLIntegrityConstraintViolationException e) {
+			throw new IllegalArgumentException("box già presente", e);
+		}
 		return bm;
 	}
 
@@ -228,8 +231,6 @@ public class BoxModel extends BaseModel {
 	 * @return modello trovato o null
 	 */
 	public static BoxModel getBoxModelByAddr(String boxAddr) {
-		if (!instances.containsKey(boxAddr))
-			return null;
 		return instances.get(boxAddr);
 	}
 
@@ -343,9 +344,7 @@ public class BoxModel extends BaseModel {
 		for (Map.Entry<String, BoxModel> entry : instances.entrySet()) {
 			BoxModel bm = entry.getValue();
 
-			// Se il box contiene una quantità positiva del prodotto cercato, lo
-			// seleziono
-			if (bm.box.getQuantità() > 0 && bm.box.getProd().equals(p))
+			if (bm.box.getProd().equals(p))
 				ls.add(bm);
 		}
 		return ls;
@@ -373,12 +372,32 @@ public class BoxModel extends BaseModel {
 	}
 
 	/**
-	 * restituisce il modello di un box partendo dal suo indirizzo
+	 * Restituisce true se il box all'indirizzo specificato è vuoto, false se
+	 * altrimenti.
 	 * 
-	 * @param indirizzo
-	 * @return
+	 * @param addr indirizzo box
+	 * @return vedi sopra
 	 */
-	public static BoxModel getBoxModelFromIndirizzo(String indirizzo) {
-		return instances.get(indirizzo);
+	public static boolean isBoxAtAddrFree(String addr) {
+		BoxModel bm = getBoxModelByAddr(addr);
+		return bm == null;
+	}
+
+	/**
+	 * Trova un box libero e ci assegna il prodotto specificato con qta nulla.
+	 * Se non trova box libero, restituisce null.
+	 * 
+	 * @param p prodotto da assegnare
+	 * @return modello del box assegnato
+	 */
+	public static BoxModel assignRandomBoxToProd(Prodotto p) {
+		for (char corsia = 'A'; corsia <= 'Z'; corsia++) {
+			String addr = corsia + "-0-0";
+			if (isBoxAtAddrFree(addr))
+				return createBox(new Box(addr, 0, p));
+		}
+
+		// TODO better way to generate
+		return null;
 	}
 }

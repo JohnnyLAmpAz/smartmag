@@ -80,6 +80,20 @@ public class OrderModel extends BaseModel {
 	}
 
 	/**
+	 * Se preparabile, genera movimentazioni e cambia stato da IN_ATTESA a
+	 * IN_SVOLGIMENTO.
+	 */
+	public void approva() {
+		if (ordine.getStato() != StatoOrdine.IN_ATTESA)
+			throw new IllegalStateException("Ordine non IN_ATTESA!");
+		if (MovimenModel.generatedMovimsOfOrder(ordine.getId()))
+			throw new IllegalStateException("Movimentazioni già generate!");
+		if (!isPreparabile())
+			throw new IllegalStateException("Ordine non preparabile!");
+		MovimenModel.generateOrderMovimsOfOrder(ordine.getId());
+	}
+
+	/**
 	 * Crea un nuovo record dell'ordine usando l'ordine del modello
 	 */
 	private void createOrdineRecord()
@@ -293,11 +307,13 @@ public class OrderModel extends BaseModel {
 
 	/**
 	 * Verifica se vi è la disponibilità per tutti gli elementi della "lista
-	 * della spesa".
+	 * della spesa" se si tratta di un ordine in uscita.
 	 * 
 	 * @return true se ci sono abbastanza prodotti, false se altrimenti
 	 */
 	public boolean isPreparabile() {
+		if (ordine.getTipo() == TipoOrdine.IN)
+			return true;
 		for (Map.Entry<Prodotto, Integer> entry : ordine.getProdotti()
 				.entrySet()) {
 			Prodotto p = entry.getKey();
