@@ -7,11 +7,11 @@ Come modello di sviluppo, è stato scelto di utilizzare RAD (Rapid Application D
 caratterizzato da:
 
 - _Protoyping:_  
-  Lo sviluppo del progetto è basato sulla realizzazione di prototipi. In particolare è stata usata la prototipazione evolutiva, ovvero che dopo
-  aver completato il prototipo, quest'ultimo non viene buttato, ma viene utilizzato come base per realizzare la versione definitiva del software.
+  Lo sviluppo del progetto è stato basato sulla realizzazione di prototipi. In particolare, è stata usata la prototipazione evolutiva, ovvero che dopo
+  aver completato il prototipo, quest'ultimo non viene "buttato", ma viene utilizzato come base per realizzare la versione definitiva del software.
 
 - _Utilizzo della tecnica del time boxing:_  
-  Lo sviluppo del progetto è stato suddiviso in diverse attività. A ciascuna di queste è stato dedicato un tempo di realizzazione determinato in base alla complessità del lavoro da svolgere:  
+  Lo sviluppo del progetto è stato suddiviso in diverse attività. A ciascuna di queste, è stato dedicato un tempo di realizzazione determinato in base alla complessità del lavoro da svolgere:  
   
   | Time box | Attività |
   |----------|----------|
