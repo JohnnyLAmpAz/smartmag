@@ -6,20 +6,28 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
+import javax.swing.RowFilter;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.TableRowSorter;
 
+import smartmag.data.Ordine;
+import smartmag.data.StatoOrdine;
 import smartmag.data.TipoUtente;
 import smartmag.data.Utente;
 import smartmag.db.Db;
+import smartmag.models.OrderModel;
+import smartmag.models.ui.OrderTableModel;
 import smartmag.ui.utils.BasicWindow;
 
 /**
@@ -151,7 +159,57 @@ public class MainWindow extends BasicWindow {
 
 				// UI specifica per MAGAZZINIERE QUALIFICATO
 				if (utente.getTipo() == TipoUtente.QUALIFICATO) {
-					// TODO
+
+					// Interfaccia per approvare rifornimenti ricavata da frame
+					// tabella ordini
+					TabellaOrdini frame = new TabellaOrdini();
+					TableRowSorter<OrderTableModel> sorter = null;
+					sorter = new TableRowSorter<>(frame.modello);
+					frame.tabellaOrdini.setRowSorter(sorter);
+
+					// Filtro per mostrare solo gli ordini in entrata
+					RowFilter<OrderTableModel, Integer> rf = null;
+					rf = new RowFilter<OrderTableModel, Integer>() {
+
+						@Override
+						public boolean include(
+								Entry<? extends OrderTableModel, ? extends Integer> entry) {
+							int orderId = (Integer) entry.getValue(0);
+							Ordine ordine = OrderModel
+									.getOrderModelById(orderId).getOrdine();
+							return !ordine.isOutgoing();
+						}
+					};
+					sorter.setRowFilter(rf);
+
+					// Metto dei pulsanti per approvare al posto di tutti gli
+					// altri definiti da TabellaOrdini
+					frame.btnPanel.removeAll();
+					JButton btnApprova = new JButton("Approva rifornimento");
+					btnApprova.addActionListener(new ActionListener() {
+
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							OrderModel om = OrderTableModel.getOrderModelAt(
+									frame.tabellaOrdini.getSelectedRow());
+							if (om == null)
+								JOptionPane.showMessageDialog(MainWindow.this,
+										"Nessun rifornimento selezionato!",
+										"Errore", JOptionPane.ERROR_MESSAGE);
+							else if (om.getOrdine()
+									.getStato() != StatoOrdine.IN_ATTESA)
+								JOptionPane.showMessageDialog(MainWindow.this,
+										"Ordine non in attesa!", "Errore",
+										JOptionPane.ERROR_MESSAGE);
+							else
+								om.approva();
+						}
+					});
+					frame.btnPanel.add(btnApprova);
+
+					// Aggiungo tab rifornimenti
+					tabbedPane.add("Approvazione Rifornimenti",
+							frame.getContentPane());
 				}
 
 				break;

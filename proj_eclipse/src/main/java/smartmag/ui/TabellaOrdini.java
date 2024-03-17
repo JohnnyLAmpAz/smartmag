@@ -26,8 +26,9 @@ public class TabellaOrdini extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	private JTable tabellaOrdini;
-	private OrderTableModel modello = new OrderTableModel();
+	JTable tabellaOrdini;
+	OrderTableModel modello = new OrderTableModel();
+	JPanel btnPanel;
 
 	/**
 	 * Launch the application.
@@ -63,7 +64,7 @@ public class TabellaOrdini extends JFrame {
 		tabellaOrdini = new JTable(modello);
 		scrollPane.setViewportView(tabellaOrdini);
 
-		JPanel btnPanel = new JPanel();
+		btnPanel = new JPanel();
 		FlowLayout flowLayout = (FlowLayout) btnPanel.getLayout();
 		flowLayout.setHgap(25);
 		contentPane.add(btnPanel, BorderLayout.SOUTH);
