@@ -1,17 +1,24 @@
 # Software Design
 
-La volontà del team di avere un software a basso accoppiamento e ad alta coesione ha portato alla scelta del pattern MVC per lo sviluppo dell'applicazione.  
-L'applicazione infatti è stata scomposta in tre componenti principali: Model, View e Controller.
-A livello di codice, view e controller sono stati accorpati nelle stesse classi, questo a causa della forte correlazione tra i due.
-- Model: contiene i metodi che permettono l'accesso ai dati nel database e gestisce la businnes logic del software.
-- View: si occupa di visualizzare i dati e gestisce le interazioni con l'utente.
-- Controller: si occupa di ricevere i comandi dell'utente e attraverso la view, richiede funzionalità messe a disposizione dal modello.
+## Pattern MVC
+
+Al fine di fornire una certa *modularità* al sistema sviluppato, abbiamo deciso di implementare il *pattern MVC* per lo sviluppo dell'applicazione.
+L'applicazione infatti è stata scomposta in tre componenti principali: *Model*, *View* e *Controller*.
+A livello di codice, *view e controller sono stati accorpati* nelle stesse classi, questo a causa della forte correlazione tra i due.
+- *Model*: contiene i metodi che permettono l'accesso ai dati nel database e implementa la businnes logic del software.
+- *View*: si occupa di visualizzare i dati e gestisce le interazioni con l'utente.
+- *Controller*: si occupa di ricevere i comandi dell'utente nella view e tradurle in azioni attraverso le funzionalità messe a disposizione dal modello.
+
+### Ruolo chiave dei modelli
+
+I modelli costituiscono la parte più importante del sistema, effettuando i dovuti controlli sulle azioni intraprese dall'utente e assicurando l'integrità dei dati che vengono poi resi persistenti sincronizzandoli nel database. Per questo abbiamo scelto di realizzare i casi di test su di essi.
 
 
 ## Altri design pattern utilizzati
 
-#### Singleton pattern
-Questo pattern è stato molto utiler per tutte le classi in cui si voleva avere un'unica istanza.  
+### Singleton pattern
+
+Questo pattern è stato molto utile per tutte le classi in cui si voleva avere un'unica istanza.  
 Nel progetto è stato utilizzato per:
 
 - _Modelli:_ le istanze dei modelli sono uniche. Questo perchè più view potrebbero necessitare di uno stesso modello, pertanto se esiste una sola
@@ -20,7 +27,7 @@ Nel progetto è stato utilizzato per:
   
 - _DB:_ la connessione è unica, non possono essere create più istanze di connessioni con esso. In questo modo tutti i modelli lavorano sulla stessa istanza di connessione con il database.
 
-#### Observer pattern
+### Observer pattern
 È stato utilizzato questo pattern per ridurre l'interconnessione tra i modelli e la view.
 Facendo in questo modo, è stato possibile svincolare i modelli dalle view, così in futuro se si vorrà aggiornare la UI del sistema sarà possibile farlo mantenendo inalterati i modelli.
 Ciascun modello (Observable) contiene una lista di observer, i quali ricevono una notifica ad ogni modifica dei dati.
@@ -28,7 +35,7 @@ Ogni view (Observer) è stata registrata al relativo modello per ricevere le not
 
 ## Misurazione del codice
 ### JDepend:
-Per misurare le metriche indicate nella tabella seguente e valutare così la qualità della progettazione del software, abbiamo fatto ricorso a JDepend.  
+Per misurare le metriche indicate nella tabella seguente e valutare così la qualità della progettazione del software, abbiamo fatto ricorso a *JDepend*.  
 Dalla tabella si può notare che il livello di astrazione del software è generalmente basso. Per aumentare questo valore, si dovrà effettuare del refactoring in fase di manutenzione.
 
 | Package            | CC | AC | Ca(afferente) | Ce(efferente)  | Astrazione | Instabilità |
@@ -48,7 +55,7 @@ Dove:
 - Ce: accoppiamento efferente
 
 ### Structure101:
-Per avere un'ulteriore valutazione sulle dipendenze delle classi e dei pacchetti, abbiamo utilizzato Structure101.  
+Per avere un'ulteriore valutazione sulle dipendenze delle classi e dei pacchetti, abbiamo utilizzato *Structure101*.  
 Principalmente sono state valutate le classi contenute nei pacchetti e quindi il loro livello di coesione e la presenza di loop.
 
 - Package "data":  

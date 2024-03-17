@@ -37,15 +37,15 @@ caratterizzato da:
   | 7 | Scrivere il codice di test |
 
 - _Processo di triage:_  
-  È stata utilizzata la tecnica MoSCoW per assegnare a ciascun requisito una priorità.  
+  È stata utilizzata la tecnica *MoSCoW* per assegnare a ciascun requisito una priorità.  
   Grazie al processo di triage, è stato possibile concentrarsi sui requisiti più rilevanti per lo sviluppo del progetto e quindi di sfruttare al meglio il tempo a disposizione. 
     
 - _Frequenti riunioni informali:_  
   Queste riunioni hanno avuto lo scopo di mantenere aggiornati i membri del team sullo stato del progetto e di poter condividere idee e opinioni in merito a ciò che si stava sviluppando.
-  In particolare, si sono tenute sessioni di brainstorming, dove sono emerse molte idee che hanno contribuito allo sviluppo del progetto.
+  In particolare, si sono tenute sessioni di *brainstorming*, dove sono emerse molte idee che hanno contribuito allo sviluppo del progetto.
   
 - _Pair programming:_  
-  Grazie all'utilizzo di strumenti come "code together" è stato possibile collaborare durante lo sviluppo del codice.  
+  Grazie all'utilizzo di strumenti come *CodeTogether* è stato possibile collaborare durante lo sviluppo del codice.  
   È stata utilizzata questa tecnica soprattutto nella realizzazione delle parti di codice più complesse e più impattanti per il progetto.
   
 - _Continuos improvement:_  

@@ -7,8 +7,8 @@ Questo modo di organizzare il team è stato molto utile, non solo per accrescere
 Infatti, una suddivisione equa del lavoro, soprattutto nella fase di sviluppo del codice, ha permesso a ciascun membro di approfondire vari argomenti (come ad esempio l'utilizzo di un DB).
 
 Proprio come una squadra SWAT, sono stati utilizzati canali di comunicazione informali che si possono distinguere in:
-- _Comunicazione sincrona:_ sono state organizzate riunioni su slack e su discord
-- _Comunicazione asincrona:_ sono stato utilizzati issue/commenti su GitHub
+- _Comunicazione sincrona:_ sono state organizzate riunioni su *Slack* e su *Discord*
+- _Comunicazione asincrona:_ sono stato utilizzati issue/commenti su *GitHub*
 
 Pur non essendo stata fatta una distinzione sul tipo di lavoro assegnato, per procedere più rapidamente con lo sviluppo del progetto, i componenti del team si sono dedicati maggiormente ai campi di cui hanno maggior conoscenza e quindi capacità di esecuzione.
 
@@ -16,6 +16,6 @@ Pur non essendo stata fatta una distinzione sul tipo di lavoro assegnato, per pr
 |--|------------------------|------------------|-------------------|---------|----------------|
 | Davide |                  |          X       |         X         |         |       X        | 
 | Lorenzo |         X       |          X       |         X         |    X    |                |
-| Massimiliano |            |          x       |         X         |    X    |                |
+| Massimiliano |            |          X       |         X         |    X    |                |
 
 > La tabella precedente evidenzia solo la differenziazione in termini di tempo dedicato ai vari lavori, ma tutti i membri hanno contribuito a ciascuno di essi.

@@ -11,8 +11,9 @@ La repository è composta da due cartelle principali:
 
 ## Issues
 
-Nei vari incontri periodici sono stati creati degli issues. Ognuno di quseti contiene la descrizione del compito da svolgere e l’indicazione della persona a cui è stato assegnato.
+Nei vari incontri periodici sono stati creati degli issues. Ognuno di questi contiene la descrizione del compito da svolgere e l’indicazione della persona a cui è stato assegnato.
 Gli issues sono stati usati anche per segnalare i problemi che si sono riscontrati o le modifiche che andrebbero apportate al progetto.
+
 La gestione delle modifiche/aggiunte all'interno del programma è stata svolta seguendo la procedura:  
 1. **Apertura di un issue contente la descrizione del problema/modifica**  
    _Esempio:_
