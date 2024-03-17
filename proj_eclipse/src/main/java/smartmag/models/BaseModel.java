@@ -29,6 +29,21 @@ public abstract class BaseModel {
 	}
 
 	/**
+	 * Ottiene una nuova connessione al DB sqlite al persorso specificato
+	 * 
+	 * @param dbPath percorso del file sqlite
+	 */
+	public static void setDifferentDbPath(String dbPath) {
+		try {
+
+			// Nuova istanza Db su file diverso. Utile per testing
+			DSL = Db.getInstance(dbPath).getDslContext();
+		} catch (IOException e) {
+			throw new Error("Error occurred while reading DB file");
+		}
+	}
+
+	/**
 	 * Lista di ChangeListeners che verranno notificati con
 	 * notifyChangeListeners
 	 */
