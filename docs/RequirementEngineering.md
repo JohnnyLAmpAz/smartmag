@@ -2,26 +2,26 @@
 
 ## Elicitazione dei requisiti
 
-Per quanto riguarda questa fase, è stato fondamentale confrontarsi con persone che hanno lavorato nel settore della logistica.  
-Per riuscire ad ottenere tutte le informazioni necessarie alla realizzazione del sistema, sono state usate le seguenti tecniche di elicitazione dei requisti:
+In questa fase è stato fondamentale confrontarsi con persone che hanno lavorato nel settore della logistica.
+Per riuscire ad ottenere tutte le informazioni necessarie alla realizzazione del sistema sono state usate le seguenti tecniche di elicitazione dei requisiti:
 
 - __Intervistare/chiedere:__
 
   Sono state organizzate delle riunioni, nelle quali, mediante la tecnica del brainstorming, è stato possibile identificare alcuni dei requisiti     
   necessari allo sviluppo del sistema.  
   La sessione di brainstorming è stata suddivisa in due fasi principali:
-  - La prima fase, il cui obiettivo principale è stato generare il maggior numero possibile di idee.
-  - La seconda fase, durante la quale l’obiettivo è stato selezionare, tra le idee generate, quelle più utili per la realizzazione del sistema   
-    finale.
+  - La prima aveva l'obiettivo di generare il maggior numero possibile di idee.
+  - La seconda,invece, di selezionare tra le idee generate quelle più utili alla realizzazione del sistema finale.
   
 - __Analisi delle attività:__
   
   Sono state analizzate le varie attività che il personale di un magazzino deve svolgere nel corso della giornata lavorativa.  
-  Da questa analisi è stato possibile definire i seguenti "attori" e i corrispettivi compiti:
+  Da questa analisi è stato possibile definire i seguenti "attori" e i relativi compiti:
   
   - _Magazziniere:_
     
-    Movimenta i prodotti da una locazione all’altra, preleva il prodotto, verifica la disponibilità e la locazione del prodotto mediante il suo         codice. Deve inoltre avere la possibilità di modificare le quantità di prodotti a magazzino.
+    Movimenta i prodotti da una locazione all’altra, preleva il prodotto, verifica la disponibilità e la locazione del prodotto mediante il suo codice.
+    Altresì deve avere la possibilità di modificare le quantità di prodotti a magazzino.
     
   - _Magazzinieri qualificati:_
 
@@ -34,24 +34,23 @@ Per riuscire ad ottenere tutte le informazioni necessarie alla realizzazione del
     
   - _Manager magazzino:_
 
-    Gestione del personale: ruoli, utenti, statistiche lavorative sul personale.
-    Ha accesso alle informazioni di accounting (storico). Gestisce i prodotti (aggiunta di nuovi, rimozione, etc.) e li assegna ai box. 
+    Gestisce il personale: stabilisce ruoli, definisce gli utenti e genera le statistiche lavorative sul personale. Ha accesso alle informazioni di accounting (storico).
+    Gestisce i prodotti (aggiunta di nuovi, rimozione, etc.) e li assegna ai box.
 
   - _Sistema informativo:_
   
-    Se le rimanenze di prodotto scendono sotto una certa soglia, invia una notifica al responsabile ordini se non ha già provveduto al riordino.
+    Quando le rimanenze di prodotto scendono sotto una certa soglia, invia una notifica al responsabile ordini se non ha già provveduto al riordino.
     Gestisce l'accounting: storico degli spostamenti/modifiche prodotti. 
 
 - __Analisi degli scenari:__
  
   È stato molto utile ascoltare i racconti dei lavoratori nel settore della logistica riguardanti alcune delle situazioni che si sono presentate 
-  nel corso della loro esperienza lavorativa. Grazie a questa tecnica, infatti, è stato possibile elicitare quei requisiti che solo chi ha lavorato 
-  nel settore logistico è in grado di fornire.
+  nel corso della loro esperienza lavorativa. Grazie a queste testimonianze è stato possibile elicitare quei requisiti che solo chi ha lavorato nel settore logistico è in grado di fornire.
 
 - __Derivazione da sistema esistente:__
   
   Poiché la fase di elicitazione dei requisiti si è basata in gran parte sull’esperienza dei lavoratori nel settore logistico, inevitabilmente   
-  alcune delle funzionalità implementate nel nostro progetto derivano da sistemi già esistenti.
+  alcune delle funzionalità implementate nel progetto derivano da sistemi già esistenti.
 
 ## Specifica dei requisiti
 
@@ -69,21 +68,21 @@ Per riuscire ad ottenere tutte le informazioni necessarie alla realizzazione del
     
 2. Per accedere al software è richiesto il log-in dell'utente, dove andranno inseriti Matricola e password.
   
-3. Il manager, si dovrà occupare della gestione del personale.
-   1. Deve poter creare gli utenti di tutto il personale inserendo: matricola, nome, cognome, ruolo, password.
-   2. Deve poter accedere alla lista dei prodotti presenti a magazzino
-   3. Deve poter aggiungere o rimuovere prodotti nel magazzino
-   4. Deve poter assegnare un box ed una quantità a ciascun prodotto
-   5. Deve poter modificare le quantità dei prodotti
+3. Il manager, si dovrà occupare della gestione del personale.Egli dovrà poter:
+   1. Creare gli utenti di tutto il personale inserendo: matricola, nome, cognome, ruolo, password.
+   2. Accedere alla lista dei prodotti presenti a magazzino
+   3. Aggiungere o rimuovere prodotti nel magazzino
+   4. Assegnare un box ed una quantità a ciascun prodotto
+   5. Modificare le quantità dei prodotti
 
-4. Il responsabile ordini si occupa della gestione degli ordini.
-   1. Deve poter accedere alla lista dei prodotti presenti a magazzino
-   2. Deve poter accedere alla lista degli ordini
-   3. Deve poter aggiungere e rimuovere un ordine
-   4. L'inserimento di un ordine manualmente
-   5. L'inserimento di un ordine anche da file
-   6. Deve poter modificare un ordine se è in stato di attesa e non sono ancora state generate le relative movimentazioni
-   7. Può approvare le movimentazioni proposte dal sistema in seguito all'inserimento dell'ordine
+4. Il responsabile ordini si occupa della gestione degli ordini. Egli dovrà poter:
+   1. Accedere alla lista dei prodotti presenti a magazzino
+   2. Accedere alla lista degli ordini
+   3. Aggiungere e rimuovere un ordine
+   4. Inserire un ordine manualmente
+   5. Inserire un ordine da file
+   6. Modificare un ordine se è in stato di attesa e non sono ancora state generate le relative movimentazioni
+   7. Approvare le movimentazioni proposte dal sistema in seguito all'inserimento dell'ordine
 
 5. Le movimentazioni devono essere generate dal sistema a seguito dell'approvazione da parte del responsabile ordini.
    1. Per ogni prodotto presente nell'ordine deve essere generata una o più movimentazione.
