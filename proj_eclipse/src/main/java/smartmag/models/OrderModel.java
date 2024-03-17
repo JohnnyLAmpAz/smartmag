@@ -80,6 +80,20 @@ public class OrderModel extends BaseModel {
 	}
 
 	/**
+	 * Se preparabile, genera movimentazioni e cambia stato da IN_ATTESA a
+	 * IN_SVOLGIMENTO.
+	 */
+	public void approva() {
+		if (ordine.getStato() != StatoOrdine.IN_ATTESA)
+			throw new IllegalStateException("Ordine non IN_ATTESA!");
+		if (MovimenModel.generatedMovimsOfOrder(ordine.getId()))
+			throw new IllegalStateException("Movimentazioni già generate!");
+		if (!isPreparabile())
+			throw new IllegalStateException("Ordine non preparabile!");
+		MovimenModel.generateOrderMovimsOfOrder(ordine.getId());
+	}
+
+	/**
 	 * Crea un nuovo record dell'ordine usando l'ordine del modello
 	 */
 	private void createOrdineRecord()
@@ -161,10 +175,22 @@ public class OrderModel extends BaseModel {
 	}
 
 	/**
+	 * Contrassegna l'ordine come completato, modificando la data di
+	 * completamento.
+	 */
+	protected void markAsCompleted() {
+		LocalDate now = LocalDate.now();
+		StatoOrdine stato = StatoOrdine.COMPLETATO;
+		ordine.setStato(stato);
+		orderRecord.setStato(stato.name());
+		ordine.setDataCompletamento(now);
+		orderRecord.setDataco(now.toString());
+	}
+
+	/**
 	 * cancella il record dell'ordine nel modello poichè nel DB è stato messo
 	 * DELETE ON CASCADE, cancella anche i record id prodotti ordini
 	 */
-	@SuppressWarnings("unlikely-arg-type")
 	public void deleteOrdine() throws ParseException {
 		if (orderIsSavedInDb()) {
 			for (ProdottiordiniRecord por : listaProdottiOrdiniRecord) {
@@ -293,11 +319,13 @@ public class OrderModel extends BaseModel {
 
 	/**
 	 * Verifica se vi è la disponibilità per tutti gli elementi della "lista
-	 * della spesa".
+	 * della spesa" se si tratta di un ordine in uscita.
 	 * 
 	 * @return true se ci sono abbastanza prodotti, false se altrimenti
 	 */
 	public boolean isPreparabile() {
+		if (ordine.getTipo() == TipoOrdine.IN)
+			return true;
 		for (Map.Entry<Prodotto, Integer> entry : ordine.getProdotti()
 				.entrySet()) {
 			Prodotto p = entry.getKey();
@@ -530,6 +558,8 @@ public class OrderModel extends BaseModel {
 	public static OrderModel create(Ordine o)
 			throws SQLIntegrityConstraintViolationException, ParseException {
 
+		if (!o.isValid())
+			throw new IllegalArgumentException("Ordine non valido");
 		OrderModel om = getOrderModelOf(o);
 		om.createOrdineRecord();
 		om.createProdottoOrdineRecord();
@@ -588,8 +618,7 @@ public class OrderModel extends BaseModel {
 		System.out.println(prods);
 
 		Ordine o = new Ordine(getNextAvailableOrderId(), TipoOrdine.OUT,
-				StatoOrdine.IN_ATTESA, dem,
-				dco);
+				StatoOrdine.IN_ATTESA, dem, dco);
 		o.setProdotti(prodotti);
 		System.out.println(o.isValid());
 		System.out.println(dco + "    " + dem);

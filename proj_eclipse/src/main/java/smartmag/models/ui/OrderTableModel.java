@@ -55,18 +55,18 @@ public class OrderTableModel extends AbstractTableModel
 			i++;
 		}
 		switch (columnIndex) {
-		case 0:
-			return o.getId();
-		case 1:
-			return o.getTipo();
-		case 2:
-			return o.getDataEmissione();
-		case 3:
-			return o.getDataCompletamento();
-		case 4:
-			return o.getStato();
-		default:
-			throw new IllegalArgumentException();
+			case 0:
+				return o.getId();
+			case 1:
+				return o.getTipo();
+			case 2:
+				return o.getDataEmissione();
+			case 3:
+				return o.getDataCompletamento();
+			case 4:
+				return o.getStato();
+			default:
+				throw new IllegalArgumentException();
 		}
 	}
 
@@ -78,6 +78,11 @@ public class OrderTableModel extends AbstractTableModel
 	 * @return modello ordine
 	 */
 	public static OrderModel getOrderModelAt(int index) {
+
+		// No riga selezionata
+		if (index == -1)
+			return null;
+
 		// Riga (Utente)
 		OrderModel om = null;
 		int i = 0;

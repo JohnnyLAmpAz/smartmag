@@ -20,7 +20,6 @@ import javax.swing.table.TableRowSorter;
 import org.jooq.exception.IntegrityConstraintViolationException;
 
 import smartmag.data.Prodotto;
-import smartmag.models.BoxModel;
 import smartmag.models.ProductModel;
 import smartmag.models.ui.ProductTableModel;
 import smartmag.ui.utils.BasicWindow;
@@ -79,20 +78,6 @@ public class ProdottiTableFrame extends BasicWindow {
 
 		JPanel btnsPanel = new JPanel();
 		getContentPane().add(btnsPanel, BorderLayout.SOUTH);
-
-		// Refresh btn
-		JButton btnRefresh = new JButton("Aggiorna");
-		btnRefresh.setToolTipText("Aggiorna tutti i dati dal DB");
-		btnRefresh.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				ProductModel.refreshDataFromDb();
-				tableModel.stateChanged(null);
-				BoxModel.refreshDataFromDb();
-			}
-		});
-		btnsPanel.add(btnRefresh);
 
 		// Info btn
 		JButton btnOpen = new JButton("Info");
