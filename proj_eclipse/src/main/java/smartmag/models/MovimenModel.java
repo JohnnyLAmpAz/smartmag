@@ -549,7 +549,7 @@ public class MovimenModel extends BaseModel {
 			}
 		}
 		if (completed)
-			OrderModel.getOrderModelOf(ordine).setStato(StatoOrdine.COMPLETATO);
+			OrderModel.getOrderModelOf(ordine).markAsCompleted();
 
 		notifyChangeListeners(null);
 

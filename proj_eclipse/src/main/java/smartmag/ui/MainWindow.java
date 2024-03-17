@@ -29,7 +29,7 @@ import smartmag.ui.utils.BasicWindow;
 public class MainWindow extends BasicWindow {
 
 	private static final long serialVersionUID = 1L;
-	private static final MainWindow mainFrame = new MainWindow();
+	private static MainWindow mainFrame = new MainWindow();
 
 	private Utente utente;
 	private JPanel contentPane;
@@ -75,21 +75,6 @@ public class MainWindow extends BasicWindow {
 			}
 		});
 		mnSession.add(mntmQuit);
-
-		// DEV menu
-		JMenu mnDev = new JMenu("DEV");
-		menuBar.add(mnDev);
-
-		// Clear DB menu item
-		JMenuItem mntmClearDb = new JMenuItem("CLEAR DB");
-		mntmClearDb.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO dopo merge di testing-db
-			}
-		});
-		mnDev.add(mntmClearDb);
 
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));

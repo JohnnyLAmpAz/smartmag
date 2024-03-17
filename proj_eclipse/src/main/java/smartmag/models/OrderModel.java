@@ -175,10 +175,22 @@ public class OrderModel extends BaseModel {
 	}
 
 	/**
+	 * Contrassegna l'ordine come completato, modificando la data di
+	 * completamento.
+	 */
+	protected void markAsCompleted() {
+		LocalDate now = LocalDate.now();
+		StatoOrdine stato = StatoOrdine.COMPLETATO;
+		ordine.setStato(stato);
+		orderRecord.setStato(stato.name());
+		ordine.setDataCompletamento(now);
+		orderRecord.setDataco(now.toString());
+	}
+
+	/**
 	 * cancella il record dell'ordine nel modello poichè nel DB è stato messo
 	 * DELETE ON CASCADE, cancella anche i record id prodotti ordini
 	 */
-	@SuppressWarnings("unlikely-arg-type")
 	public void deleteOrdine() throws ParseException {
 		if (orderIsSavedInDb()) {
 			for (ProdottiordiniRecord por : listaProdottiOrdiniRecord) {

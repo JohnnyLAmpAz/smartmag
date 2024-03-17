@@ -18,6 +18,7 @@ import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 
 import smartmag.data.StatoOrdine;
+import smartmag.data.TipoOrdine;
 import smartmag.models.OrderModel;
 import smartmag.models.ui.OrderTableModel;
 
@@ -100,7 +101,7 @@ public class TabellaOrdini extends JFrame {
 		});
 		btnPanel.add(btnModifica);
 
-		// Approvazione ordine: passa da IN_ATTESA a IN_SVOLGIMENTO
+		// Approvazione ordine OUT: passa da IN_ATTESA a IN_SVOLGIMENTO
 		JButton btnApprova = new JButton("Approva");
 		btnApprova.setBorder(BorderFactory.createLineBorder(Color.ORANGE));
 		btnApprova.addActionListener(new ActionListener() {
@@ -113,7 +114,15 @@ public class TabellaOrdini extends JFrame {
 							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-				if (!om.getOrdine().getStato().equals(StatoOrdine.IN_ATTESA)) {
+				if (om.getOrdine().getTipo() != TipoOrdine.OUT) {
+					JOptionPane.showMessageDialog(TabellaOrdini.this,
+							"Gli ordini di rifornimento vengono approvati dal "
+									+ "magazziniere qualificato "
+									+ "all'arrivo della merce!",
+							"Errore", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				if (om.getOrdine().getStato() != StatoOrdine.IN_ATTESA) {
 					JOptionPane.showMessageDialog(TabellaOrdini.this,
 							"Ordine non in attesa!", "Errore",
 							JOptionPane.ERROR_MESSAGE);

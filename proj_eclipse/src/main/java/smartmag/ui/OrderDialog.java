@@ -39,7 +39,6 @@ public class OrderDialog extends JDialog {
 	private static final long serialVersionUID = 1L;
 
 	private final JPanel contentPanel = new JPanel();
-	private JTextField campoDataEm;
 	private JComboBox<TipoOrdine> comboTipo;
 	private JComboBox<Prodotto> comboProdotti;
 	private JTextField campoQuantità;
@@ -57,13 +56,9 @@ public class OrderDialog extends JDialog {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		try {
-			OrderDialog dialog = new OrderDialog();
-			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			dialog.setVisible(true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		OrderDialog dialog = new OrderDialog();
+		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		dialog.setVisible(true);
 	}
 
 	/**
@@ -85,19 +80,6 @@ public class OrderDialog extends JDialog {
 		contentPanel.setLayout(null);
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		{
-			campoDataEm = new JTextField();
-			campoDataEm.setColumns(10);
-			campoDataEm.setBounds(154, 55, 319, 33);
-			campoDataEm.setText(LocalDate.now().toString());
-			contentPanel.add(campoDataEm);
-		}
-		{
-			JLabel lblDataEm = new JLabel("Data emissione");
-			lblDataEm.setFont(new Font("Tahoma", Font.PLAIN, 15));
-			lblDataEm.setBounds(10, 55, 151, 33);
-			contentPanel.add(lblDataEm);
-		}
-		{
 			JLabel lblTipo = new JLabel("Tipo");
 			lblTipo.setFont(new Font("Tahoma", Font.PLAIN, 15));
 			lblTipo.setBounds(10, 11, 84, 33);
@@ -107,6 +89,7 @@ public class OrderDialog extends JDialog {
 		comboTipo = new JComboBox<TipoOrdine>();
 		comboTipo.setModel(
 				new DefaultComboBoxModel<TipoOrdine>(TipoOrdine.values()));
+		comboTipo.setSelectedItem(TipoOrdine.OUT);
 		comboTipo.setBounds(154, 11, 319, 33);
 		contentPanel.add(comboTipo);
 
@@ -127,8 +110,6 @@ public class OrderDialog extends JDialog {
 				return new JLabel(s);
 			}
 		});
-		comboProdotti.addItemListener(
-				e -> System.out.println(comboProdotti.getSelectedItem()));
 
 		comboProdotti.setBounds(154, 326, 319, 33);
 		contentPanel.add(comboProdotti);
@@ -145,6 +126,7 @@ public class OrderDialog extends JDialog {
 
 		campoQuantità = new JTextField();
 		campoQuantità.setColumns(10);
+		campoQuantità.setText("1");
 		campoQuantità.setBounds(154, 370, 319, 33);
 		contentPanel.add(campoQuantità);
 
@@ -161,7 +143,7 @@ public class OrderDialog extends JDialog {
 		contentPanel.add(btnEliminaProdotto);
 
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(10, 99, 463, 206);
+		scrollPane.setBounds(10, 60, 463, 250);
 		contentPanel.add(scrollPane);
 
 		JPanel panel = new JPanel();
@@ -190,21 +172,10 @@ public class OrderDialog extends JDialog {
 		}
 		btnInserisciOrdine.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String em = campoDataEm.getText();
 				TipoOrdine tipo = (TipoOrdine) comboTipo.getSelectedItem();
-				LocalDate ldem = null;
 
-				try {
-					ldem = LocalDate.parse(em);
-				} catch (Exception e1) {
-					// TODO
-				}
-
-				System.out.println("ID: " + orderId + "em" + em + "stato"
-						+ orderStatus + "tipo" + tipo);
-
-				Ordine o = new Ordine(orderId, tipo, orderStatus, ldem, null,
-						prodotti);
+				Ordine o = new Ordine(orderId, tipo, orderStatus,
+						LocalDate.now(), null, prodotti);
 
 				try {
 					if (orderModel != null) {
@@ -233,7 +204,6 @@ public class OrderDialog extends JDialog {
 
 		});
 
-//		tableProdotti = new JTable();
 		tableProdotti = new JTable(modelloTabProductOrder);
 		// TODO capire come mai non viene visualizzato in WindowBuilder
 		scrollPane.setViewportView(tableProdotti); // da commentare per la
@@ -261,12 +231,11 @@ public class OrderDialog extends JDialog {
 		if (om != null) {
 			orderId = om.getOrdine().getId();
 			orderStatus = om.getOrdine().getStato();
-			setTitle("Ordine #" + Integer.toString(orderId));
-			campoDataEm.setText(om.getOrdine().getDataEmissione().toString());
+			setTitle("Ordine #%d del %s".formatted(orderId,
+					om.getOrdine().getDataEmissione().toString()));
 
 			comboTipo.setSelectedItem(om.getOrdine().getTipo());
 			comboTipo.setEnabled(false);
-			campoDataEm.setEnabled(false);
 
 			btnInserisciOrdine.setText("Applica modifiche");
 		}
