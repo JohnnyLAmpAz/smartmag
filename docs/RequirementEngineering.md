@@ -68,7 +68,7 @@ Per riuscire ad ottenere tutte le informazioni necessarie alla realizzazione del
     
 2. Per accedere al software è richiesto il log-in dell'utente, dove andranno inseriti Matricola e password.
   
-3. Il manager, si dovrà occupare della gestione del personale.Egli dovrà poter:
+3. Il manager, si dovrà occupare della gestione del personale. Egli dovrà poter:
    1. Creare gli utenti di tutto il personale inserendo: matricola, nome, cognome, ruolo, password.
    2. Accedere alla lista dei prodotti presenti a magazzino
    3. Aggiungere o rimuovere prodotti nel magazzino
