@@ -28,14 +28,22 @@ public abstract class BaseTest {
 	 * (no record) <b>apposito per i test</b> (diverso da quello di default).
 	 */
 	@BeforeEach
-	void setupDb() {
+	void setUpDb() {
 		BaseModel.setDifferentDbPath(DB_PATH);
 		try {
 			Db.getInstance().clearRecords();
 		} catch (IOException e) {
 			fail(e);
+			return;
 		}
+		postSetUp();
 	}
+
+	/**
+	 * Metodo eseguito prima di ogni caso di test, subito dopo aver resettato il
+	 * DB.
+	 */
+	protected abstract void postSetUp();
 
 	/**
 	 * Dopo l'esecuzione di tutti i casi di test, eliminiamo il file del
