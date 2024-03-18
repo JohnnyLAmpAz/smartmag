@@ -118,7 +118,7 @@ public class MainWindow extends BasicWindow {
 		switch (utente.getTipo()) {
 
 			// MANAGER
-			case TipoUtente.MANAGER: {
+			case MANAGER: {
 
 				// Gestione Prodotti
 				ProdottiTableFrame ptf = new ProdottiTableFrame();
@@ -139,7 +139,7 @@ public class MainWindow extends BasicWindow {
 			}
 
 			// RESPONSABILE
-			case TipoUtente.RESPONSABILE: {
+			case RESPONSABILE: {
 
 				// Gestione Ordini
 				TabellaOrdini to = new TabellaOrdini();
@@ -150,8 +150,8 @@ public class MainWindow extends BasicWindow {
 			}
 
 			// MAGAZZINIERI
-			case TipoUtente.QUALIFICATO:
-			case TipoUtente.MAGAZZINIERE: {
+			case QUALIFICATO:
+			case MAGAZZINIERE: {
 
 				// Gestione Ordini
 				tabbedPane.addTab("Movimentazioni", null,
