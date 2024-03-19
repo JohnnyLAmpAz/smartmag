@@ -3,6 +3,7 @@ package smartmag.ui;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Frame;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -21,6 +22,7 @@ import net.miginfocom.swing.MigLayout;
 import smartmag.data.Utente;
 import smartmag.db.Db;
 import smartmag.models.UtenteModel;
+import smartmag.ui.utils.BasicWindow;
 
 // TODO: maybe better JFrame instead of JDialog
 public class LoginDialog extends JDialog implements ActionListener {
@@ -33,17 +35,19 @@ public class LoginDialog extends JDialog implements ActionListener {
 	private JLabel lblPasswd;
 	private JLabel lblMatr;
 	private JPanel panel;
+	private JPanel panel_1;
+	private JLabel lblLogo;
 
 	/**
 	 * Create the dialog.
 	 */
 	private LoginDialog(Frame parent) {
 
-		super(parent, "Login", true); // true per modalità modale
+		super(parent, "Login", true);
+		setResizable(false);
 
 		// Set Icon
-		ImageIcon logo = new ImageIcon("img/icon.png");
-		this.setIconImage(logo.getImage());
+		this.setIconImage(BasicWindow.logo.getImage());
 
 		this.utente = null;
 
@@ -69,9 +73,9 @@ public class LoginDialog extends JDialog implements ActionListener {
 		{
 			panel = new JPanel();
 			getContentPane().add(panel, BorderLayout.CENTER);
-			panel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+			panel.setLayout(new BorderLayout(0, 0));
 			panel.add(contentPanel);
-			contentPanel.setBorder(new EmptyBorder(5, 5, 0, 5));
+			contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 			contentPanel.setLayout(new MigLayout("", "[][grow]", "[][]"));
 			{
 				lblMatr = new JLabel("Matricola");
@@ -93,9 +97,22 @@ public class LoginDialog extends JDialog implements ActionListener {
 				lblPasswd.setLabelFor(passwordField);
 				contentPanel.add(passwordField, "cell 1 1,growx");
 			}
+			{
+				panel_1 = new JPanel();
+				panel.add(panel_1, BorderLayout.NORTH);
+				{
+
+					// Immagine scritta logo scalata
+					lblLogo = new JLabel();
+					Image logoImage = BasicWindow.scrittaLogo.getImage()
+							.getScaledInstance(300, 92,
+									java.awt.Image.SCALE_SMOOTH);
+					lblLogo.setIcon(new ImageIcon(logoImage));
+					panel_1.add(lblLogo);
+				}
+			}
 		}
 		pack();
-		setResizable(false);
 		setLocationRelativeTo(parent);
 	}
 

@@ -11,6 +11,11 @@ import smartmag.data.Utente;
 
 class UtenteModelTest extends BaseTest {
 
+	@Override
+	protected void postSetUp() {
+		// TODO se serve
+	}
+
 	/**
 	 * Testa il login degli utenti
 	 */
