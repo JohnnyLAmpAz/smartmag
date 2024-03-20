@@ -344,16 +344,6 @@ public class ProductModel extends BaseModel {
 	}
 
 	/**
-	 * restituisceun prodotto a partire dal suo id
-	 * 
-	 * @param id identificativo del prodotto
-	 * @return
-	 */
-	public static Prodotto getProdById(int id) {
-		return instances.get(id).getProdotto();
-	}
-
-	/**
 	 * crea la treemap instances inserendo il mofello di tutti i prodotti
 	 * presenti nel db
 	 */
@@ -381,7 +371,7 @@ public class ProductModel extends BaseModel {
 	/**
 	 * restituisce un prodotto dalla mappa instances usando il suo id
 	 * 
-	 * @param id
+	 * @param identificativo del prodotto
 	 * @return
 	 */
 	public static Prodotto getProdottoFromId(int id) {
