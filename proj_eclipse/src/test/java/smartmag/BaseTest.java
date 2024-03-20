@@ -10,6 +10,11 @@ import org.junit.jupiter.api.BeforeEach;
 
 import smartmag.db.Db;
 import smartmag.models.BaseModel;
+import smartmag.models.BoxModel;
+import smartmag.models.MovimenModel;
+import smartmag.models.OrderModel;
+import smartmag.models.ProductModel;
+import smartmag.models.UtenteModel;
 
 /**
  * Superclasse astratta per le classi contenenti i casi di test che fa in modo
@@ -36,6 +41,14 @@ public abstract class BaseTest {
 			fail(e);
 			return;
 		}
+
+		// Refresh models data from DB
+		BoxModel.refreshDataFromDb();
+		MovimenModel.refreshDataFromDb();
+		OrderModel.refreshDataFromDb();
+		ProductModel.refreshDataFromDb();
+		UtenteModel.refreshDataFromDb();
+
 		postSetUp();
 	}
 

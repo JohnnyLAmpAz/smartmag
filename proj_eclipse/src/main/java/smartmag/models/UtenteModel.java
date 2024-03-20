@@ -20,13 +20,9 @@ public class UtenteModel extends BaseModel {
 	 * Mappa delle istanze dei modelli per implementare pattern Singleton per
 	 * ciascun utente (no + istanze modello di uno stesso utente)
 	 */
-	private static final TreeMap<String, UtenteModel> instances;
+	private static TreeMap<String, UtenteModel> instances;
 	static {
-		instances = new TreeMap<String, UtenteModel>();
-		Map<String, Record> res = DSL.select().from(UTENTE)
-				.fetchMap(UTENTE.MATRICOLA);
-		res.forEach((matr, r) -> instances.put(matr,
-				new UtenteModel((UtenteRecord) r)));
+		refreshDataFromDb();
 	}
 
 	/**
@@ -211,6 +207,15 @@ public class UtenteModel extends BaseModel {
 				m.put(matr, um);
 		});
 		return m;
+	}
+
+	public static void refreshDataFromDb() {
+		instances = new TreeMap<String, UtenteModel>();
+		Map<String, Record> res = DSL.select().from(UTENTE)
+				.fetchMap(UTENTE.MATRICOLA);
+		res.forEach((matr, r) -> instances.put(matr,
+				new UtenteModel((UtenteRecord) r)));
+		notifyChangeListeners(null);
 	}
 
 	// TODO: to UnitTest
