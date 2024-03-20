@@ -81,4 +81,13 @@ public abstract class BaseModel {
 			l.stateChanged(e);
 		}
 	}
+
+	/**
+	 * Aggiorna le istanze gestite recuperando i dati dal database.
+	 * 
+	 * Da implementare nei modelli effettivi (sottoclassi). L'intenzione era di
+	 * metterlo come abstract ma Java non permette metodi static abstract...
+	 */
+//	public abstract static void refreshDataFromDb() {
+//	}
 }

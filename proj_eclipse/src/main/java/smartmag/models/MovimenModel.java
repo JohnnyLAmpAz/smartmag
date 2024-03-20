@@ -20,7 +20,6 @@ import smartmag.data.StatoMovim;
 import smartmag.data.StatoOrdine;
 import smartmag.data.TipoOrdine;
 import smartmag.data.Utente;
-import smartmag.utils.PrintUtils;
 
 /**
  * Modello delle movimentazioni
@@ -30,10 +29,9 @@ public class MovimenModel extends BaseModel {
 	/**
 	 * Mappa delle istanze modelli per implementare il Singleton Pattern
 	 */
-	private static final TreeMap<MovimId, MovimenModel> instances;
+	private static TreeMap<MovimId, MovimenModel> instances;
 	static {
-		instances = new TreeMap<MovimId, MovimenModel>();
-		loadModelsFromDb();
+		refreshDataFromDb();
 	}
 
 	/**
@@ -143,7 +141,6 @@ public class MovimenModel extends BaseModel {
 		int reserved = 0;
 		TreeMap<MovimId, MovimenModel> mmm = getMovimsOnBox(boxAddr);
 		for (Map.Entry<MovimId, MovimenModel> entry : mmm.entrySet()) {
-			MovimId pk = entry.getKey();
 			MovimenModel mm = entry.getValue();
 			Movimentazione m = mm.getMovim();
 
@@ -175,30 +172,13 @@ public class MovimenModel extends BaseModel {
 		notifyChangeListeners(null);
 	}
 
-	// TODO to test
-	public static void main(String[] args) {
-
-		System.out.println("\nPRODOTTI:");
-		TreeMap<Integer, ProductModel> map = ProductModel.getAllProductModels();
-		map.forEach((id, m) -> System.out.println(m.getProdotto().toString()));
-		System.out.println("\nORDINI:");
-		TreeMap<Integer, OrderModel> omm = OrderModel.getAllOrderModels();
-		omm.forEach((id, om) -> System.out.println(om.getOrdine().toString()));
-
-		if (!MovimenModel.generatedMovimsOfOrder(5)) {
-			TreeMap<MovimId, MovimenModel> orderMovimsOf = MovimenModel
-					.generateOrderMovimsOfOrder(5);
-			PrintUtils.printMovimsMap(orderMovimsOf);
-		} else {
-			PrintUtils.printMovimsMap(MovimenModel.getMovimsModelsOfOrder(5));
-		}
-
-		System.out.println("\nMOVIMENTAZIONI:");
-		PrintUtils.printMovimsMap(MovimenModel.getAllMovimenModels());
-
-		System.out.println("\nBOX:");
-		TreeMap<String, BoxModel> bb = BoxModel.getAllBoxModels();
-		bb.forEach((addr, bm) -> System.out.println(bm.getBox().toString()));
+	/**
+	 * crea la treemap instances inserendo il modello di tutti i box presenti
+	 * nel db
+	 */
+	public static void refreshDataFromDb() {
+		instances = new TreeMap<>();
+		loadModelsFromDb();
 	}
 
 	/**
@@ -253,7 +233,7 @@ public class MovimenModel extends BaseModel {
 	 * @param orderId ID ordine
 	 * @return true se ne esiste anche solo una
 	 */
-	protected static boolean generatedMovimsOfOrder(int orderId) {
+	protected static boolean anyGeneratedMovimsOfOrder(int orderId) {
 		for (Map.Entry<MovimId, MovimenModel> entry : instances.entrySet()) {
 			MovimId pk = entry.getKey();
 			if (pk.getOrdineId() == orderId)
@@ -263,19 +243,20 @@ public class MovimenModel extends BaseModel {
 	}
 
 	/**
-	 * Dato un ordine, genera le movimentazioni relative ad esso, checkando che
-	 * le disponibilità.
+	 * Dato un ordine, genera le movimentazioni relative ad esso, checkando la
+	 * disponibilità, e imposta l'ordine come IN_SVOLGIMENTO.
 	 * 
 	 * @param orderId ID Ordine di cui generare le movimentazioni
 	 * @return Mappa delle movimentazioni generate
 	 */
 	protected static TreeMap<MovimId, MovimenModel> generateOrderMovimsOfOrder(
 			int orderId) {
-		if (generatedMovimsOfOrder(orderId))
+		if (anyGeneratedMovimsOfOrder(orderId))
 			throw new IllegalArgumentException("Movimentazioni gia' generate");
 
 		TreeMap<MovimId, MovimenModel> gen = new TreeMap<MovimId, MovimenModel>();
 		OrderModel orderModel = OrderModel.getOrderModelById(orderId);
+		Objects.requireNonNull(orderModel, "Ordine non esistente!");
 		Ordine o = orderModel.getOrdine();
 
 		// Check stato ordine
@@ -541,7 +522,6 @@ public class MovimenModel extends BaseModel {
 				ordine.getId());
 		boolean completed = true;
 		for (Map.Entry<MovimId, MovimenModel> entry : movims.entrySet()) {
-			MovimId pk = entry.getKey();
 			MovimenModel mm = entry.getValue();
 			if (mm.getMovim().getStato() != StatoMovim.COMPLETATA) {
 				completed = false;
@@ -554,16 +534,6 @@ public class MovimenModel extends BaseModel {
 		notifyChangeListeners(null);
 
 		// TODO: accountability; campo dataCompletamento?
-	}
-
-	/**
-	 * Verifica se esiste un record della movimentazione gestita
-	 * 
-	 * @return true se esiste un record, altrimenti false
-	 */
-	private boolean isSavedInDb() {
-		refreshFromDb();
-		return this.record != null;
 	}
 
 	/**
