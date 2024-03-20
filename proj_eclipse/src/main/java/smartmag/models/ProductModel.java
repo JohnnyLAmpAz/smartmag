@@ -6,6 +6,7 @@ import static org.jooq.impl.DSL.max;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 
 import org.jooq.Record;
@@ -178,15 +179,17 @@ public class ProductModel extends BaseModel {
 	 */
 	public void updateProdotto(Prodotto p)
 			throws SQLIntegrityConstraintViolationException {
+		Objects.requireNonNull(p, "prodotto null");
 		if (!isSavedInDb())
 			throw new SQLIntegrityConstraintViolationException(
 					"Prodotto #" + p.getId() + " non esiste!");
 
-		if (p.getId() != this.prodotto.getId() && checkId(p.getId())) {
-			throw new IllegalArgumentException("id gia usato");
+		if (p.getId() != this.prodotto.getId()) {
+			throw new IllegalArgumentException("id diverso");
 		}
 		record = (ProdottoRecord) fetchProdById(p.getId());
 		copyProdottoIntoRecord(p, record);
+		this.prodotto = p;
 		record.store(); // UPDATE con UpdatableRecord
 		notifyChangeListeners(null);
 	}
@@ -288,6 +291,9 @@ public class ProductModel extends BaseModel {
 	 * @param r record nelquale copiare i dati del prodotto
 	 */
 	private static void copyProdottoIntoRecord(Prodotto p, ProdottoRecord r) {
+		if (r == null) {
+
+		}
 		r.setNome(p.getNome());
 		r.setDescrizione(p.getDescr());
 		r.setPeso(p.getPeso());
@@ -375,6 +381,11 @@ public class ProductModel extends BaseModel {
 	 * @return
 	 */
 	public static Prodotto getProdottoFromId(int id) {
-		return instances.get(id).getProdotto();
+
+		ProductModel pm = instances.get(id);
+		if (pm == null) {
+			throw new IllegalArgumentException("prodotto inesistente");
+		}
+		return pm.getProdotto();
 	}
 }
