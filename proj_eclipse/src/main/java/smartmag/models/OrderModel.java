@@ -46,7 +46,7 @@ public class OrderModel extends BaseModel {
 	 * @param order ordine del quale si vuole generare il modello
 	 */
 	private OrderModel(Ordine order) {
-		this.ordine = order;
+		this.ordine = order.clone();
 		this.orderRecord = fetchOrderRecordById(order.getId());
 		// la prima volta che si crea il modello, poichè la lista dei prodotti è
 		// vuota, la prende dal db e la aggiorna anche nell'oggetto ordine
