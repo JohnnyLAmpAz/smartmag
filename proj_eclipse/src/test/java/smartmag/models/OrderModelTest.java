@@ -11,6 +11,7 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.TreeMap;
 
 import org.jooq.exception.IntegrityConstraintViolationException;
 import org.junit.jupiter.api.Test;
@@ -28,7 +29,7 @@ class OrderModelTest extends BaseTest {
 	public static LocalDate dcoStatic;
 
 	/**
-	 * verifica che l'ordine creato sia uguale a quello restituito
+	 * Verifica che l'ordine creato sia uguale a quello restituito
 	 * 
 	 * @throws SQLIntegrityConstraintViolationException
 	 * @throws ParseException
@@ -50,7 +51,54 @@ class OrderModelTest extends BaseTest {
 	}
 
 	/**
-	 * Testa anche il metodo isPreparabile e setStato di OrderModel isValid di
+	 * Verifica se tutti i modelli degli ordini restituiti corrispondono a
+	 * quelli generati
+	 * 
+	 * @throws SQLIntegrityConstraintViolationException
+	 * @throws ParseException
+	 */
+	@Test
+	void testGetAllOrderModels()
+			throws SQLIntegrityConstraintViolationException, ParseException {
+		Ordine o = new Ordine(OrderModel.getNextAvailableOrderId(),
+				TipoOrdine.OUT,
+				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+		o.setProdotti(prodottiStatic);
+		OrderModel om = OrderModel.create(o);
+
+		Ordine o1 = new Ordine(OrderModel.getNextAvailableOrderId() + 1,
+				TipoOrdine.IN,
+				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+		o1.setProdotti(prodottiStatic);
+		OrderModel om1 = OrderModel.create(o1);
+		TreeMap<Integer, OrderModel> mapOm = new TreeMap<>();
+		mapOm.put(o.getId(), om);
+		mapOm.put(o1.getId(), om1);
+
+		assertEquals(mapOm, OrderModel.getAllOrderModels());
+
+	}
+
+	/**
+	 * Testa se lo stato dell'ordine viene cambiato in completato
+	 * 
+	 * @throws SQLIntegrityConstraintViolationException
+	 * @throws ParseException
+	 */
+	@Test
+	void testMarkAsCompleted()
+			throws SQLIntegrityConstraintViolationException, ParseException {
+		Ordine o = new Ordine(OrderModel.getNextAvailableOrderId() + 20,
+				TipoOrdine.OUT,
+				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+		o.setProdotti(prodottiStatic);
+		OrderModel om = OrderModel.create(o);
+		om.markAsCompleted();
+		assertTrue(o.getStato().equals(StatoOrdine.COMPLETATO));
+	}
+
+	/**
+	 * Testa anche il metodo isPreparabile, setStato di OrderModel e isValid di
 	 * Ordine indirettamente
 	 * 
 	 * @throws SQLIntegrityConstraintViolationException
@@ -79,6 +127,13 @@ class OrderModelTest extends BaseTest {
 				() -> MovimenModel.generateOrderMovimsOfOrder(o.getId()));
 	}
 
+	/**
+	 * Viene testata la modifica di un ordine, viene usato un ordine di test
+	 * valido e uno non valido
+	 * 
+	 * @throws SQLIntegrityConstraintViolationException
+	 * @throws ParseException
+	 */
 	@Test
 	void testUpdateOrdine()
 			throws SQLIntegrityConstraintViolationException, ParseException {
@@ -101,18 +156,12 @@ class OrderModelTest extends BaseTest {
 				() -> om.updateOrdine(o2));
 	}
 
-	@Test
-	void testInserisciProdotto() {
-	}
-
-	@Test
-	void testUpdateStatoOrdine() {
-	}
-
-	@Test
-	void testMarkAsCompleted() {
-	}
-
+	/**
+	 * Viene testato il metodo che cancella un ordine
+	 * 
+	 * @throws SQLIntegrityConstraintViolationException
+	 * @throws ParseException
+	 */
 	@Test
 	void testDeleteOrdine()
 			throws SQLIntegrityConstraintViolationException, ParseException {
@@ -127,6 +176,13 @@ class OrderModelTest extends BaseTest {
 		assertFalse(om.orderIsSavedInDb());
 	}
 
+	/**
+	 * Viene testato il metodo che permette di modificare le quantità di un
+	 * prodotto relativo ad un ordine.
+	 * 
+	 * @throws SQLIntegrityConstraintViolationException
+	 * @throws ParseException
+	 */
 	@Test
 	void testUpdateQtaProdottoOrdine()
 			throws SQLIntegrityConstraintViolationException, ParseException {
@@ -240,10 +296,6 @@ class OrderModelTest extends BaseTest {
 		 */
 		assertThrows(IntegrityConstraintViolationException.class,
 				() -> OrderModel.create(onv));
-	}
-
-	@Test
-	void testGetAllOrderModels() {
 	}
 
 	@Override
