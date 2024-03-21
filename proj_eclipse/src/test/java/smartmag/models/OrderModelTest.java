@@ -26,7 +26,6 @@ class OrderModelTest extends BaseTest {
 
 	public static HashMap<Prodotto, Integer> prodottiStatic;
 	public static LocalDate demStatic;
-	public static LocalDate dcoStatic;
 
 	/**
 	 * Verifica che l'ordine creato sia uguale a quello restituito
@@ -38,11 +37,9 @@ class OrderModelTest extends BaseTest {
 	void testGetOrdine()
 			throws SQLIntegrityConstraintViolationException, ParseException {
 		Ordine o = new Ordine(OrderModel.getNextAvailableOrderId() + 20,
-				TipoOrdine.OUT,
-				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+				TipoOrdine.OUT, StatoOrdine.IN_ATTESA, demStatic, null);
 		Ordine o1 = new Ordine(OrderModel.getNextAvailableOrderId() + 21,
-				TipoOrdine.OUT,
-				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+				TipoOrdine.OUT, StatoOrdine.IN_ATTESA, demStatic, null);
 		o.setProdotti(prodottiStatic);
 		o1.setProdotti(prodottiStatic);
 		OrderModel om = OrderModel.create(o);
@@ -61,14 +58,12 @@ class OrderModelTest extends BaseTest {
 	void testGetAllOrderModels()
 			throws SQLIntegrityConstraintViolationException, ParseException {
 		Ordine o = new Ordine(OrderModel.getNextAvailableOrderId(),
-				TipoOrdine.OUT,
-				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+				TipoOrdine.OUT, StatoOrdine.IN_ATTESA, demStatic, null);
 		o.setProdotti(prodottiStatic);
 		OrderModel om = OrderModel.create(o);
 
 		Ordine o1 = new Ordine(OrderModel.getNextAvailableOrderId() + 1,
-				TipoOrdine.IN,
-				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+				TipoOrdine.IN, StatoOrdine.IN_ATTESA, demStatic, null);
 		o1.setProdotti(prodottiStatic);
 		OrderModel om1 = OrderModel.create(o1);
 		TreeMap<Integer, OrderModel> mapOm = new TreeMap<>();
@@ -88,13 +83,12 @@ class OrderModelTest extends BaseTest {
 	@Test
 	void testMarkAsCompleted()
 			throws SQLIntegrityConstraintViolationException, ParseException {
-		Ordine o = new Ordine(OrderModel.getNextAvailableOrderId() + 20,
-				TipoOrdine.OUT,
-				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+		Ordine o = new Ordine(OrderModel.getNextAvailableOrderId(),
+				TipoOrdine.OUT, StatoOrdine.IN_ATTESA, demStatic, null);
 		o.setProdotti(prodottiStatic);
 		OrderModel om = OrderModel.create(o);
 		om.markAsCompleted();
-		assertTrue(o.getStato().equals(StatoOrdine.COMPLETATO));
+		assertTrue(om.getOrdine().getStato().equals(StatoOrdine.COMPLETATO));
 	}
 
 	/**
@@ -108,16 +102,14 @@ class OrderModelTest extends BaseTest {
 	void testApprova()
 			throws SQLIntegrityConstraintViolationException, ParseException {
 		Ordine o = new Ordine(OrderModel.getNextAvailableOrderId(),
-				TipoOrdine.IN,
-				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+				TipoOrdine.IN, StatoOrdine.IN_ATTESA, demStatic, null);
 		o.setProdotti(prodottiStatic);
 		OrderModel om = OrderModel.create(o);
 		assertDoesNotThrow(() -> om.approva());
 
 		// prova con ordine non preparabile poichè di tipo OUT
 		Ordine o1 = new Ordine(OrderModel.getNextAvailableOrderId() + 1,
-				TipoOrdine.OUT,
-				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+				TipoOrdine.OUT, StatoOrdine.IN_ATTESA, demStatic, null);
 		o1.setProdotti(prodottiStatic);
 		OrderModel om1 = OrderModel.create(o1);
 		assertThrows(IllegalStateException.class, () -> om1.approva());
@@ -138,22 +130,18 @@ class OrderModelTest extends BaseTest {
 	void testUpdateOrdine()
 			throws SQLIntegrityConstraintViolationException, ParseException {
 		Ordine o = new Ordine(OrderModel.getNextAvailableOrderId(),
-				TipoOrdine.IN,
-				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+				TipoOrdine.IN, StatoOrdine.IN_ATTESA, demStatic, null);
 		o.setProdotti(prodottiStatic);
 		OrderModel om = OrderModel.create(o);
-		Ordine o1 = new Ordine(o.getId(),
-				TipoOrdine.IN,
-				StatoOrdine.IN_SVOLGIMENTO, demStatic, dcoStatic);
+		Ordine o1 = new Ordine(o.getId(), TipoOrdine.IN,
+				StatoOrdine.IN_SVOLGIMENTO, demStatic, null);
 		o1.setProdotti(prodottiStatic);
 		om.updateOrdine(o1);
 		assertEquals(o1, om.getOrdine());
 		Ordine o2 = new Ordine(OrderModel.getNextAvailableOrderId() + 120,
-				TipoOrdine.IN,
-				StatoOrdine.IN_SVOLGIMENTO, demStatic, dcoStatic);
+				TipoOrdine.IN, StatoOrdine.IN_SVOLGIMENTO, demStatic, null);
 		o2.setProdotti(prodottiStatic);
-		assertThrows(NullPointerException.class,
-				() -> om.updateOrdine(o2));
+		assertThrows(NullPointerException.class, () -> om.updateOrdine(o2));
 	}
 
 	/**
@@ -166,8 +154,7 @@ class OrderModelTest extends BaseTest {
 	void testDeleteOrdine()
 			throws SQLIntegrityConstraintViolationException, ParseException {
 		Ordine o = new Ordine(OrderModel.getNextAvailableOrderId(),
-				TipoOrdine.OUT,
-				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+				TipoOrdine.OUT, StatoOrdine.IN_ATTESA, demStatic, null);
 		o.setProdotti(prodottiStatic);
 
 		OrderModel om = OrderModel.create(o);
@@ -187,8 +174,7 @@ class OrderModelTest extends BaseTest {
 	void testUpdateQtaProdottoOrdine()
 			throws SQLIntegrityConstraintViolationException, ParseException {
 		Ordine o = new Ordine(OrderModel.getNextAvailableOrderId(),
-				TipoOrdine.OUT,
-				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+				TipoOrdine.OUT, StatoOrdine.IN_ATTESA, demStatic, null);
 		o.setProdotti(prodottiStatic);
 		OrderModel om = OrderModel.create(o);
 
@@ -219,13 +205,11 @@ class OrderModelTest extends BaseTest {
 	void testGetOrderModelById()
 			throws SQLIntegrityConstraintViolationException, ParseException {
 		Ordine o = new Ordine(OrderModel.getNextAvailableOrderId(),
-				TipoOrdine.OUT,
-				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+				TipoOrdine.OUT, StatoOrdine.IN_ATTESA, demStatic, null);
 		o.setProdotti(prodottiStatic);
 		OrderModel om = OrderModel.create(o);
 		Ordine o1 = new Ordine(OrderModel.getNextAvailableOrderId() + 1,
-				TipoOrdine.OUT,
-				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+				TipoOrdine.OUT, StatoOrdine.IN_ATTESA, demStatic, null);
 		o1.setProdotti(prodottiStatic);
 		OrderModel om1 = OrderModel.create(o1);
 
@@ -241,8 +225,7 @@ class OrderModelTest extends BaseTest {
 	void testGetOrderModelOf()
 			throws SQLIntegrityConstraintViolationException, ParseException {
 		Ordine o = new Ordine(OrderModel.getNextAvailableOrderId(),
-				TipoOrdine.OUT,
-				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+				TipoOrdine.OUT, StatoOrdine.IN_ATTESA, demStatic, null);
 		o.setProdotti(prodottiStatic);
 		OrderModel om = OrderModel.create(o);
 
@@ -267,8 +250,7 @@ class OrderModelTest extends BaseTest {
 			throws SQLIntegrityConstraintViolationException, ParseException {
 
 		Ordine o = new Ordine(OrderModel.getNextAvailableOrderId(),
-				TipoOrdine.OUT,
-				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+				TipoOrdine.OUT, StatoOrdine.IN_ATTESA, demStatic, null);
 		o.setProdotti(prodottiStatic);
 
 		OrderModel om = OrderModel.create(o);
@@ -288,8 +270,7 @@ class OrderModelTest extends BaseTest {
 		prodottiStatic.put(pnv, 0);
 		ProductModel.createProdotto(pnv);
 		Ordine onv = new Ordine(OrderModel.getNextAvailableOrderId() + 1,
-				TipoOrdine.OUT,
-				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+				TipoOrdine.OUT, StatoOrdine.IN_ATTESA, demStatic, null);
 		onv.setProdotti(prodottiStatic);
 		/*
 		 * verifica che venga lanciata un'eccezione se l'ordine non è valido
@@ -302,7 +283,6 @@ class OrderModelTest extends BaseTest {
 	protected void postSetUp() {
 
 		demStatic = LocalDate.of(2024, 04, 04);
-		dcoStatic = LocalDate.of(2024, 02, 01);
 
 		Prodotto p = new Prodotto(ProductModel.getNextAvailableId(), "scala2",
 				"bassa", 10, 2);
