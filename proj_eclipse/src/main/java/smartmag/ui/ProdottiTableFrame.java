@@ -128,7 +128,7 @@ public class ProdottiTableFrame extends BasicWindow {
 							| SQLIntegrityConstraintViolationException
 							| IllegalArgumentException e1) {
 						int id = newProd.getId();
-						Prodotto fetchProd = ProductModel.getProdById(id);
+						Prodotto fetchProd = ProductModel.getProdottoFromId(id);
 						if (fetchProd != null) {
 							JOptionPane.showMessageDialog(
 									ProdottiTableFrame.this,
