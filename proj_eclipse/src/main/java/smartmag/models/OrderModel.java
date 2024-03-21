@@ -31,18 +31,7 @@ public class OrderModel extends BaseModel {
 
 	// quando viene generato istances la aggiorna prendendo i modelli dal DB
 	static {
-		instances = new TreeMap<Integer, OrderModel>();
-		Map<Integer, Record> res = DSL.select().from(ORDINE)
-				.fetchMap(ORDINE.ID);
-		res.forEach((id, r) -> {
-			try {
-				instances.put(id, new OrderModel(
-						ordineFromOrdineRecord((OrdineRecord) r)));
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		});
+		refreshDataFromDb();
 	}
 
 	private Ordine ordine;
@@ -86,11 +75,8 @@ public class OrderModel extends BaseModel {
 	public void approva() {
 		if (ordine.getStato() != StatoOrdine.IN_ATTESA)
 			throw new IllegalStateException("Ordine non IN_ATTESA!");
-		/**
-		 * Superfluo poichè c'è già il controllo in generatedMovimsOfOrder
-		 */
-		// if (MovimenModel.generatedMovimsOfOrder(ordine.getId()))
-		// throw new IllegalStateException("Movimentazioni già generate!");
+		if (MovimenModel.anyGeneratedMovimsOfOrder(ordine.getId()))
+			throw new IllegalStateException("Movimentazioni già generate!");
 		if (!isPreparabile())
 			throw new IllegalStateException("Ordine non preparabile!");
 		MovimenModel.generateOrderMovimsOfOrder(ordine.getId());
@@ -124,13 +110,9 @@ public class OrderModel extends BaseModel {
 	 */
 	public void updateOrdine(Ordine o)
 			throws SQLIntegrityConstraintViolationException, ParseException {
-		/**
-		 * Superfluo poichè lancia prima la nullPointer exception se non esiste
-		 * il record nel DB
-		 */
-//		if (!orderIsSavedInDb())
-//			throw new SQLIntegrityConstraintViolationException(
-//					"Ordine #" + o.getId() + " non esiste!");
+		if (!orderIsSavedInDb())
+			throw new SQLIntegrityConstraintViolationException(
+					"Ordine #" + o.getId() + " non esiste!");
 		// TODO check values
 		orderRecord = (OrdineRecord) fetchOrderRecordById(o.getId());
 		copyOrdineIntoRecord(o, orderRecord);
@@ -172,7 +154,8 @@ public class OrderModel extends BaseModel {
 	}
 
 	/**
-	 * Imposta lo stato dell'ordine
+	 * Imposta lo stato dell'ordine senza effettuare controlli. Uso riservato ai
+	 * modelli.
 	 */
 	protected void setStato(StatoOrdine s) {
 		ordine.setStato(s);
@@ -206,6 +189,7 @@ public class OrderModel extends BaseModel {
 				if (por != null)
 					por.delete();
 			}
+			// TODO fai check su stato
 			orderRecord.delete(); // DELETE con UpdatableRecord
 			orderRecord = null;
 			listaProdottiOrdiniRecord.clear();
@@ -597,6 +581,22 @@ public class OrderModel extends BaseModel {
 			}
 		}
 		return filtrata;
+	}
+
+	public static void refreshDataFromDb() {
+		instances = new TreeMap<Integer, OrderModel>();
+		Map<Integer, Record> res = DSL.select().from(ORDINE)
+				.fetchMap(ORDINE.ID);
+		res.forEach((id, r) -> {
+			try {
+				instances.put(id, new OrderModel(
+						ordineFromOrdineRecord((OrdineRecord) r)));
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		});
+		notifyChangeListeners(null);
 	}
 
 	public static void main(String[] args)
