@@ -8,7 +8,7 @@ Il modello rappresenta i dati e la business logic dell'applicazione. Nel contest
 
 1. **Package `smartmag.data`**: Contiene le classi che gestiscono i dati delle singole entità su cui lavoreranno i vari modelli del sistema.
 
-2. **Package "smartmag.models"**: Contiene i modelli (Mvc) delle varie entità, uno per ciascuna classe presente nel package precedente. Ogni modello, ha due attributi principali: un'istanza di una delle suddette classi contenenti i dati dell'entità e un record corrispondente (messo a disposizione da jOOQ) che permette la sincronizzazione con il database. In queste classi sono definite tutti i metodi che vanno effettivamente a fornire le funzionalità del sistema, modificando i dati degli oggetti gestiti.
+2. **Package `smartmag.models`**: Contiene i modelli (Mvc) delle varie entità, uno per ciascuna classe presente nel package precedente. Ogni modello, ha due attributi principali: un'istanza di una delle suddette classi contenenti i dati dell'entità e un record corrispondente (messo a disposizione da jOOQ) che permette la sincronizzazione con il database. In queste classi sono definite tutti i metodi che vanno effettivamente a fornire le funzionalità del sistema, modificando i dati degli oggetti gestiti.
 
 ### Vista e Controller
 Le Viste e i Controller sono combinati insieme nel package **"smartmag.ui"** il quale gestisce l'interfaccia utente e le interazioni dell'utente con il sistema. Questa parte del software richiama i metodi dei modelli per consentire all'utente di interagire con i dati del database. Inoltre, le viste vengono notificate dai modelli ad ogni modifica dei dati.
