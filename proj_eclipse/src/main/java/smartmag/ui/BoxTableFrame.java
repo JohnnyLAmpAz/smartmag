@@ -76,19 +76,6 @@ public class BoxTableFrame extends BasicWindow {
 		JPanel btnsPanel = new JPanel();
 		getContentPane().add(btnsPanel, BorderLayout.SOUTH);
 
-		// Refresh btn
-		JButton btnRefresh = new JButton("Aggiorna");
-		btnRefresh.setToolTipText("Aggiorna tutti t dati dal DB");
-		btnRefresh.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				BoxModel.refreshDataFromDb();
-				tableModel.stateChanged(null);
-			}
-		});
-		btnsPanel.add(btnRefresh);
-
 		// Info btn
 		JButton btnOpen = new JButton("Info");
 		btnOpen.addActionListener(new ActionListener() {

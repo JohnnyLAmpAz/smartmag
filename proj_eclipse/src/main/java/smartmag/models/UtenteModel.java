@@ -2,20 +2,14 @@ package smartmag.models;
 
 import static ingsw_proj_magazzino.db.generated.Tables.UTENTE;
 
-import java.awt.BorderLayout;
 import java.util.Map;
 import java.util.TreeMap;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 import org.jooq.Record;
 
 import ingsw_proj_magazzino.db.generated.tables.records.UtenteRecord;
 import smartmag.data.TipoUtente;
 import smartmag.data.Utente;
-import smartmag.ui.UsersTablePanel;
 
 /**
  * Modello degli Utenti
@@ -26,13 +20,9 @@ public class UtenteModel extends BaseModel {
 	 * Mappa delle istanze dei modelli per implementare pattern Singleton per
 	 * ciascun utente (no + istanze modello di uno stesso utente)
 	 */
-	private static final TreeMap<String, UtenteModel> instances;
+	private static TreeMap<String, UtenteModel> instances;
 	static {
-		instances = new TreeMap<String, UtenteModel>();
-		Map<String, Record> res = DSL.select().from(UTENTE)
-				.fetchMap(UTENTE.MATRICOLA);
-		res.forEach((matr, r) -> instances.put(matr,
-				new UtenteModel((UtenteRecord) r)));
+		refreshDataFromDb();
 	}
 
 	/**
@@ -219,32 +209,19 @@ public class UtenteModel extends BaseModel {
 		return m;
 	}
 
+	public static void refreshDataFromDb() {
+		instances = new TreeMap<String, UtenteModel>();
+		Map<String, Record> res = DSL.select().from(UTENTE)
+				.fetchMap(UTENTE.MATRICOLA);
+		res.forEach((matr, r) -> instances.put(matr,
+				new UtenteModel((UtenteRecord) r)));
+		notifyChangeListeners(null);
+	}
+
 	// TODO: to UnitTest
 	public static void main(String[] args) {
 
-		UsersTablePanel usersTablePanel = new UsersTablePanel();
-
-		JButton btn = new JButton("AGGIUNGI l.brivio1");
-		btn.addActionListener(e -> {
-			if (UtenteModel.getUtenteModelOf("l.brivio1") == null)
-				UtenteModel.createUtente(new Utente("l.brivio1", "Lorenzo",
-						"Brivio", "123", TipoUtente.MAGAZZINIERE));
-		});
-		JButton btnDel = new JButton("ELIMINA");
-		btnDel.addActionListener(e -> {
-			UtenteModel um = usersTablePanel.getSelectedUserModel();
-			if (um != null)
-				um.delete();
-		});
-
-		JFrame f = new JFrame();
-		f.setContentPane(new JPanel(new BorderLayout()));
-		f.getContentPane().add(usersTablePanel, BorderLayout.CENTER);
-		f.getContentPane().add(btn, BorderLayout.SOUTH);
-
-		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		f.setBounds(0, 0, 300, 400);
-		f.setVisible(true);
+		BaseModel.setDifferentDbPath("db/test.sqlite");
 
 		UtenteModel.getAllUserModels()
 				.forEach((matr, um) -> System.out.println(um.getUtente()));

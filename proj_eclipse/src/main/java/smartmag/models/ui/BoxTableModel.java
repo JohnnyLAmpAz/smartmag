@@ -7,6 +7,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
 
 import smartmag.data.Box;
+import smartmag.data.Prodotto;
 import smartmag.models.BoxModel;
 
 public class BoxTableModel extends AbstractTableModel
@@ -20,7 +21,7 @@ public class BoxTableModel extends AbstractTableModel
 	 */
 	public BoxTableModel() {
 		refreshFromModel();
-		this.columnNames = new String[] { "Id", "IDProdotto", "Quantitá" };
+		this.columnNames = new String[] { "Indirizzo", "Prodotto", "Quantitá" };
 		BoxModel.addChangeListener(this);
 	}
 
@@ -44,16 +45,17 @@ public class BoxTableModel extends AbstractTableModel
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		Box b = getBoxModelAt(rowIndex).getBox();
+		Prodotto p = b.getProd();
 		return switch (columnIndex) {
-		case 0:
-			yield b.getIndirizzo();
-		case 1:
-			yield b.getProd().getId();
-		case 2:
-			yield b.getQuantità();
+			case 0:
+				yield b.getIndirizzo();
+			case 1:
+				yield "#%d_%s".formatted(p.getId(), p.getNome());
+			case 2:
+				yield b.getQuantità();
 
-		default:
-			throw new IndexOutOfBoundsException("campo inesistente");
+			default:
+				throw new IndexOutOfBoundsException("campo inesistente");
 		};
 	}
 

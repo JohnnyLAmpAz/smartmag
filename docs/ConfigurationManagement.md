@@ -11,8 +11,9 @@ La repository è composta da due cartelle principali:
 
 ## Issues
 
-Nei vari incontri periodici, sono stati creati degli issues. Ogni issue contiene la descrizione del compito da svolgere e l’indicazione della persona a cui è stato assegnato.
-Gli issues sono stati usati anche per segnalare problemi che si sono riscontrati o modifiche che andrebbero apportate al progetto.
+Nei vari incontri periodici sono stati creati degli issues. Ognuno di questi contiene la descrizione del compito da svolgere e l’indicazione della persona a cui è stato assegnato.
+Gli issues sono stati usati anche per segnalare i problemi che si sono riscontrati o le modifiche che andrebbero apportate al progetto.
+
 La gestione delle modifiche/aggiunte all'interno del programma è stata svolta seguendo la procedura:  
 1. **Apertura di un issue contente la descrizione del problema/modifica**  
    _Esempio:_
@@ -36,11 +37,11 @@ La gestione delle modifiche/aggiunte all'interno del programma è stata svolta s
 7. **Approvazione o richiesta di ulteriori modifiche**  
   _Esempio:_
 
-    <img width="451" alt="commW" src="https://github.com/JohnnyLAmpAz/smartmag/assets/145765934/777d56cd-f5d4-4637-8b42-4e7dcde8b7e7">
-
+     <img width="450" alt="Commenti" src="https://github.com/JohnnyLAmpAz/smartmag/assets/145765934/638f1cae-9870-4e55-9923-dab4211b6598">
 
 9. **Merge nel main dal branch**
-10. **Chiusura del branch**
+
+11. **Chiusura del branch**
 
 
 ## Kanban Board

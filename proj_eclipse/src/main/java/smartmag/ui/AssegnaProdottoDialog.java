@@ -5,7 +5,6 @@ import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.text.NumberFormat;
 
 import javax.swing.JButton;
@@ -68,7 +67,7 @@ public class AssegnaProdottoDialog extends JDialog {
 				}
 				Box b = new Box(idBox, quantita, p);
 				if (BoxModel.esistenzaBoxModel(idBox)) {
-					boxModel = BoxModel.getBoxModelFromIndirizzo(idBox);
+					boxModel = BoxModel.getBoxModelByAddr(idBox);
 					if (boxModel.getBox().getQuantità() > 0) {
 						JOptionPane.showMessageDialog(
 								AssegnaProdottoDialog.this,
@@ -82,8 +81,7 @@ public class AssegnaProdottoDialog extends JDialog {
 				} else {
 					try {
 						BoxModel.createBox(b);
-					} catch (SQLIntegrityConstraintViolationException
-							| IllegalArgumentException e1) {
+					} catch (IllegalArgumentException e1) {
 						JOptionPane.showMessageDialog(
 								AssegnaProdottoDialog.this,
 								"Indirizzo giá esistente", "Errore",

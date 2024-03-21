@@ -31,18 +31,7 @@ public class OrderModel extends BaseModel {
 
 	// quando viene generato istances la aggiorna prendendo i modelli dal DB
 	static {
-		instances = new TreeMap<Integer, OrderModel>();
-		Map<Integer, Record> res = DSL.select().from(ORDINE)
-				.fetchMap(ORDINE.ID);
-		res.forEach((id, r) -> {
-			try {
-				instances.put(id, new OrderModel(
-						ordineFromOrdineRecord((OrdineRecord) r)));
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		});
+		refreshDataFromDb();
 	}
 
 	private Ordine ordine;
@@ -77,6 +66,20 @@ public class OrderModel extends BaseModel {
 	 */
 	public Ordine getOrdine() {
 		return ordine.clone();
+	}
+
+	/**
+	 * Se preparabile, genera movimentazioni e cambia stato da IN_ATTESA a
+	 * IN_SVOLGIMENTO.
+	 */
+	public void approva() {
+		if (ordine.getStato() != StatoOrdine.IN_ATTESA)
+			throw new IllegalStateException("Ordine non IN_ATTESA!");
+		if (MovimenModel.anyGeneratedMovimsOfOrder(ordine.getId()))
+			throw new IllegalStateException("Movimentazioni già generate!");
+		if (!isPreparabile())
+			throw new IllegalStateException("Ordine non preparabile!");
+		MovimenModel.generateOrderMovimsOfOrder(ordine.getId());
 	}
 
 	/**
@@ -151,7 +154,8 @@ public class OrderModel extends BaseModel {
 	}
 
 	/**
-	 * Imposta lo stato dell'ordine
+	 * Imposta lo stato dell'ordine senza effettuare controlli. Uso riservato ai
+	 * modelli.
 	 */
 	protected void setStato(StatoOrdine s) {
 		ordine.setStato(s);
@@ -161,16 +165,31 @@ public class OrderModel extends BaseModel {
 	}
 
 	/**
+	 * Contrassegna l'ordine come completato, modificando la data di
+	 * completamento.
+	 */
+	protected void markAsCompleted() {
+		LocalDate now = LocalDate.now();
+		StatoOrdine stato = StatoOrdine.COMPLETATO;
+		ordine.setStato(stato);
+		orderRecord.setStato(stato.name());
+		ordine.setDataCompletamento(now);
+		orderRecord.setDataco(now.toString());
+		orderRecord.store();
+		notifyChangeListeners(null);
+	}
+
+	/**
 	 * cancella il record dell'ordine nel modello poichè nel DB è stato messo
 	 * DELETE ON CASCADE, cancella anche i record id prodotti ordini
 	 */
-	@SuppressWarnings("unlikely-arg-type")
 	public void deleteOrdine() throws ParseException {
 		if (orderIsSavedInDb()) {
 			for (ProdottiordiniRecord por : listaProdottiOrdiniRecord) {
 				if (por != null)
 					por.delete();
 			}
+			// TODO fai check su stato
 			orderRecord.delete(); // DELETE con UpdatableRecord
 			orderRecord = null;
 			listaProdottiOrdiniRecord.clear();
@@ -293,11 +312,13 @@ public class OrderModel extends BaseModel {
 
 	/**
 	 * Verifica se vi è la disponibilità per tutti gli elementi della "lista
-	 * della spesa".
+	 * della spesa" se si tratta di un ordine in uscita.
 	 * 
 	 * @return true se ci sono abbastanza prodotti, false se altrimenti
 	 */
 	public boolean isPreparabile() {
+		if (ordine.getTipo() == TipoOrdine.IN)
+			return true;
 		for (Map.Entry<Prodotto, Integer> entry : ordine.getProdotti()
 				.entrySet()) {
 			Prodotto p = entry.getKey();
@@ -530,6 +551,8 @@ public class OrderModel extends BaseModel {
 	public static OrderModel create(Ordine o)
 			throws SQLIntegrityConstraintViolationException, ParseException {
 
+		if (!o.isValid())
+			throw new IllegalArgumentException("Ordine non valido");
 		OrderModel om = getOrderModelOf(o);
 		om.createOrdineRecord();
 		om.createProdottoOrdineRecord();
@@ -560,6 +583,22 @@ public class OrderModel extends BaseModel {
 		return filtrata;
 	}
 
+	public static void refreshDataFromDb() {
+		instances = new TreeMap<Integer, OrderModel>();
+		Map<Integer, Record> res = DSL.select().from(ORDINE)
+				.fetchMap(ORDINE.ID);
+		res.forEach((id, r) -> {
+			try {
+				instances.put(id, new OrderModel(
+						ordineFromOrdineRecord((OrdineRecord) r)));
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		});
+		notifyChangeListeners(null);
+	}
+
 	public static void main(String[] args)
 			throws SQLIntegrityConstraintViolationException, ParseException {
 		LocalDate dem = LocalDate.parse("2024-03-05");
@@ -588,8 +627,7 @@ public class OrderModel extends BaseModel {
 		System.out.println(prods);
 
 		Ordine o = new Ordine(getNextAvailableOrderId(), TipoOrdine.OUT,
-				StatoOrdine.IN_ATTESA, dem,
-				dco);
+				StatoOrdine.IN_ATTESA, dem, dco);
 		o.setProdotti(prodotti);
 		System.out.println(o.isValid());
 		System.out.println(dco + "    " + dem);

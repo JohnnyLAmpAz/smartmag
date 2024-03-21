@@ -7,15 +7,15 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import smartmag.data.Movimentazione;
 import smartmag.data.StatoMovim;
+import smartmag.data.Utente;
 import smartmag.models.MovimenModel;
-import smartmag.models.UtenteModel;
 
 /**
  * JPanel della gestione delle movimentazioni volto all'uso dei Magazzinieri.
@@ -29,11 +29,13 @@ public class MovimenMngmtPanel extends JPanel {
 	private JButton btnLoad;
 	private JButton btnCompleted;
 	private JButton btnAnnulla;
+	private String matrMag;
 
 	/**
 	 * Create the panel.
 	 */
 	public MovimenMngmtPanel() {
+		this.matrMag = MainWindow.getLoggedInUser().getMatricola();
 		setLayout(new BorderLayout(0, 0));
 
 		tablePanel = new MovimTablePanel();
@@ -56,9 +58,7 @@ public class MovimenMngmtPanel extends JPanel {
 				MovimenModel mm = tablePanel.getSelectedMovimModel();
 				if (mm == null)
 					return;
-				// TODO: usa l'utente loggato
-				UtenteModel um = UtenteModel.getUtenteModelOf("l.brivio1");
-				mm.assignToWorker(um.getUtente());
+				mm.assignToWorker(MainWindow.getLoggedInUser());
 			}
 		});
 		btnPanel.add(btnAssign);
@@ -68,8 +68,9 @@ public class MovimenMngmtPanel extends JPanel {
 		btnLoad.setEnabled(false);
 		stati = new ArrayList<StatoMovim>();
 		stati.add(StatoMovim.PRESA_IN_CARICO);
-		tablePanel.table.getSelectionModel().addListSelectionListener(
-				new TableSelectionListener(tablePanel, btnLoad, stati));
+		tablePanel.table.getSelectionModel()
+				.addListSelectionListener(new TableSelectionListener(tablePanel,
+						btnLoad, stati, matrMag));
 		btnLoad.addActionListener(new ActionListener() {
 
 			@Override
@@ -88,8 +89,9 @@ public class MovimenMngmtPanel extends JPanel {
 		stati = new ArrayList<StatoMovim>();
 		stati.add(StatoMovim.PRELEVATA);
 
-		tablePanel.table.getSelectionModel().addListSelectionListener(
-				new TableSelectionListener(tablePanel, btnCompleted, stati));
+		tablePanel.table.getSelectionModel()
+				.addListSelectionListener(new TableSelectionListener(tablePanel,
+						btnCompleted, stati, matrMag));
 		btnCompleted.addActionListener(new ActionListener() {
 
 			@Override
@@ -108,8 +110,9 @@ public class MovimenMngmtPanel extends JPanel {
 		stati = new ArrayList<StatoMovim>();
 		stati.add(StatoMovim.NON_ASSEGNATA);
 		stati.add(StatoMovim.PRESA_IN_CARICO);
-		tablePanel.table.getSelectionModel().addListSelectionListener(
-				new TableSelectionListener(tablePanel, btnAnnulla, stati));
+		tablePanel.table.getSelectionModel()
+				.addListSelectionListener(new TableSelectionListener(tablePanel,
+						btnAnnulla, stati, matrMag));
 		btnAnnulla.addActionListener(new ActionListener() {
 
 			@Override
@@ -122,48 +125,56 @@ public class MovimenMngmtPanel extends JPanel {
 		});
 		btnPanel.add(btnAnnulla);
 	}
-
-	// TODO: to UnitTest?
-	public static void main(String[] args) {
-		JFrame frame = new JFrame();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setContentPane(new MovimenMngmtPanel());
-		frame.setBounds(0, 0, 500, 350);
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
-	}
 }
 
 /**
  * Table selection listener per attivare un componente solo se lo stato della
- * movimentazione selezionata corrisponde a quello specificato.
+ * movimentazione selezionata rientra tra quelli indicati e se l'utente
+ * corrisponde a quello indicato (se diverso da null).
  */
 class TableSelectionListener implements ListSelectionListener {
 
 	MovimTablePanel mtp;
 	Component c;
 	ArrayList<StatoMovim> s;
+	String matr;
 
 	/**
-	 * @param mtp istanza modello tabella movimentazioni
-	 * @param c   componente da attivare/disattivare
-	 * @param s   l'unico StatoMovimentazione per cui viene attivato {@code c}
+	 * @param mtp     istanza modello tabella movimentazioni
+	 * @param c       componente da attivare/disattivare
+	 * @param s       lista di stati per cui viene attivato {@code c}
+	 * @param matrMag matricola utente. se null non viene controllato
 	 */
 	public TableSelectionListener(MovimTablePanel mtp, Component c,
-			ArrayList<StatoMovim> s) {
+			ArrayList<StatoMovim> s, String matrMag) {
 		this.mtp = mtp;
 		this.c = c;
 		this.s = s;
+		this.matr = matrMag;
+	}
+
+	public TableSelectionListener(MovimTablePanel mtp, Component c,
+			ArrayList<StatoMovim> s) {
+		this(mtp, c, s, null);
 	}
 
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
 		if (e.getValueIsAdjusting())
 			return;
+		MovimenModel mm = mtp.getSelectedMovimModel();
+		if (mm == null) {
+			c.setEnabled(false);
+			return;
+		}
+		Movimentazione movim = mm.getMovim();
+		Utente assignedMag = movim.getMagazziniere();
 		ListSelectionModel lsm = (ListSelectionModel) e.getSource();
 		int[] ii = lsm.getSelectedIndices();
-		if (ii.length != 1 || !s
-				.contains(mtp.getSelectedMovimModel().getMovim().getStato())) {
+		if (ii.length != 1 || !s.contains(movim.getStato())) {
+			c.setEnabled(false);
+		} else if (matr != null && assignedMag != null
+				&& !assignedMag.getMatricola().equals(matr)) {
 			c.setEnabled(false);
 		} else
 			c.setEnabled(true);
