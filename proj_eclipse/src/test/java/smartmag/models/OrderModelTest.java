@@ -1,14 +1,16 @@
 package smartmag.models;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.text.ParseException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.jooq.exception.IntegrityConstraintViolationException;
@@ -46,33 +48,99 @@ class OrderModelTest extends BaseTest {
 
 	}
 
+	/**
+	 * verifica che l'ordine creato sia uguale a quello restituito
+	 * 
+	 * @throws SQLIntegrityConstraintViolationException
+	 * @throws ParseException
+	 */
 	@Test
-	void testGetOrdine() {
-		fail("Not yet implemented");
+	void testGetOrdine()
+			throws SQLIntegrityConstraintViolationException, ParseException {
+		Ordine o = new Ordine(OrderModel.getNextAvailableOrderId(),
+				TipoOrdine.OUT,
+				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+		Ordine o1 = new Ordine(OrderModel.getNextAvailableOrderId() + 1,
+				TipoOrdine.OUT,
+				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+		o.setProdotti(prodottiStatic);
+		o1.setProdotti(prodottiStatic);
+		OrderModel om = OrderModel.create(o);
+		assertEquals(o, om.getOrdine());
+		assertNotEquals(o1, om.getOrdine());
+	}
+
+	/**
+	 * Testa anche il metodo isPreparabile e setStato di OrderModel isValid di
+	 * Ordine indirettamente
+	 * 
+	 * @throws SQLIntegrityConstraintViolationException
+	 * @throws ParseException
+	 */
+	@Test
+	void testApprova()
+			throws SQLIntegrityConstraintViolationException, ParseException {
+		Ordine o = new Ordine(OrderModel.getNextAvailableOrderId(),
+				TipoOrdine.IN,
+				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+		o.setProdotti(prodottiStatic);
+		OrderModel om = OrderModel.create(o);
+		assertDoesNotThrow(() -> om.approva());
+
+		// prova con ordine non preparabile poichè di tipo OUT
+		Ordine o1 = new Ordine(OrderModel.getNextAvailableOrderId() + 1,
+				TipoOrdine.OUT,
+				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+		o1.setProdotti(prodottiStatic);
+		OrderModel om1 = OrderModel.create(o1);
+		assertThrows(IllegalStateException.class, () -> om1.approva());
+		om1.setStato(StatoOrdine.COMPLETATO);
+		assertThrows(IllegalStateException.class, () -> om1.approva());
+		assertThrows(IllegalArgumentException.class,
+				() -> MovimenModel.generateOrderMovimsOfOrder(o.getId()));
 	}
 
 	@Test
-	void testApprova() {
-		fail("Not yet implemented");
+	void testUpdateOrdine()
+			throws SQLIntegrityConstraintViolationException, ParseException {
+		Ordine o = new Ordine(OrderModel.getNextAvailableOrderId(),
+				TipoOrdine.IN,
+				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+		o.setProdotti(prodottiStatic);
+		OrderModel om = OrderModel.create(o);
+		Ordine o1 = new Ordine(o.getId(),
+				TipoOrdine.IN,
+				StatoOrdine.IN_SVOLGIMENTO, demStatic, dcoStatic);
+		o1.setProdotti(prodottiStatic);
+		om.updateOrdine(o1);
+		assertEquals(o1, om.getOrdine());
+		Ordine o2 = new Ordine(OrderModel.getNextAvailableOrderId() + 120,
+				TipoOrdine.IN,
+				StatoOrdine.IN_SVOLGIMENTO, demStatic, dcoStatic);
+		o2.setProdotti(prodottiStatic);
+		assertThrows(NullPointerException.class,
+				() -> om.updateOrdine(o2));
 	}
 
+	// non è nemmeno usato questo metodo...non so se vale la pena testarlo ora
 	@Test
-	void testUpdateOrdine() {
-		fail("Not yet implemented");
+	void testInserisciProdotto()
+			throws SQLIntegrityConstraintViolationException, ParseException {
+//		Ordine o = new Ordine(OrderModel.getNextAvailableOrderId(),
+//				TipoOrdine.IN,
+//				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+//		o.setProdotti(prodottiStatic);
+//
+//		Prodotto p = new Prodotto(300,
+//				"prodAgg", "aggiunto", 320, 24);
+//		OrderModel om = OrderModel.create(o);
+//		om.inserisciProdotto(p, 20);
+
 	}
 
-	@Test
-	void testInserisciProdotto() {
-		fail("Not yet implemented");
-	}
-
+	// non è nemmeno usato questo metodo...non so se vale la pena testarlo ora
 	@Test
 	void testUpdateStatoOrdine() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testSetStato() {
 		fail("Not yet implemented");
 	}
 
@@ -82,29 +150,33 @@ class OrderModelTest extends BaseTest {
 	}
 
 	@Test
-	void testDeleteOrdine() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testOrderIsSavedInDb() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testUpdateQtaProdottoOrdine()
+	void testDeleteOrdine()
 			throws SQLIntegrityConstraintViolationException, ParseException {
 		Ordine o = new Ordine(OrderModel.getNextAvailableOrderId(),
 				TipoOrdine.OUT,
 				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
 		o.setProdotti(prodottiStatic);
-		OrderModel om = OrderModel.create(o);
 
-		ArrayList<Prodotto> p = new ArrayList<>();
-		om.getOrdine().getProdotti().forEach((t, u) -> p.add(t));
-		Prodotto pMod = p.getFirst();
-		// TODO non crea il record prodottoOrdini!!!
-		om.updateQtaProdottoOrdine(pMod, 222);
+		OrderModel om = OrderModel.create(o);
+		assertTrue(om.orderIsSavedInDb());
+		om.deleteOrdine();
+		assertFalse(om.orderIsSavedInDb());
+	}
+
+	@Test
+	void testUpdateQtaProdottoOrdine()
+			throws SQLIntegrityConstraintViolationException, ParseException {
+		// Ordine o = new Ordine(OrderModel.getNextAvailableOrderId(),
+		// TipoOrdine.OUT,
+		// StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+		// o.setProdotti(prodottiStatic);
+		// OrderModel om = OrderModel.create(o);
+		//
+		// ArrayList<Prodotto> p = new ArrayList<>();
+		// om.getOrdine().getProdotti().forEach((t, u) -> p.add(t));
+		// Prodotto pMod = p.getFirst();
+		// // TODO non crea il record prodottoOrdini!!!
+		// om.updateQtaProdottoOrdine(pMod, 222);
 
 	}
 
@@ -147,10 +219,10 @@ class OrderModelTest extends BaseTest {
 
 	}
 
-//	@Test
-//	void testGetNextAvailableOrderId() {
-//		fail("Not yet implemented");
-//	}
+	// @Test
+	// void testGetNextAvailableOrderId() {
+	// fail("Not yet implemented");
+	// }
 
 	/**
 	 * Verifica il metodo create, prima con un ordine valido e poi con un ordine

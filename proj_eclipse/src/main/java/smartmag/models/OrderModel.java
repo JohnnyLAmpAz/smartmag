@@ -86,8 +86,11 @@ public class OrderModel extends BaseModel {
 	public void approva() {
 		if (ordine.getStato() != StatoOrdine.IN_ATTESA)
 			throw new IllegalStateException("Ordine non IN_ATTESA!");
-		if (MovimenModel.generatedMovimsOfOrder(ordine.getId()))
-			throw new IllegalStateException("Movimentazioni già generate!");
+		/**
+		 * Superfluo poichè c'è già il controllo in generatedMovimsOfOrder
+		 */
+		// if (MovimenModel.generatedMovimsOfOrder(ordine.getId()))
+		// throw new IllegalStateException("Movimentazioni già generate!");
 		if (!isPreparabile())
 			throw new IllegalStateException("Ordine non preparabile!");
 		MovimenModel.generateOrderMovimsOfOrder(ordine.getId());
@@ -121,9 +124,13 @@ public class OrderModel extends BaseModel {
 	 */
 	public void updateOrdine(Ordine o)
 			throws SQLIntegrityConstraintViolationException, ParseException {
-		if (!orderIsSavedInDb())
-			throw new SQLIntegrityConstraintViolationException(
-					"Ordine #" + o.getId() + " non esiste!");
+		/**
+		 * Superfluo poichè lancia prima la nullPointer exception se non esiste
+		 * il record nel DB
+		 */
+//		if (!orderIsSavedInDb())
+//			throw new SQLIntegrityConstraintViolationException(
+//					"Ordine #" + o.getId() + " non esiste!");
 		// TODO check values
 		orderRecord = (OrdineRecord) fetchOrderRecordById(o.getId());
 		copyOrdineIntoRecord(o, orderRecord);
