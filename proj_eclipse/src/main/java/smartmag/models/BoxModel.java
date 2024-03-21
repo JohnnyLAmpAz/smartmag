@@ -317,8 +317,8 @@ public class BoxModel extends BaseModel {
 	@SuppressWarnings("unchecked")
 	public static TreeMap<String, BoxModel> getAllBoxModels() {
 
-		TreeMap<String, BoxModel> bm = (TreeMap<String, BoxModel>) instances
-				.clone();
+		TreeMap<String, BoxModel> bm = (TreeMap<String, BoxModel>) treeMapFilter(
+				instances);
 		return treeMapFilter(bm);
 	}
 
@@ -340,8 +340,16 @@ public class BoxModel extends BaseModel {
 	 * @return Lista di BoxModel
 	 */
 	protected static ArrayList<BoxModel> findBoxesWithProd(Prodotto p) {
+		if (p == null || !p.isValid()) {
+			throw new IllegalArgumentException("inserire un prodotto valido");
+		}
+		if (!ProductModel.getProductModelOf(p).isSavedInDb()) {
+			throw new IllegalArgumentException(
+					"il prodotto non é presente nel database");
+		}
 		ArrayList<BoxModel> ls = new ArrayList<BoxModel>();
-		for (Map.Entry<String, BoxModel> entry : instances.entrySet()) {
+		for (Map.Entry<String, BoxModel> entry : treeMapFilter(instances)
+				.entrySet()) {
 			BoxModel bm = entry.getValue();
 
 			if (bm.box.getProd().equals(p))
