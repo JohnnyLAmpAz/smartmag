@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -311,6 +312,17 @@ class MovimenModelTest extends BaseTest {
 			else
 				assertEquals(initQta, bm.getBox().getQuantità());
 
+		}
+
+		// Una volta completate tutte, gli ordini devono essere stati
+		// contrassegnati come completati
+		for (Entry<MovimId, MovimenModel> entry : mmm.entrySet()) {
+			MovimenModel mm = entry.getValue();
+
+			Ordine o = OrderModel.getOrderModelById(mm.getKey().getOrdineId())
+					.getOrdine();
+			assertEquals(StatoOrdine.COMPLETATO, o.getStato());
+			assertNotNull(o.getDataCompletamento());
 		}
 
 		// Annullamento (solo se NON_ASSEGNATE o PRESE_IN_CARICO)
