@@ -301,6 +301,7 @@ public class OrderModel extends BaseModel {
 			throw new SQLIntegrityConstraintViolationException(
 					"Ordine #" + this.ordine.getId() + " non esiste!");
 
+		ordine.getProdotti().put(p, qta);
 		ProdottiordiniRecord por = (ProdottiordiniRecord) fetchProductOrderRecordById(
 				this.ordine.getId(), p.getId());
 		int index = this.listaProdottiOrdiniRecord.indexOf(por);
@@ -340,8 +341,8 @@ public class OrderModel extends BaseModel {
 	public boolean productOrderIsSavedInDb(int idP) {
 		for (ProdottiordiniRecord por : listaProdottiOrdiniRecord) {
 			if (por == null)
-				return false;
-			if (this.ordine.getId() == por.getProd() && idP == por.getProd())
+				continue;
+			if (this.ordine.getId() == por.getOrdine() && idP == por.getProd())
 				return true;
 			// TODO aggiornare dati
 		}
@@ -517,7 +518,10 @@ public class OrderModel extends BaseModel {
 
 		for (Map.Entry<Prodotto, Integer> entry : prodotti.entrySet()) {
 			p = entry.getKey();
-			lista.add(fetchProductOrderRecordById(o.getId(), p.getId()));
+			ProdottiordiniRecord record = fetchProductOrderRecordById(o.getId(),
+					p.getId());
+			if (record != null)
+				lista.add(record);
 		}
 		return lista;
 	}
