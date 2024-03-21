@@ -1,6 +1,8 @@
-# SmartMag
+<p align="center">
+  <img width="262" alt="Logo" src="https://github.com/JohnnyLAmpAz/smartmag/assets/145765934/f1f21798-d169-40d8-8f10-f29e5ab945e7">
+</p>
 
-<img width="262" alt="LogoSmartMag2_ok" src="https://github.com/JohnnyLAmpAz/smartmag/assets/145765934/f1f21798-d169-40d8-8f10-f29e5ab945e7">
+# SmartMag
 
 Repo del progetto per il corso di Ingegneria del Software.
 
