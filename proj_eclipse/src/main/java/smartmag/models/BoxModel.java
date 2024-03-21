@@ -216,7 +216,7 @@ public class BoxModel extends BaseModel {
 	 */
 	public void setQuantita(int qta) {
 		this.box.setQuantità(qta);
-		record.setQta(box.getQuantità());
+		record.setQta(qta);
 		record.update();
 		notifyChangeListeners(null);
 	}
@@ -399,13 +399,27 @@ public class BoxModel extends BaseModel {
 	 * @return modello del box assegnato
 	 */
 	public static BoxModel assignRandomBoxToProd(Prodotto p) {
+		String freeAddr = findFreeAddr();
+		if (freeAddr != null)
+			return createBox(new Box(freeAddr, 0, p));
+		else
+			return null;
+	}
+
+	/**
+	 * Trova l'indirizzo di un box libero
+	 * 
+	 * @return Indirizzo box
+	 */
+	public static String findFreeAddr() {
+		String addr = null;
 		for (char corsia = 'A'; corsia <= 'Z'; corsia++) {
-			String addr = corsia + "-0-0";
+			addr = corsia + "-0-0";
 			if (isBoxAtAddrFree(addr))
-				return createBox(new Box(addr, 0, p));
+				break;
 		}
 
-		// TODO better way to generate
-		return null;
+		// TODO better way to generate (NO null)
+		return addr;
 	}
 }

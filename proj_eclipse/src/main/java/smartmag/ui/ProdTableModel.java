@@ -5,7 +5,7 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import smartmag.data.Prodotto;
-import smartmag.models.ProdModel;
+import smartmag.models.ProductModel;
 
 public class ProdTableModel extends AbstractTableModel {
 
@@ -15,11 +15,11 @@ public class ProdTableModel extends AbstractTableModel {
 			"Soglia" };
 	private List<Prodotto> prodotti;
 
-	private ProdModel model;
+	private ProductModel model;
 
-	public ProdTableModel(ProdModel model) {
+	public ProdTableModel(ProductModel model) {
 		this.model = model;
-		this.prodotti = model.getProdotti();
+		this.prodotti = ProductModel.getAllProducts();
 	}
 
 	@Override
@@ -58,7 +58,7 @@ public class ProdTableModel extends AbstractTableModel {
 	}
 
 	public void refreshData() {
-		this.prodotti = model.getProdotti();
+		this.prodotti = ProductModel.getAllProducts();
 		fireTableDataChanged();
 	}
 
@@ -78,8 +78,10 @@ public class ProdTableModel extends AbstractTableModel {
 
 	public void deleteProdotto(Prodotto p) {
 
-		model.deleteProdotto(p);
 		prodotti.remove(p);
+		ProductModel pm = ProductModel.getProductModelOf(p);
+		if (pm != null)
+			pm.deleteProdotto();
 		fireTableDataChanged();
 	}
 }
