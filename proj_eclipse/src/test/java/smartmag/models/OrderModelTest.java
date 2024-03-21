@@ -27,26 +27,6 @@ class OrderModelTest extends BaseTest {
 	public static LocalDate demStatic;
 	public static LocalDate dcoStatic;
 
-	static {
-		demStatic = LocalDate.of(2024, 04, 04);
-		dcoStatic = LocalDate.of(2024, 02, 01);
-
-		Prodotto p = new Prodotto(ProductModel.getNextAvailableId(), "scala2",
-				"bassa", 10, 2);
-		Prodotto p1 = new Prodotto(ProductModel.getNextAvailableId() + 1,
-				"scala3", "alta", 100, 2);
-		Prodotto p2 = new Prodotto(ProductModel.getNextAvailableId() + 2,
-				"scala4", "bassa", 20, 3);
-		Prodotto p3 = new Prodotto(ProductModel.getNextAvailableId() + 3,
-				"scala5", "media", 30, 4);
-		prodottiStatic = new HashMap<>();
-		prodottiStatic.put(p, 2);
-		prodottiStatic.put(p1, 3);
-		prodottiStatic.put(p2, 4);
-		prodottiStatic.put(p3, 5);
-
-	}
-
 	/**
 	 * verifica che l'ordine creato sia uguale a quello restituito
 	 * 
@@ -150,18 +130,29 @@ class OrderModelTest extends BaseTest {
 	@Test
 	void testUpdateQtaProdottoOrdine()
 			throws SQLIntegrityConstraintViolationException, ParseException {
-		// Ordine o = new Ordine(OrderModel.getNextAvailableOrderId(),
-		// TipoOrdine.OUT,
-		// StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
-		// o.setProdotti(prodottiStatic);
-		// OrderModel om = OrderModel.create(o);
-		//
-		// ArrayList<Prodotto> p = new ArrayList<>();
-		// om.getOrdine().getProdotti().forEach((t, u) -> p.add(t));
-		// Prodotto pMod = p.getFirst();
-		// // TODO non crea il record prodottoOrdini!!!
-		// om.updateQtaProdottoOrdine(pMod, 222);
+		Ordine o = new Ordine(OrderModel.getNextAvailableOrderId(),
+				TipoOrdine.OUT,
+				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
+		o.setProdotti(prodottiStatic);
+		OrderModel om = OrderModel.create(o);
 
+		Prodotto pMod = new Prodotto(ProductModel.getNextAvailableId(), "pmod",
+				"mod", 110, 122);
+		HashMap<Prodotto, Integer> listaProds = om.getOrdine().getProdotti();
+		HashMap<Prodotto, Integer> listaProdsMod = new HashMap<>();
+		listaProds.forEach((t, u) -> {
+			try {
+				om.updateQtaProdottoOrdine(t, 200);
+				listaProdsMod.put(t, 200);
+			} catch (SQLIntegrityConstraintViolationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		});
+		assertEquals(listaProdsMod, om.getOrdine().getProdotti());
 	}
 
 	/**
@@ -257,6 +248,23 @@ class OrderModelTest extends BaseTest {
 
 	@Override
 	protected void postSetUp() {
+
+		demStatic = LocalDate.of(2024, 04, 04);
+		dcoStatic = LocalDate.of(2024, 02, 01);
+
+		Prodotto p = new Prodotto(ProductModel.getNextAvailableId(), "scala2",
+				"bassa", 10, 2);
+		Prodotto p1 = new Prodotto(ProductModel.getNextAvailableId() + 1,
+				"scala3", "alta", 100, 2);
+		Prodotto p2 = new Prodotto(ProductModel.getNextAvailableId() + 2,
+				"scala4", "bassa", 20, 3);
+		Prodotto p3 = new Prodotto(ProductModel.getNextAvailableId() + 3,
+				"scala5", "media", 30, 4);
+		prodottiStatic = new HashMap<>();
+		prodottiStatic.put(p, 2);
+		prodottiStatic.put(p1, 3);
+		prodottiStatic.put(p2, 4);
+		prodottiStatic.put(p3, 5);
 
 		prodottiStatic.forEach((t, u) -> {
 			try {
