@@ -292,7 +292,7 @@ public class ProductModel extends BaseModel {
 	 */
 	private static void copyProdottoIntoRecord(Prodotto p, ProdottoRecord r) {
 		if (r == null) {
-
+				throw new IllegalArgumentException("Record nullo!");
 		}
 		r.setNome(p.getNome());
 		r.setDescrizione(p.getDescr());
@@ -377,7 +377,7 @@ public class ProductModel extends BaseModel {
 	/**
 	 * restituisce un prodotto dalla mappa instances usando il suo id
 	 * 
-	 * @param identificativo del prodotto
+	 * @param id identificativo del prodotto
 	 * @return
 	 */
 	public static Prodotto getProdottoFromId(int id) {
