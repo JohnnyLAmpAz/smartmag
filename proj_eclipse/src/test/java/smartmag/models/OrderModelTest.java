@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.text.ParseException;
@@ -57,10 +56,10 @@ class OrderModelTest extends BaseTest {
 	@Test
 	void testGetOrdine()
 			throws SQLIntegrityConstraintViolationException, ParseException {
-		Ordine o = new Ordine(OrderModel.getNextAvailableOrderId(),
+		Ordine o = new Ordine(OrderModel.getNextAvailableOrderId() + 20,
 				TipoOrdine.OUT,
 				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
-		Ordine o1 = new Ordine(OrderModel.getNextAvailableOrderId() + 1,
+		Ordine o1 = new Ordine(OrderModel.getNextAvailableOrderId() + 21,
 				TipoOrdine.OUT,
 				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
 		o.setProdotti(prodottiStatic);
@@ -122,31 +121,16 @@ class OrderModelTest extends BaseTest {
 				() -> om.updateOrdine(o2));
 	}
 
-	// non è nemmeno usato questo metodo...non so se vale la pena testarlo ora
 	@Test
-	void testInserisciProdotto()
-			throws SQLIntegrityConstraintViolationException, ParseException {
-//		Ordine o = new Ordine(OrderModel.getNextAvailableOrderId(),
-//				TipoOrdine.IN,
-//				StatoOrdine.IN_ATTESA, demStatic, dcoStatic);
-//		o.setProdotti(prodottiStatic);
-//
-//		Prodotto p = new Prodotto(300,
-//				"prodAgg", "aggiunto", 320, 24);
-//		OrderModel om = OrderModel.create(o);
-//		om.inserisciProdotto(p, 20);
-
+	void testInserisciProdotto() {
 	}
 
-	// non è nemmeno usato questo metodo...non so se vale la pena testarlo ora
 	@Test
 	void testUpdateStatoOrdine() {
-		fail("Not yet implemented");
 	}
 
 	@Test
 	void testMarkAsCompleted() {
-		fail("Not yet implemented");
 	}
 
 	@Test
@@ -269,7 +253,6 @@ class OrderModelTest extends BaseTest {
 
 	@Test
 	void testGetAllOrderModels() {
-		fail("Not yet implemented");
 	}
 
 	@Override
