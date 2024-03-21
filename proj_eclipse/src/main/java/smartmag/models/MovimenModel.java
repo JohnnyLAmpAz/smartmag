@@ -426,7 +426,7 @@ public class MovimenModel extends BaseModel {
 
 		// Check stato
 		if (!movim.isAnnullabile())
-			throw new IllegalArgumentException(
+			throw new IllegalStateException(
 					"Non è possibile annullare la movimentazione!");
 
 		// Annulla

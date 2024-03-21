@@ -184,10 +184,7 @@ public class BoxModel extends BaseModel {
 	protected void rifornisci(int quantita) {
 
 		int qi = this.box.getQuantità();
-		this.box.setQuantità(qi + quantita);
-		record.setQta(box.getQuantità());
-		record.update();
-		notifyChangeListeners(null);
+		setQuantita(qi + quantita);
 	}
 
 	/**
@@ -198,10 +195,7 @@ public class BoxModel extends BaseModel {
 	 */
 	protected void preleva(int qta) {
 		if (box.getQuantità() >= qta) {
-			box.setQuantità(this.box.getQuantità() - qta);
-			record.setQta(box.getQuantità());
-			record.update();
-			notifyChangeListeners(null);
+			setQuantita(this.box.getQuantità() - qta);
 		} else {
 			throw new IllegalArgumentException(
 					"qta richiesta maggiore di quella disponibile");
