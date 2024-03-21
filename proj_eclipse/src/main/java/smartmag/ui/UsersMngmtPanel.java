@@ -83,15 +83,4 @@ public class UsersMngmtPanel extends JPanel {
 		btnPanel.add(btnDel);
 
 	}
-
-	// TODO: to UnitTest?
-	public static void main(String[] args) {
-		JFrame frame = new JFrame();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setContentPane(new UsersMngmtPanel());
-		frame.setBounds(0, 0, 450, 350);
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
-	}
-
 }

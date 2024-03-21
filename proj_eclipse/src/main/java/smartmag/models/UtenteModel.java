@@ -217,24 +217,4 @@ public class UtenteModel extends BaseModel {
 				new UtenteModel((UtenteRecord) r)));
 		notifyChangeListeners(null);
 	}
-
-	// TODO: to UnitTest
-	public static void main(String[] args) {
-
-		BaseModel.setDifferentDbPath("db/test.sqlite");
-
-		UtenteModel.getAllUserModels()
-				.forEach((matr, um) -> System.out.println(um.getUtente()));
-
-		System.out.println(login("m.rossi", "1234"));
-		UtenteModel m = UtenteModel.getUtenteModelOf("m.rossi");
-		if (m != null)
-			System.out.println(m.utente);
-		m = UtenteModel.getUtenteModelOf("l.verdi");
-		if (m != null)
-			m.delete();
-		m = UtenteModel.createUtente(new Utente("l.verdi", "Luigi", "Verdi",
-				"1234", TipoUtente.RESPONSABILE));
-		System.out.println(m == UtenteModel.getUtenteModelOf("l.verdi"));
-	}
 }

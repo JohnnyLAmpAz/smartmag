@@ -602,44 +602,4 @@ public class OrderModel extends BaseModel {
 		});
 		notifyChangeListeners(null);
 	}
-
-	public static void main(String[] args)
-			throws SQLIntegrityConstraintViolationException, ParseException {
-		LocalDate dem = LocalDate.parse("2024-03-05");
-		LocalDate dco = LocalDate.of(2024, 04, 04);
-		Prodotto p = new Prodotto(ProductModel.getNextAvailableId(), "scala2",
-				"marcia", 10, 2);
-		Prodotto p1 = new Prodotto(ProductModel.getNextAvailableId() + 1,
-				"scala3", "marcia", 10, 2);
-		Prodotto p2 = new Prodotto(ProductModel.getNextAvailableId() + 2,
-				"scala4", "marcia", 10, 2);
-		Prodotto p3 = new Prodotto(ProductModel.getNextAvailableId() + 3,
-				"scala5", "marcia", 10, 2);
-		HashMap<Prodotto, Integer> prodotti = new HashMap<>();
-		prodotti.put(p, p.getId());
-		prodotti.put(p1, p1.getId());
-		prodotti.put(p2, p2.getId());
-		prodotti.put(p3, p3.getId());
-		System.out.println(dem);
-		System.out.println(dco);
-
-		ProductModel.createProdotto(p);
-		ProductModel.createProdotto(p1);
-		ProductModel.createProdotto(p2);
-		ProductModel.createProdotto(p3);
-		ArrayList<Prodotto> prods = ProductModel.getAllProducts();
-		System.out.println(prods);
-
-		Ordine o = new Ordine(getNextAvailableOrderId(), TipoOrdine.OUT,
-				StatoOrdine.IN_ATTESA, dem, dco);
-		o.setProdotti(prodotti);
-		System.out.println(o.isValid());
-		System.out.println(dco + "    " + dem);
-		create(o);
-		OrderModel om = new OrderModel(o);
-		getAllOrderModels();
-		instances.forEach(
-				(id, om1) -> System.out.println(om1.getOrdine().getId()));
-	}
-
 }

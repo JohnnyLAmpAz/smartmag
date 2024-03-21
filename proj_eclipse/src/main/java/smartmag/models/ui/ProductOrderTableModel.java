@@ -1,12 +1,8 @@
 package smartmag.models.ui;
 
-import java.awt.Rectangle;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
@@ -93,14 +89,14 @@ public class ProductOrderTableModel extends AbstractTableModel
 		// Restituisco il campo richiesto
 		// | ID prodotto | Nome prodotto | Quantità |
 		switch (columnIndex) {
-		case 0:
-			return prod.getId();
-		case 1:
-			return prod.getNome();
-		case 2:
-			return qta;
-		default:
-			throw new IllegalArgumentException();
+			case 0:
+				return prod.getId();
+			case 1:
+				return prod.getNome();
+			case 2:
+				return qta;
+			default:
+				throw new IllegalArgumentException();
 		}
 	}
 
@@ -117,29 +113,5 @@ public class ProductOrderTableModel extends AbstractTableModel
 
 		// aggiorna la tabella se il modello ha subito variazioni
 		fireTableDataChanged();
-	}
-
-	// TODO: to test
-	public static void main(String[] args) {
-
-		// tabella dei prodotti dell'ordine #0
-		OrderModel orderModel = OrderModel.getAllOrderModels().get(0);
-
-		for (Map.Entry<Prodotto, Integer> entry : orderModel.getOrdine()
-				.getProdotti().entrySet()) {
-			Prodotto prod = entry.getKey();
-			Integer qta = entry.getValue();
-			System.out.println("%d X #%d: %s".formatted(qta, prod.getId(),
-					prod.getNome()));
-		}
-
-		JFrame frame = new JFrame("Lista spesa ordine #0");
-		JTable table = new JTable(new ProductOrderTableModel(orderModel));
-		JScrollPane panel = new JScrollPane(table);
-		frame.setContentPane(panel);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setBounds(new Rectangle(300, 200));
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
 	}
 }

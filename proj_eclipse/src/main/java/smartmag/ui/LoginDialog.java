@@ -6,7 +6,6 @@ import java.awt.Frame;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -20,7 +19,6 @@ import javax.swing.border.EmptyBorder;
 
 import net.miginfocom.swing.MigLayout;
 import smartmag.data.Utente;
-import smartmag.db.Db;
 import smartmag.models.UtenteModel;
 import smartmag.ui.utils.BasicWindow;
 
@@ -154,11 +152,4 @@ public class LoginDialog extends JDialog implements ActionListener {
 			System.exit(0);
 		}
 	}
-
-	// TODO: to UnitTest
-	public static void main(String[] args) throws IOException {
-		Db.getInstance();
-		System.out.println(LoginDialog.showLoginDialog(null));
-	}
-
 }
