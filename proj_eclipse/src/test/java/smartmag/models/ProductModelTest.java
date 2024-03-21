@@ -338,8 +338,37 @@ public class ProductModelTest extends BaseTest {
 		assertEquals(true, tm.equals(ProductModel.getAllProductModels()));
 	}
 
-	// test2 getALllProductModels con mappa vuota o che sia diversa da una mappa
-	// che contiene i null?
+	/**
+	 * verifica il corretto funzionamento del metodo getAllProductModels, in
+	 * particolare in questo test viene mostrato che il risultato non contiene i
+	 * modelli con record null
+	 */
+	@Test
+	public void testGetAllProductModels2() {
+		Prodotto p1 = new Prodotto(1, "newprod4", "descr4", 4, 15);
+		Prodotto p2 = new Prodotto(2, "newprod5", "descr5", 6, 5);
+		ProductModel pm1 = ProductModel.getProductModelOf(p1);
+		assertDoesNotThrow(() -> pm1.create());
+		ProductModel pm2 = ProductModel.getProductModelOf(p2);
+		assertDoesNotThrow(() -> pm2.create());
+		Prodotto p3 = new Prodotto(3, "newprod4", "descr4", 4, 15);
+		Prodotto p4 = new Prodotto(4, "newprod5", "descr5", 6, 5);
+		ProductModel pm3 = ProductModel.getProductModelOf(p3);
+		assertDoesNotThrow(() -> pm3.create());
+		ProductModel pm4 = ProductModel.getProductModelOf(p4);
+		assertDoesNotThrow(() -> pm4.create());
+		Prodotto p5 = new Prodotto(5, "newprod4", "descr4", 4, 15);
+		ProductModel pm5 = ProductModel.getProductModelOf(p5);
+		Prodotto p6 = new Prodotto(6, "newprod5", "descr5", 6, 5);
+		ProductModel pm6 = ProductModel.getProductModelOf(p6);
+		TreeMap<Integer, ProductModel> tm = new TreeMap<>();
+		tm.put(pm1.getProdotto().getId(), pm1);
+		tm.put(pm2.getProdotto().getId(), pm2);
+		tm.put(pm3.getProdotto().getId(), pm3);
+		tm.put(pm4.getProdotto().getId(), pm4);
+		tm.put(pm6.getProdotto().getId(), pm6);
+		assertEquals(false, tm.equals(ProductModel.getAllProductModels()));
+	}
 
 	/**
 	 * verifica il corretto funzionamento del metodo getAllProducts,in
@@ -373,8 +402,37 @@ public class ProductModelTest extends BaseTest {
 		assertEquals(true, tm.equals(ProductModel.getAllProducts()));
 	}
 
-	// test2 getAlllProducts con mappa vuota o che sia diversa da una mappa
-	// che contiene i null?
+	/**
+	 * verifica il corretto funzionamento del metodo getAllProducts,in
+	 * partiolare in questo test viene mostrato che il risultato non contiene i
+	 * prodotti non presenti nel db
+	 */
+	@Test
+	public void testGetAllProducts2() {
+		Prodotto p1 = new Prodotto(1, "newprod4", "descr4", 4, 15);
+		Prodotto p2 = new Prodotto(2, "newprod5", "descr5", 6, 5);
+		ProductModel pm1 = ProductModel.getProductModelOf(p1);
+		assertDoesNotThrow(() -> pm1.create());
+		ProductModel pm2 = ProductModel.getProductModelOf(p2);
+		assertDoesNotThrow(() -> pm2.create());
+		Prodotto p3 = new Prodotto(3, "newprod4", "descr4", 4, 15);
+		Prodotto p4 = new Prodotto(4, "newprod5", "descr5", 6, 5);
+		ProductModel pm3 = ProductModel.getProductModelOf(p3);
+		assertDoesNotThrow(() -> pm3.create());
+		ProductModel pm4 = ProductModel.getProductModelOf(p4);
+		assertDoesNotThrow(() -> pm4.create());
+		Prodotto p5 = new Prodotto(5, "newprod4", "descr4", 4, 15);
+		ProductModel pm5 = ProductModel.getProductModelOf(p5);
+		Prodotto p6 = new Prodotto(6, "newprod5", "descr5", 6, 5);
+		ProductModel pm6 = ProductModel.getProductModelOf(p6);
+		ArrayList<Prodotto> tm = new ArrayList<>();
+		tm.add(p1);
+		tm.add(p2);
+		tm.add(p3);
+		tm.add(p4);
+		tm.add(p5);
+		assertEquals(false, tm.equals(ProductModel.getAllProducts()));
+	}
 
 	/**
 	 * verifica il corretto funzionamento del metodo getProdFromId()
