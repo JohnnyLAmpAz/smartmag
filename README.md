@@ -1,6 +1,6 @@
-<center>
+<p align="center">
   <img width="350" alt="Logo" src="./proj_eclipse/img/smartmag.png">
-</center>
+</p>
 
 # SmartMag
 
