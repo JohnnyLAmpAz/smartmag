@@ -183,6 +183,9 @@ public class BoxModel extends BaseModel {
 	 */
 	protected void rifornisci(int quantita) {
 
+		if (quantita <= 0) {
+			throw new IllegalArgumentException("inserire quantitá positiva!");
+		}
 		int qi = this.box.getQuantità();
 		setQuantita(qi + quantita);
 	}
@@ -194,6 +197,9 @@ public class BoxModel extends BaseModel {
 	 * @param qta numero di unita di prodotto da prelevare
 	 */
 	protected void preleva(int qta) {
+		if (qta <= 0) {
+			throw new IllegalArgumentException("inserire quantitá positiva!");
+		}
 		if (box.getQuantità() >= qta) {
 			setQuantita(this.box.getQuantità() - qta);
 		} else {
@@ -209,6 +215,10 @@ public class BoxModel extends BaseModel {
 	 * @param qta
 	 */
 	public void setQuantita(int qta) {
+		if (qta < 0) {
+			throw new IllegalArgumentException(
+					"errore: hai inserito una quantitá negativa!");
+		}
 		this.box.setQuantità(qta);
 		record.setQta(qta);
 		record.update();
@@ -225,6 +235,9 @@ public class BoxModel extends BaseModel {
 	 * @return modello trovato o null
 	 */
 	public static BoxModel getBoxModelByAddr(String boxAddr) {
+		if (!Box.validateAddress(boxAddr)) {
+			throw new IllegalArgumentException("inserire indirizzo valido");
+		}
 		return instances.get(boxAddr);
 	}
 
@@ -311,8 +324,7 @@ public class BoxModel extends BaseModel {
 	@SuppressWarnings("unchecked")
 	public static TreeMap<String, BoxModel> getAllBoxModels() {
 
-		TreeMap<String, BoxModel> bm = (TreeMap<String, BoxModel>) instances
-				.clone();
+		TreeMap<String, BoxModel> bm = (TreeMap<String, BoxModel>) instances;
 		return treeMapFilter(bm);
 	}
 
@@ -334,6 +346,15 @@ public class BoxModel extends BaseModel {
 	 * @return Lista di BoxModel
 	 */
 	protected static ArrayList<BoxModel> findBoxesWithProd(Prodotto p) {
+
+		if (!ProductModel.getProductModelOf(p).isSavedInDb()) {
+			throw new IllegalArgumentException(
+					"il prodotto non é presente nel database");
+		}
+		if (p == null || !p.isValid()) {
+			throw new IllegalArgumentException("inserire un prodotto valido");
+		}
+
 		ArrayList<BoxModel> ls = new ArrayList<BoxModel>();
 		for (Map.Entry<String, BoxModel> entry : instances.entrySet()) {
 			BoxModel bm = entry.getValue();
@@ -362,6 +383,9 @@ public class BoxModel extends BaseModel {
 	 * @return true se esiste, false se non esiste
 	 */
 	public static boolean esistenzaBoxModel(String indirizzo) {
+		if (!Box.validateAddress(indirizzo)) {
+			throw new IllegalArgumentException("inserire indirizzo valido");
+		}
 		return instances.containsKey(indirizzo);
 	}
 
@@ -373,6 +397,9 @@ public class BoxModel extends BaseModel {
 	 * @return vedi sopra
 	 */
 	public static boolean isBoxAtAddrFree(String addr) {
+		if (!Box.validateAddress(addr)) {
+			throw new IllegalArgumentException("inserire indirizzo valido");
+		}
 		BoxModel bm = getBoxModelByAddr(addr);
 		return bm == null;
 	}
@@ -385,6 +412,9 @@ public class BoxModel extends BaseModel {
 	 * @return modello del box assegnato
 	 */
 	public static BoxModel assignRandomBoxToProd(Prodotto p) {
+		if (p == null || !p.isValid()) {
+			throw new IllegalArgumentException("prodotto non valido");
+		}
 		String freeAddr = findFreeAddr();
 		if (freeAddr != null)
 			return createBox(new Box(freeAddr, 0, p));
