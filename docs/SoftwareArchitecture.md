@@ -1,6 +1,8 @@
 # Architettura Software
+
+![alt](UML/ComponentDiagram.jpg)
 ### Introduzione
-Il software é stato sviluppato seguendo un'architettura modulare basata sul pattern Model-View-Controller, in cui i due moduli view e controller sono stati accorpati in quanto fortemente legati; questa andrá ad interfacciarsi, attraverso l'uilizzo di jOOQ, con un database creato usando SQlite. La connessione al database SQLite è gestita da un componente  che si trova nel package "smartmag.db", il quale fornisce un'interfaccia per stabilire e gestire la connessione (unica) con il database, garantendo l'integrità e la persistenza dei dati.
+Il software é stato sviluppato seguendo un'architettura modulare basata sul pattern Model-View-Controller, in cui i due moduli view e controller sono stati accorpati in quanto fortemente legati; questa andrà ad interfacciarsi, attraverso l'utilizzo di jOOQ, con un database creato usando SQlite. La connessione al database SQLite è gestita da un componente  che si trova nel package "smartmag.db", il quale fornisce un'interfaccia per stabilire e gestire la connessione (unica) con il database, garantendo l'integrità e la persistenza dei dati.
 
 
 ### Modello
