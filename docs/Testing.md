@@ -1,4 +1,4 @@
-# Unit testing
+# Testing
 
 Abbiamo creato dei *casi di test* con *JUnit 5* per esaminare la maggior parte delle funzionalità del sistema.
 L'obiettivò è individuare il maggior numero possibile di *difetti* (*bug*) durante la fase di build. Ciò viene fatto in vari modi: invocando le funzionalità da testare con parametri non validi, utilizzandole in contesti in cui non dovrebbe essere permesso o semplicemente simulando scenari e sequenze di azioni che riflettono l'uso tipico dell'applicazione.
@@ -6,6 +6,7 @@ L'obiettivò è individuare il maggior numero possibile di *difetti* (*bug*) dur
 ## Focus sui modelli
 
 In particolare, abbiamo deciso di concentrare la nostra attività di testing sui *modelli* (MVC) in quanto ricoprono un ruolo chiave nel sistema sviluppato:
+
 - implementano la *business logic*;
 - espongono le *interfacce* attraverso cui è effettivamente possibile *svolgere operazioni sui dati* gestiti;
 - garantiscono l'*integrità dei dati* e la *persistenza* degli stessi.
@@ -27,7 +28,7 @@ Abbiamo realizzato in totale *74 casi di test* che interessano circa l'*80% del 
 
 ![JUnit](./img/screens_tests/JUnit.jpg)
 
-![coverage](./img/screens_tests/coverage.png)
+![Coverage dei test](./img/screens_tests/coverage.png)
 
 ## Maven e GitHub Action per la Continuous Integration
 
@@ -40,4 +41,4 @@ Configurando poi ad-hoc una *GitHub Action*
 
 ![GitHub CI Action](./img/screens_tests/GH_action.png)
 
-![GitHub CI Action](./img/screens_tests/GH_action_fail.png)
+![GitHub CI Action fail](./img/screens_tests/GH_action_fail.png)

@@ -7,6 +7,7 @@
 Repo del progetto per il corso di *Ingegneria del Software*.
 
 Si tratta di un *sistema di gestione di un magazzino*, che permette di svolgere una serie di attività, tra cui:
+
 - Tenere traccia dei depositi e dei prelievi degli articoli, con le relative destinazioni;
 - Monitorare le quantità disponibili, con la possibilità di impostare una soglia minima di scorta a magazzino;
 - Tenere traccia delle caratteristiche di ogni singolo prodotto.
@@ -14,13 +15,14 @@ Si tratta di un *sistema di gestione di un magazzino*, che permette di svolgere 
 ## Membri del gruppo
 
 Questo progetto è stato realizzato da:
-- Brambilla Davide
-- Brivio Lorenzo
-- Gervasoni Massimiliano
+
+- **Brambilla Davide** - Matr. 1080752
+- **Brivio Lorenzo** - Matr. 1073423
+- **Gervasoni Massimiliano** - Matr. 1069211
 
 ## Documentazione
 
-Tutta la documentazione del progetto risiede nella cartella `/docs`; fare riferimento al documento [/docs/README.md](./docs/README.md) per averne una panoramica.
+Tutta la documentazione del progetto risiede nella cartella `/docs`. Fare riferimento al documento [/docs/README.md](./docs/README.md) per averne una panoramica.
 
 Nella sezione *Projects* della repo è presente anche la *Kanban board* dove vengono gestiti gli issue/PR e le attività divise in *da fare* | *in corso* | *fatte*.
 

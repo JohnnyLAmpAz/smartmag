@@ -12,6 +12,7 @@ Nella cartella `UML` si possono trovare i seguenti diagrammi UML:
 - State diagram
 - Activity diagram
 - Sequence diagram
+- Component diagram
 
 Tutti questi vengono raggruppati nel [*capitolo del Modeling*](./Modelling.md) della documentazione.
 
@@ -30,3 +31,4 @@ Oltre a questo, troviamo i vari file dei capitoli della documentazione:
 - [Software Architecture](./SoftwareArchitecture.md)
 - [Software Design](./SoftwareDesign.md)
 - [Testing](./Testing.md)
+- [Software Maintenance](./SoftwareMaintenance.md)

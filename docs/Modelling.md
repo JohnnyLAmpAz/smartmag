@@ -55,6 +55,6 @@ Dopo aver completato queste azioni, il magazziniere ritorna allo stato "senza mo
 
 Col *diagramma di sequenza* siamo andati a modellare la sequenza di interazioni tra il *Responsabile Ordini*, *Magazziniere Qualificato* e il *Modello degli Ordini* volte alla creazione e gestione degli ordini.
 
-![sequence diagram](./UML/SequenceDiag%20-%20Ordini.jpg)
+![Sequence diagram](./UML/SequenceDiag%20-%20Ordini.jpg)
 
 Principalmente si denota ovviamente il ruolo principale del *Responsabile Ordini* nella gestione degli ordini. In particolare, una volta creato e prima di essere approvato, un ordine può essere cancellato o eventualmente modificato più volte solo se si tratta di un ordine in uscita. Un ordine poi può essere approvato: se si tratta di un rifornimento (`IN`) deve essere approvato da un *Magazziniere Qualificato* alla consegna delle merci ordinate, se invece si tratta di un ordine commissionato (`OUT`) deve essere approvato dal *Responsabile Ordini* e in questo caso il sistema si assicura che sia preparabile controllando le disponibilità. All'approvazione, il modello genera le movimentazioni, cambia lo stato dell'ordine e, una volta completate tutte le movimentazioni, lo contrassegna come completato.

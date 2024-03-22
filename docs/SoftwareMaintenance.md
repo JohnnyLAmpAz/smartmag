@@ -1,4 +1,5 @@
-### Software Maintenance
+# Software Maintenance
+
 Durante il ciclo di sviluppo del software l'attenzione dedicata alla manutenzione è cruciale per garantire la solidità e l'efficacia del sistema. In questo contesto, abbiamo condotto una serie di interventi mirati attraverso due fasi distintive di manutenzione.
 
 Nella prima fase, ci siamo concentrati sul refactoring, una pratica essenziale per migliorare la struttura interna del codice. Abbiamo rimosso metodi superflui, ottimizzato quelli esistenti e modificato le visibilità dei metodi per garantire una più efficiente gestione delle funzionalità. Questo approccio ha contribuito a rendere il software più snello, maneggevole e preparato ad affrontare futuri sviluppi.

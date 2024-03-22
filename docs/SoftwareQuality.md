@@ -10,7 +10,7 @@ Per lo sviluppo del progetto sono stati seguiti alcuni dei fattori di qualità d
   con un certo grado di precisione.
 
 - _Manutenibilità:_ È stato ottenuto un certo livello di manutenibilità grazie all'utilizzo dei *design patterns* che hanno permesso di dare al software una struttura
-  che lo rendesse di facile commprensione e di conseguenza, in caso di guasti da risolvere, anche semplice da manutenere.  
+  che lo rendesse di facile comprensione e di conseguenza, in caso di guasti da risolvere, anche semplice da manutenere.  
   Difatti durante la manutenzione di un software, è molto importante comprenderne il funzionamento.
   A tal proposito è stato utilizzato intensivamente *Javadoc*, in particolare per la descrizione delle funzioni svolte dai metodi presenti all'interno del software.
   
@@ -18,7 +18,7 @@ Per lo sviluppo del progetto sono stati seguiti alcuni dei fattori di qualità d
   dalla presenza di pulsanti autoesplicativi e da una buona suddivisione in finestre contenenti funzionalità affini.
 
 - _Testabilità:_ Il software che è stato realizzato, pur utilizzando un DB (che potrebbe introdurre difficoltà nella realizzazione dei casi di test), è semplice da testare.
- Quest'ultima è stata ottenuta grazie alla realializzazione di metodi che, invocati al termine dei test, ripuliscono il DB da eventuali modifiche apportate.
+ Quest'ultima è stata ottenuta grazie alla realizzazione di metodi che, invocati al termine dei test, ripuliscono il DB da eventuali modifiche apportate.
  Inoltre nel caso non servisse lavorare su dati già presenti nel DB dell'applicazione, è stata data la possibilità di utilizzare altri DB sui quali effettuare casi di test.
 
 - _Portabilità:_ Il software è stato realizzato nel linguaggio *Java*, il quale garantisce portabilità grazie alla *JVM* (Java Virtual Machine) e al *bytecode*.

@@ -34,7 +34,7 @@ Ciascun modello (Observable) contiene una lista di observer, i quali ricevono un
 Ogni view (Observer) è stata registrata al relativo modello per ricevere le notifiche in caso di aggiornamenti.
 
 ## Misurazione del codice
-### JDepend:
+### JDepend
 Per misurare le metriche indicate nella tabella seguente e valutare così la qualità della progettazione del software, abbiamo fatto ricorso a *JDepend*.  
 Dalla tabella si può notare che il livello di astrazione del software è generalmente basso. Per aumentare questo valore, si dovrà effettuare del refactoring in fase di manutenzione.
 
@@ -54,7 +54,7 @@ Dove:
 - Ca: accoppiamento afferente
 - Ce: accoppiamento efferente
 
-### Structure101:
+### Structure101
 Per avere un'ulteriore valutazione sulle dipendenze delle classi e dei pacchetti, abbiamo utilizzato *Structure101*.  
 Principalmente sono state valutate le classi contenute nei pacchetti e quindi il loro livello di coesione e la presenza di loop.
 
