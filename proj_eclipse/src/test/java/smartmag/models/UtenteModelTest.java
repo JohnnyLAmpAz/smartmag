@@ -9,11 +9,14 @@ import smartmag.BaseTest;
 import smartmag.data.TipoUtente;
 import smartmag.data.Utente;
 
+/**
+ * Classe contenente i test per il modello degli utenti
+ */
 class UtenteModelTest extends BaseTest {
 
 	@Override
 	protected void postSetUp() {
-		// TODO se serve
+		// Implementato solo perché è astratto
 	}
 
 	/**
@@ -28,8 +31,6 @@ class UtenteModelTest extends BaseTest {
 		Utente u = UtenteModel.login("ASD", "ASD");
 		assertTrue(u != null);
 		assertEquals(u, UtenteModel.getUtenteModelOf("ASD").getUtente());
-
-		// TODO molti altri casi! questo è una prova...
 	}
 
 }

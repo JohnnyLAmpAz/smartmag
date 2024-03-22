@@ -1,12 +1,12 @@
-<p align="center">
-  <img width="262" alt="Logo" src="https://github.com/JohnnyLAmpAz/smartmag/assets/145765934/f1f21798-d169-40d8-8f10-f29e5ab945e7">
-</p>
+<center>
+  <img width="350" alt="Logo" src="./proj_eclipse/img/smartmag.png">
+</center>
 
 # SmartMag
 
 Repo del progetto per il corso di Ingegneria del Software.
 
-Si tratta di un sistema di gestione di un magazzino, che permette di svolgere una serie di attvità, tra cui:
+Si tratta di un sistema di gestione di un magazzino, che permette di svolgere una serie di attività, tra cui:
 - Tenere traccia dei depositi e dei prelievi degli articoli, con le relative destinazioni;
 - Monitorare le quantità disponibili, con la possibilità di impostare una soglia minima di scorta a magazzino;
 - Tenere traccia delle caratteristiche di ogni singolo prodotto.
@@ -37,6 +37,6 @@ Seguire i seguenti passi per importare il progetto nell'IDE Eclipse:
 1. Clonare questa repo
 2. In Eclipse cliccare *File* > *Importa*, poi *Generale* > *Progetto esistente nel workspace*
 3. Selezionare la cartella `/proj_eclipse` che si trova **dentro** quella della repo e importare
-4. Tasto destro sul progetto > *Maven* > *Aggiorna progetto*
+4. **IMPORTANTE: Tasto destro sul progetto > *Maven* > *Aggiorna progetto***
 
 Si consiglia poi l'utilizzo della *JDK 21*, la stessa utilizzata durante lo sviluppo e dalla GitHub Action *Java CI with Maven*.

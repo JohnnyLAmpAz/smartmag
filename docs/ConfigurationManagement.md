@@ -1,18 +1,26 @@
 # Configuration management
 
-Il lavoro svolto è stato supportato in tutto e per tutto dall'utilizzo di GitHub.  
+Il lavoro svolto è stato supportato in tutto e per tutto dall'utilizzo di *GitHub* e *git* come version controller.  
 Infatti è stata creata una repository che permette la condivisione sia della documentazione che del codice.
 
 ### Struttura della repository
 
 La repository è composta da due cartelle principali:
-- docs: contiene tutta documentazine (project plan ,diagrammi...)
-- proj_eclipse: contiene il codice
+- `./docs/`: contiene tutta documentazione (project plan, diagrammi...)
+- `./proj_eclipse/`: contiene il codice
 
 ## Issues
 
-Nei vari incontri periodici sono stati creati degli issues. Ognuno di questi contiene la descrizione del compito da svolgere e l’indicazione della persona a cui è stato assegnato.
-Gli issues sono stati usati anche per segnalare i problemi che si sono riscontrati o le modifiche che andrebbero apportate al progetto.
+Nei vari incontri periodici sono stati creati degli *issue* ognuno dei quali contiene la descrizione del compito da svolgere e l’indicazione della persona a cui è stato assegnato.
+Gli issues sono stati usati sia per segnalare i problemi (*bug*) che si sono riscontrati che per le aggiunte/modifiche che andrebbero apportate al progetto.
+
+## Utilizzo dei branch
+
+È stata ampiamente utilizzata la funzionalità dei *branch* di *git* che ha permesso ad ognuno di *introdurre modifiche senza interferire con il lavoro altrui* e mantenendo un ramo principale più stabile sul quale, solo successivamente tramite l'approvazione di una *pull request*, andare ad applicare le modifiche introdotte sul ramo secondario.
+
+![screen di git log](./img/screens_git_log/log1_light.png)
+
+## Procedura adottata
 
 La gestione delle modifiche/aggiunte all'interno del programma è stata svolta seguendo la procedura:  
 1. **Apertura di un issue contente la descrizione del problema/modifica**  
