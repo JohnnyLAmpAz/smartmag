@@ -4,9 +4,9 @@
 
 # SmartMag
 
-Repo del progetto per il corso di Ingegneria del Software.
+Repo del progetto per il corso di *Ingegneria del Software*.
 
-Si tratta di un sistema di gestione di un magazzino, che permette di svolgere una serie di attività, tra cui:
+Si tratta di un *sistema di gestione di un magazzino*, che permette di svolgere una serie di attività, tra cui:
 - Tenere traccia dei depositi e dei prelievi degli articoli, con le relative destinazioni;
 - Monitorare le quantità disponibili, con la possibilità di impostare una soglia minima di scorta a magazzino;
 - Tenere traccia delle caratteristiche di ogni singolo prodotto.
@@ -20,13 +20,13 @@ Questo progetto è stato realizzato da:
 
 ## Documentazione
 
-Tutta la documentazione del progetto risiede nella cartella `/docs`.
+Tutta la documentazione del progetto risiede nella cartella `/docs`; fare riferimento al documento [/docs/README.md](./docs/README.md) per averne una panoramica.
 
 Nella sezione *Projects* della repo è presente anche la *Kanban board* dove vengono gestiti gli issue/PR e le attività divise in *da fare* | *in corso* | *fatte*.
 
 ## Implementazione
 
-Nello specifico, il risultato sarà un'applicazione desktop GUI sviluppata in Java (*Swing*) che si appoggerà ad un database *sqlite* locale.
+Nello specifico, il risultato è un'applicazione desktop GUI sviluppata in Java (*Swing*) che si appoggia ad un database *sqlite* locale.
 
 Il progetto Eclipse con tutti i sorgenti risiede nella cartella `/proj_eclipse`.
 
