@@ -29,3 +29,4 @@ Oltre a questo, troviamo i vari file dei capitoli della documentazione:
 - [Modeling](./Modelling.md)
 - [Software Architecture](./SoftwareArchitecture.md)
 - [Software Design](./SoftwareDesign.md)
+- [Testing](./Testing.md)
