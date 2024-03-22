@@ -1,6 +1,7 @@
 # Unit testing
 
-Abbiamo definito dei *casi di test* con *JUnit 5* che vanno a testare gran parte delle funzionalità del sistema, al fine di scovare in fase di build quanti più *difetti* (*bug*) possibili tentando di scatenare *malfunzionamenti* attraverso l'invocazione delle funzionalità da testare con parametri non validi, in situazioni che non dovrebbero ammetterne l'utilizzo o semplicemente simulando scenari e sequenze di azioni verosimili al funzionamento canonico dell'applicativo.
+Abbiamo creato dei *casi di test* con *JUnit 5* per esaminare la maggior parte delle funzionalità del sistema.
+L'obiettivò è individuare il maggior numero possibile di *difetti* (*bug*) durante la fase di build. Ciò viene fatto in vari modi: invocando le funzionalità da testare con parametri non validi, utilizzandole in contesti in cui non dovrebbe essere permesso o semplicemente simulando scenari e sequenze di azioni che riflettono l'uso tipico dell'applicazione.
 
 ## Focus sui modelli
 
@@ -11,13 +12,14 @@ In particolare, abbiamo deciso di concentrare la nostra attività di testing sui
 
 ### Gestione dei record DB utilizzati dai casi di test
 
-Dovendo gran parte dei modelli lavorare su record esistenti e non avendo controllo diretto sull'ordine di esecuzione dei casi di test, che in ogni caso sarebbe di difficile gestione e inutile complessità, abbiamo deciso di procedere nel seguente modo:
+Dato che la maggior parte dei modelli opera su record esistenti e non abbiamo un controllo diretto sull'ordine di esecuzione dei test, abbiamo deciso di adottare i seguenti criteri:
+
 - ogni caso di test *NON deve fare affidamento sulla presenza di record* già salvati a DB;
 - ogni caso di test *deve creare TUTTI i record a lui necessari* per ricreare lo scenario sotto esame.
 
 In sintesi, **l'esecuzione di un caso di test non deve influenzare in alcun modo quella degli altri**.
 
-Per attuare questi principi scelti, abbiamo fatto in modo di **svuotare il database apposito, prima dell'esecuzione di ciascun caso di test, e di cancellarne il file dopo averli eseguiti tutti**. In questo modo, si ha la certezza che ogni caso di test sia indipendente dagli altri e sarà compito di ognuno di essi andare a creare (attraverso i modelli) tutti i vari record che gli servono e a fare i controlli opportuni, senza preoccuparsi dell'ordine in cui verranno eseguiti. **Questo garantisce una maggior affidabilità ed efficacia dei casi test**.
+Per implementare i principi scelti, abbiamo adottato la seguente strategia: **prima di eseguire ogni caso di test, svuotiamo il database dedicato e, una volta terminati tutti i test, ne cancelliamo il file**. Questo ci assicura che ogni caso di test sia indipendente dagli altri. Ogni test ha il compito di creare i record necessari (attraverso i modelli) e di effettuare i controlli appropriati, senza preoccuparsi dell’ordine di esecuzione. **Questo approccio aumenta l’affidabilità ed l’efficacia dei nostri test**.
 
 ## Numeri
 
