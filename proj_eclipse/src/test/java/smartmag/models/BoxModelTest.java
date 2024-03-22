@@ -6,8 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.TreeMap;
 
 import org.junit.jupiter.api.Test;
@@ -28,6 +30,9 @@ public class BoxModelTest extends BaseTest {
 	private Prodotto p5;
 	private Prodotto p6;
 
+	private ArrayList<Prodotto> prods;
+	private Ordine ordineOut;
+
 	@Override
 	protected void postSetUp() {
 		p = new Prodotto(1, "ProdottoTest", "Descrizione", 1, 5);
@@ -45,6 +50,27 @@ public class BoxModelTest extends BaseTest {
 			ProductModel.createProdotto(p6);
 
 		} catch (SQLIntegrityConstraintViolationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		prods = new ArrayList<Prodotto>();
+		prods.add(p);
+		prods.add(p2);
+		prods.add(p3);
+		HashMap<Prodotto, Integer> listaSpesa = new HashMap<>();
+		for (Prodotto prodotto : prods) {
+			listaSpesa.put(prodotto, prodotto.getId());
+		}
+		ordineOut = new Ordine(0, TipoOrdine.OUT, StatoOrdine.IN_ATTESA,
+				LocalDate.now());
+		ordineOut.setProdotti(listaSpesa);
+		try {
+			OrderModel.create(ordineOut);
+		} catch (SQLIntegrityConstraintViolationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -101,11 +127,21 @@ public class BoxModelTest extends BaseTest {
 	@Test
 	public void testMetodoCalcDisponibilitá() {
 		Box box = new Box("A-1-4", 15, p);
-		OrderModel om = OrderModel.getOrderModelOf(new Ordine(0, TipoOrdine.OUT,
-				StatoOrdine.IN_SVOLGIMENTO, LocalDate.now()));
-		assertDoesNotThrow(() -> om.inserisciProdotto(p, 10));
+		Box box2 = new Box("A-2-4", 10, p2);
+		Box box3 = new Box("A-3-4", 18, p3);
+
 		BoxModel b = BoxModel.getBoxModel(box);
-		assertEquals(5, b.calcDisponibilita());
+		BoxModel b1 = BoxModel.getBoxModel(box2);
+		BoxModel b2 = BoxModel.getBoxModel(box3);
+		BoxModel.createBox(box);
+		BoxModel.createBox(box2);
+		BoxModel.createBox(box3);
+
+		MovimenModel.generateOrderMovimsOfOrder(ordineOut.getId());
+
+		assertEquals(14, b.calcDisponibilita());
+		assertEquals(8, b1.calcDisponibilita());
+		assertEquals(15, b2.calcDisponibilita());
 	}
 
 	/**
@@ -180,6 +216,20 @@ public class BoxModelTest extends BaseTest {
 	}
 
 	/**
+	 * verifica che il metodo rifornisci generi eccezione se quantita é negativa
+	 * o uguale a zero
+	 */
+	@Test
+	public void testRifornisci2() {
+		Box box = new Box("A-1-6", 10, p);
+		BoxModel b = BoxModel.getBoxModel(box);
+		BoxModel.createBox(box);
+		assertThrows(IllegalArgumentException.class, () -> b.rifornisci(-5));
+		assertThrows(IllegalArgumentException.class, () -> b.rifornisci(0));
+
+	}
+
+	/**
 	 * verifica che il metodo preleva generi eccezione se si prova a prelevare
 	 * una quantita maggiore di quella disponibile
 	 */
@@ -189,6 +239,20 @@ public class BoxModelTest extends BaseTest {
 		BoxModel b = BoxModel.getBoxModel(box);
 		BoxModel.createBox(box);
 		assertThrows(IllegalArgumentException.class, () -> b.preleva(10));
+	}
+
+	/**
+	 * verifica che il metodo preleva generi eccezione se si prova a prelevare
+	 * una quantita minore o uguale a zero
+	 */
+	@Test
+	public void testPreleva3() {
+		Box box = new Box("A-1-2", 5, p);
+		BoxModel b = BoxModel.getBoxModel(box);
+		BoxModel.createBox(box);
+		assertThrows(IllegalArgumentException.class, () -> b.preleva(-10));
+		assertThrows(IllegalArgumentException.class, () -> b.preleva(0));
+
 	}
 
 	/**
@@ -216,6 +280,19 @@ public class BoxModelTest extends BaseTest {
 	}
 
 	/**
+	 * verifica che il metodo setQuantita generi un eccezione se si inserisce
+	 * una quantita negativa
+	 */
+	@Test
+	public void testSetQuantita2() {
+		Box box = new Box("A-1-8", 10, p);
+		BoxModel b = BoxModel.getBoxModel(box);
+		BoxModel.createBox(box);
+		assertThrows(IllegalArgumentException.class, () -> b.setQuantita(-2));
+
+	}
+
+	/**
 	 * verifica il corretto funzionamento del metodo getBoxModelByAddress
 	 */
 	@Test
@@ -228,6 +305,19 @@ public class BoxModelTest extends BaseTest {
 		BoxModel bm2 = BoxModel.getBoxModel(b2);
 		assertEquals(bm, BoxModel.getBoxModelByAddr(add));
 		assertEquals(bm2, BoxModel.getBoxModelByAddr(add2));
+	}
+
+	/**
+	 * verifica che il metodo getBoxModelByAddress generi un eccezione se
+	 * l'indirizzo passato non é del formato corretto
+	 */
+	@Test
+	public void testGetBoxModelByAddress2() {
+		String add = "A-2-2";
+		Box b = new Box(add, 12, p);
+		BoxModel bm = BoxModel.getBoxModel(b);
+		assertThrows(IllegalArgumentException.class,
+				() -> BoxModel.getBoxModelByAddr("A22"));
 	}
 
 	/**
@@ -305,13 +395,14 @@ public class BoxModelTest extends BaseTest {
 		Box box4 = new Box("A-1-4", 15, p3);
 		BoxModel bm4 = BoxModel.getBoxModel(box4);
 		BoxModel.createBox(box4);
-		Box box5 = new Box("A-1-3", 10, p2);
+		Box box5 = new Box("A-1-3", 10, p3);
 		BoxModel bm5 = BoxModel.getBoxModel(box5);
 		BoxModel.createBox(box5);
-		ArrayList<BoxModel> ls = new ArrayList<BoxModel>();
-		ls.add(bm3);
-		ls.add(bm5);
-		assertEquals(true, ls.equals(BoxModel.findBoxesWithProd(p2)));
+		ArrayList<BoxModel> ms = new ArrayList<BoxModel>();
+		ms.add(bm4);
+		ms.add(bm5);
+		ArrayList<BoxModel> ps = BoxModel.findBoxesWithProd(p3);
+		assertEquals(true, ms.containsAll(ps));
 	}
 
 	/**
@@ -374,7 +465,7 @@ public class BoxModelTest extends BaseTest {
 	}
 
 	/**
-	 * verifica che il metodo findBoxWithProduct generi un eccezione se il
+	 * verifica che il metodo findBoxesWithProduct generi un eccezione se il
 	 * prodotto non é presente nel database
 	 */
 	@Test
@@ -385,9 +476,148 @@ public class BoxModelTest extends BaseTest {
 		Box box2 = new Box("A-1-6", 10, p4);
 		BoxModel bm2 = BoxModel.getBoxModel(box2);
 		BoxModel.createBox(box2);
-		Prodotto pn2 = new Prodotto(1, "aa", "bb", 20, 10);
+		Prodotto nnn = new Prodotto(19, "aa", "bb", 20, 10);
 		assertThrows(IllegalArgumentException.class,
-				() -> BoxModel.findBoxesWithProd(pn2));
+				() -> BoxModel.findBoxesWithProd(nnn));
 	}
 
+	/**
+	 * verifica il corretto funzionamento del metodo esistenzaBoxModel
+	 */
+	@Test
+	public void testEsistenzaBoxModel() {
+		Box box1 = new Box("A-1-8", 10, p);
+		BoxModel bm1 = BoxModel.getBoxModel(box1);
+		BoxModel.createBox(box1);
+		Box box2 = new Box("A-1-6", 10, p4);
+		BoxModel bm2 = BoxModel.getBoxModel(box2);
+		BoxModel.createBox(box2);
+		assertEquals(true, BoxModel.esistenzaBoxModel("A-1-8"));
+
+	}
+
+	/**
+	 * verifica che il metodo esistenzaBoxModel generi un eccezione se viene
+	 * passata un indirizzo in un formato non corretto
+	 */
+	@Test
+	public void testEsistenzaBoxModel2() {
+		Box box1 = new Box("A-1-8", 10, p);
+		BoxModel bm1 = BoxModel.getBoxModel(box1);
+		BoxModel.createBox(box1);
+		Box box2 = new Box("A-1-6", 10, p4);
+		BoxModel bm2 = BoxModel.getBoxModel(box2);
+		BoxModel.createBox(box2);
+		assertThrows(IllegalArgumentException.class,
+				() -> BoxModel.esistenzaBoxModel("A18"));
+	}
+
+	/**
+	 * controlla corretto funzionamento metodo isBoxAtAddrFree
+	 */
+	@Test
+	public void testIsBoxAtAddrFree() {
+		Box box1 = new Box("A-1-8", 10, p);
+		BoxModel bm1 = BoxModel.getBoxModel(box1);
+		BoxModel.createBox(box1);
+		Box box2 = new Box("A-1-6", 10, p4);
+		BoxModel bm2 = BoxModel.getBoxModel(box2);
+		BoxModel.createBox(box2);
+		assertEquals(false, BoxModel.isBoxAtAddrFree("A-1-8"));
+	}
+
+	/**
+	 * controlla corretto funzionamento metodo isBoxAtAddrFree
+	 */
+	@Test
+	public void testIsBoxAtAddrFree2() {
+		Box box1 = new Box("A-1-8", 10, p);
+		BoxModel bm1 = BoxModel.getBoxModel(box1);
+		BoxModel.createBox(box1);
+		Box box2 = new Box("A-1-6", 10, p4);
+		BoxModel bm2 = BoxModel.getBoxModel(box2);
+		BoxModel.createBox(box2);
+		assertEquals(true, BoxModel.isBoxAtAddrFree("A-2-8"));
+	}
+
+	/**
+	 * controlla che isBoxAtAddrFree generi un eccezione se si inserisce un
+	 * indirizzo nel formato non corretto
+	 */
+	@Test
+	public void testIsBoxAtAddrFree3() {
+		Box box1 = new Box("A-1-8", 10, p);
+		BoxModel bm1 = BoxModel.getBoxModel(box1);
+		BoxModel.createBox(box1);
+		Box box2 = new Box("A-1-6", 10, p4);
+		BoxModel bm2 = BoxModel.getBoxModel(box2);
+		BoxModel.createBox(box2);
+		assertThrows(IllegalArgumentException.class,
+				() -> BoxModel.isBoxAtAddrFree("A28"));
+	}
+
+	/**
+	 * controlla corretto funzionamento metodo findFreeAddr
+	 */
+	@Test
+	public void testFindFreeAddr() {
+		Box box1 = new Box("A-0-0", 10, p);
+		BoxModel bm1 = BoxModel.getBoxModel(box1);
+		BoxModel.createBox(box1);
+		assertEquals("B-0-0", BoxModel.findFreeAddr());
+	}
+
+	/**
+	 * controlla corretto funzionamento metodo findFreeAddr
+	 */
+	@Test
+	public void testFindFreeAddr2() {
+		Box box1 = new Box("A-0-0", 10, p);
+		BoxModel bm1 = BoxModel.getBoxModel(box1);
+		BoxModel.createBox(box1);
+		Box box2 = new Box("B-0-0", 10, p4);
+		BoxModel bm2 = BoxModel.getBoxModel(box2);
+		BoxModel.createBox(box2);
+		assertEquals("C-0-0", BoxModel.findFreeAddr());
+	}
+
+	/**
+	 * verifica il corretto funzionamento del metodo assignRandomBoToProd
+	 * andando a controllare che venga generata un eecezione se si prova a
+	 * creare il box corretto nel db perché giá creato dal metodo
+	 */
+	@Test
+	public void testAssignRandomBoxToProd() {
+		Box box1 = new Box("A-0-0", 10, p);
+		BoxModel bm1 = BoxModel.getBoxModel(box1);
+		BoxModel.createBox(box1);
+		Box box2 = new Box("B-0-0", 10, p4);
+		BoxModel bm2 = BoxModel.getBoxModel(box2);
+		BoxModel.createBox(box2);
+		BoxModel.assignRandomBoxToProd(p2);
+		Box bp = new Box("C-0-0", 0, p2);
+		assertThrows(IllegalArgumentException.class,
+				() -> BoxModel.createBox(bp));
+	}
+
+	/**
+	 * verifica che il metodo assignRandomBoToProd generi eccezioni se il
+	 * pordotto=null o non é valido
+	 * 
+	 */
+	@Test
+	public void testAssignRandomBoxToProd2() {
+		Box box1 = new Box("A-0-0", 10, p);
+		BoxModel bm1 = BoxModel.getBoxModel(box1);
+		BoxModel.createBox(box1);
+		Box box2 = new Box("B-0-0", 10, p4);
+		BoxModel bm2 = BoxModel.getBoxModel(box2);
+		BoxModel.createBox(box2);
+		Prodotto pn = null;
+		assertThrows(IllegalArgumentException.class,
+				() -> BoxModel.assignRandomBoxToProd(pn));
+		Prodotto pn2 = new Prodotto(15, "ss", "dd", 30, 40);
+		assertThrows(IllegalArgumentException.class,
+				() -> BoxModel.assignRandomBoxToProd(pn2));
+	}
 }

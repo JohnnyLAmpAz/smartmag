@@ -132,7 +132,7 @@ public class ProductModel extends BaseModel {
 	}
 
 	/**
-	 * permette di ottenre il record del modello
+	 * permette di ottenere il record del modello
 	 * 
 	 */
 	protected ProdottoRecord getRecord() {
