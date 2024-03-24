@@ -41,4 +41,8 @@ Seguire i seguenti passi per importare il progetto nell'IDE Eclipse:
 3. Selezionare la cartella `/proj_eclipse` che si trova **dentro** quella della repo e importare
 4. **IMPORTANTE: Tasto destro sul progetto > *Maven* > *Aggiorna progetto***
 
-Si consiglia poi l'utilizzo della *JDK 21*, la stessa utilizzata durante lo sviluppo e dalla GitHub Action *Java CI with Maven*.
+Una volta importato il progetto, per avviare l'applicazione bisogna eseguire il `main()` dell'entry point _MainWindow_ che si trova in `proj_eclipse\src\main\java\smartmag\ui\MainWindow.java`.
+
+Al primo avvio, in assenza del file del database, l'app crea un nuovo database con solo un record di un utente _Manager_ di matricola `admin` e password `admin`. Tramite il suo login è possibile aggiungere nuovi utenti, nuovi prodotti e di conseguenza utilizzare ogni funzionalità dell'app.
+
+Si consiglia inoltre l'utilizzo della *JDK 21*, la stessa utilizzata durante lo sviluppo e dalla GitHub Action *Java CI with Maven*.
