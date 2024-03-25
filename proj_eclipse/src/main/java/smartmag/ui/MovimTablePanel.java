@@ -14,7 +14,7 @@ import javax.swing.table.TableRowSorter;
 
 import smartmag.data.StatoMovim;
 import smartmag.models.MovimenModel;
-import smartmag.models.ui.MovimenTableModel;
+import smartmag.ui.table_models.MovimenTableModel;
 
 /**
  * JPanel con tabella di tutte le Movimentazioni all'interno di uno ScrollPane

@@ -27,7 +27,7 @@ import smartmag.data.TipoUtente;
 import smartmag.data.Utente;
 import smartmag.db.Db;
 import smartmag.models.OrderModel;
-import smartmag.models.ui.OrderTableModel;
+import smartmag.ui.table_models.OrderTableModel;
 import smartmag.ui.utils.BasicWindow;
 
 /**

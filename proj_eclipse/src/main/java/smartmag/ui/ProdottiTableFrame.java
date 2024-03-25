@@ -21,7 +21,7 @@ import org.jooq.exception.IntegrityConstraintViolationException;
 
 import smartmag.data.Prodotto;
 import smartmag.models.ProductModel;
-import smartmag.models.ui.ProductTableModel;
+import smartmag.ui.table_models.ProductTableModel;
 import smartmag.ui.utils.BasicWindow;
 
 public class ProdottiTableFrame extends BasicWindow {

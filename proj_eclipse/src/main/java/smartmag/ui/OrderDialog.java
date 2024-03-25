@@ -32,7 +32,7 @@ import smartmag.data.StatoOrdine;
 import smartmag.data.TipoOrdine;
 import smartmag.models.OrderModel;
 import smartmag.models.ProductModel;
-import smartmag.models.ui.ProductOrderTableModel;
+import smartmag.ui.table_models.ProductOrderTableModel;
 
 public class OrderDialog extends JDialog {
 

@@ -1,4 +1,4 @@
-package smartmag.models.ui;
+package smartmag.ui.table_models;
 
 import java.util.TreeMap;
 

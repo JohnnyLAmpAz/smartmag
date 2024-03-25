@@ -20,7 +20,7 @@ import javax.swing.border.EmptyBorder;
 import smartmag.data.StatoOrdine;
 import smartmag.data.TipoOrdine;
 import smartmag.models.OrderModel;
-import smartmag.models.ui.OrderTableModel;
+import smartmag.ui.table_models.OrderTableModel;
 
 public class TabellaOrdini extends JFrame {
 

@@ -7,7 +7,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import smartmag.models.UtenteModel;
-import smartmag.models.ui.UsersTableModel;
+import smartmag.ui.table_models.UsersTableModel;
 
 /**
  * JPanel con tabella di tutti gli Utenti all'interno di uno ScrollPane
