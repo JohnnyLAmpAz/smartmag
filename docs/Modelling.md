@@ -5,6 +5,7 @@ Per lo sviluppo del progetto una fase importante è stata quella della modellazi
 - Class Diagram
 - Activity Diagram
 - State Diagram
+- Sequence Diagram
 
 ### Use Case Diagram
 ![Model1!UseCaseDiagram_0](https://github.com/JohnnyLAmpAz/smartmag/assets/127232421/40117929-5dcb-4867-8fde-250b93e77888)
